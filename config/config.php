@@ -4,12 +4,20 @@
  * Contains all system configuration, database connection settings and constants
  */
 
-// Carregar configurações do banco de dados
-require_once __DIR__ . '/database_config.php';
+// Determinar ambiente
+$isLocalhost = in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1']) || 
+               strpos($_SERVER['HTTP_HOST'], 'localhost:') === 0;
+
+// Carregar configurações do banco de dados baseado no ambiente
+if ($isLocalhost) {
+    require_once __DIR__ . '/database_config.local.php';
+} else {
+    require_once __DIR__ . '/database_config.php';
+}
 
 // Application Configuration
 define('APP_NAME', 'Bolão Football');
-define('APP_URL', 'http://localhost/bolao3');
+define('APP_URL', $isLocalhost ? 'http://localhost/bolao3' : 'https://bolao.traffego.agency');
 define('APP_VERSION', '1.0.0');
 
 // Directory Configuration

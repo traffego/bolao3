@@ -10157,3 +10157,284 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:24:06 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:24:06 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:24:06 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:24:06 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:24:11 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:24:11 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:24:11 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:24:11 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:24:16 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:24:16 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:24:16 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:24:16 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:24:21 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:24:21 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:24:21 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:24:21 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:24:26 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:24:26 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:24:26 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:24:26 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:24:31 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:24:31 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:24:31 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:24:31 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:24:36 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:24:36 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:24:36 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:24:36 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:24:41 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:24:41 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:24:41 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:24:41 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:24:46 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:24:46 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:24:46 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:24:46 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:24:51 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:24:51 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:24:51 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:24:51 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:24:56 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:24:56 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:24:56 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:24:56 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:01 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:01 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:01 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:01 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:06 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:06 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:06 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:06 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:12 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:12 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:12 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:12 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:16 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:16 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:16 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:16 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:17 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES) in C:\xampp\htdocs\bolao3\includes\database.php:15
+Stack trace:
+#0 C:\xampp\htdocs\bolao3\includes\database.php(15): mysqli->__construct('localhost', 'platafo5_bolao3', Object(SensitiveParameterValue), 'platafo5_bolao3')
+#1 C:\xampp\htdocs\bolao3\includes\database.php(36): dbConnect()
+#2 C:\xampp\htdocs\bolao3\includes\database.php(84): dbQuery('SELECT * FROM d...', Array, '')
+#3 C:\xampp\htdocs\bolao3\boloes.php(25): dbFetchAll('SELECT * FROM d...', Array)
+#4 {main}
+  thrown in C:\xampp\htdocs\bolao3\includes\database.php on line 15
+[31-May-2025 15:25:21 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:21 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:21 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:21 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:27 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:27 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:27 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:27 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:31 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:31 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:31 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:31 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:36 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:36 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:36 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:36 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:41 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:41 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:41 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:41 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:46 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:46 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:46 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:46 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:51 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:51 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:51 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:51 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:25:56 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:25:56 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:25:56 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:25:56 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:26:01 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:26:01 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:26:01 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:26:01 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:26:06 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:26:06 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:26:06 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:26:06 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:26:11 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:26:11 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:26:11 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:26:11 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:26:16 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:26:16 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:26:16 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:26:16 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:26:21 America/Sao_Paulo] Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'platafo5_bolao3'@'localhost' (using password: YES)
+[31-May-2025 15:26:21 America/Sao_Paulo] Erro na verificação de pagamento: Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.
+[31-May-2025 15:26:21 America/Sao_Paulo] Stack trace: #0 C:\xampp\htdocs\bolao3\config\database.php(34): getPDO()
+#1 C:\xampp\htdocs\bolao3\ajax\check-payment.php(55): require_once('C:\\xampp\\htdocs...')
+#2 {main}
+[31-May-2025 15:26:21 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:26:50 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:26:50 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:26:50 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:26:50 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:26:51 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:26:51 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:26:51 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:26:51 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:26:56 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:26:56 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:26:56 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:26:56 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
