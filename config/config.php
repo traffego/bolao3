@@ -4,11 +4,8 @@
  * Contains all system configuration, database connection settings and constants
  */
 
-// Database Configuration
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'bolao_football');
+// Carregar configurações do banco de dados
+require_once __DIR__ . '/database_config.php';
 
 // Application Configuration
 define('APP_NAME', 'Bolão Football');
