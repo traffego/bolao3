@@ -8,6 +8,9 @@
 $isLocalhost = in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1']) || 
                strpos($_SERVER['HTTP_HOST'], 'localhost:') === 0;
 
+// Definir modo de debug baseado no ambiente
+define('DEBUG_MODE', $isLocalhost);
+
 // Carregar configurações do banco de dados baseado no ambiente
 if ($isLocalhost) {
     require_once __DIR__ . '/database_config.local.php';

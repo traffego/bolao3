@@ -10438,3 +10438,503 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:27:01 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:27:01 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:27:01 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:27:01 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:27:06 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:27:06 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:27:06 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:27:06 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:27:11 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:27:11 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:27:11 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:27:11 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:27:16 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:27:16 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:27:16 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:27:16 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:27:21 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:27:21 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:27:21 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:27:21 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:27:26 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:27:26 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:27:26 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:27:26 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:27:31 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:27:31 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:27:31 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:27:31 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:27:36 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:27:36 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:27:36 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:27:36 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:27:41 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:27:41 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:27:41 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:27:41 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:27:46 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:27:46 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:27:46 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:27:46 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:27:51 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:27:51 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:27:51 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:27:51 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:28:50 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:28:50 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:28:50 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:28:50 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:29:50 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:29:50 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:29:50 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:29:50 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:00 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:00 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:00 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:00 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:01 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:01 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:01 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:01 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:06 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:06 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:06 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:06 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:12 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:12 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:12 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:12 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:16 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:16 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:16 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:16 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:21 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:21 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:21 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:21 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:26 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:26 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:26 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:26 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:31 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:31 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:31 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:31 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:35 America/Sao_Paulo] Database Error (dbUpdate): SQLSTATE[42S22]: Column not found: 1054 Unknown column 'ultimo_login' in 'field list'
+[31-May-2025 15:30:35 America/Sao_Paulo] 
+=== Iniciando autenticação EFIBANK ===
+[31-May-2025 15:30:35 America/Sao_Paulo] API URL: https://pix.api.efipay.com.br
+[31-May-2025 15:30:35 America/Sao_Paulo] Client ID: Configurado
+[31-May-2025 15:30:35 America/Sao_Paulo] Client Secret: Configurado
+[31-May-2025 15:30:35 America/Sao_Paulo] Certificado Path: C:\xampp\htdocs\bolao3\config/certificates/certificate.p12
+[31-May-2025 15:30:35 America/Sao_Paulo] Certificado existe: Sim
+[31-May-2025 15:30:35 America/Sao_Paulo] String de autenticação gerada (base64)
+[31-May-2025 15:30:35 America/Sao_Paulo] Configurando opções do CURL para autenticação
+[31-May-2025 15:30:35 America/Sao_Paulo] Opções CURL: Array
+(
+    [10002] => https://pix.api.efipay.com.br/oauth/token
+    [19913] => 1
+    [10102] => 
+    [68] => 10
+    [13] => 30
+    [84] => 2
+    [10036] => POST
+    [10015] => {"grant_type":"client_credentials"}
+    [10023] => Array
+        (
+            [0] => Content-Type: application/json
+            [1] => Authorization: Basic Q2xpZW50X0lkXzNlOWNlN2I3ZjU2OWQwYTRhYThmOWVjOGIxNzJjM2VkN2RkOWQ5NDg6Q2xpZW50X1NlY3JldF8zMWU4ZjMzZWRiYTc0Mjg2MDAyZjRjOTFhMmRmNjg5NmYyNzY0ZmQx
+        )
+
+    [10025] => C:\xampp\htdocs\bolao3\config/certificates/certificate.p12
+    [10086] => P12
+    [64] => 1
+    [41] => 1
+)
+
+[31-May-2025 15:30:35 America/Sao_Paulo] Executando requisição de autenticação...
+[31-May-2025 15:30:36 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:36 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:36 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:36 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:37 America/Sao_Paulo] HTTP Code: 200
+[31-May-2025 15:30:37 America/Sao_Paulo] Resposta: {"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWNjZXNzX3Rva2VuIiwiY2xpZW50SWQiOiJDbGllbnRfSWRfM2U5Y2U3YjdmNTY5ZDBhNGFhOGY5ZWM4YjE3MmMzZWQ3ZGQ5ZDk0OCIsImFjY291bnQiOjMxMzAzNiwiYWNjb3VudF9jb2RlIjoiNzU2ZjFmZGE2NTZlZmQxOGNhZjMwNGQ5NzI0ODBlYjUiLCJzY29wZXMiOlsiY29iLnJlYWQiLCJjb2Iud3JpdGUiLCJjb2J2LnJlYWQiLCJjb2J2LndyaXRlIiwiZ24uYmFsYW5jZS5yZWFkIiwiZ24uaW5mcmFjdGlvbnMucmVhZCIsImduLmluZnJhY3Rpb25zLndyaXRlIiwiZ24ucGl4LmV2cC5yZWFkIiwiZ24ucGl4LmV2cC53cml0ZSIsImduLnBpeC5zZW5kLnJlYWQiLCJnbi5xcmNvZGVzLnBheSIsImduLnJlY2VpcHRzLnJlYWQiLCJnbi5yZXBvcnRzLnJlYWQiLCJnbi5yZXBvcnRzLndyaXRlIiwiZ24uc2V0dGluZ3MucmVhZCIsImduLnNldHRpbmdzLndyaXRlIiwiZ24uc3BsaXQucmVhZCIsImduLnNwbGl0LndyaXRlIiwibG90ZWNvYnYucmVhZCIsImxvdGVjb2J2LndyaXRlIiwicGF5bG9hZGxvY2F0aW9uLnJlYWQiLCJwYXlsb2FkbG9jYXRpb24ud3JpdGUiLCJwaXgucmVhZCIsInBpeC5zZW5kIiwicGl4LndyaXRlIiwid2ViaG9vay5yZWFkIiwid2ViaG9vay53cml0ZSJdLCJleHBpcmVzSW4iOjM2MDAsImNvbmZpZ3VyYXRpb24iOnsieDV0I1MyNTYiOiJMMjErUUpZR29wcy9mdlNFSFNsWUFQLytDdVp0QWRVZHRPUUpiRHd1eVo0PSJ9LCJpYXQiOjE3NDg3MTYyMzcsImV4cCI6MTc0ODcxOTgzN30.olhicEckMr9LykFLuoW1Z6qvCKDln1DaoHOPW19xLNw","token_type":"Bearer","expires_in":3600,"scope":"cob.read cob.write cobv.read cobv.write gn.balance.read gn.infractions.read gn.infractions.write gn.pix.evp.read gn.pix.evp.write gn.pix.send.read gn.qrcodes.pay gn.receipts.read gn.reports.read gn.reports.write gn.settings.read gn.settings.write gn.split.read gn.split.write lotecobv.read lotecobv.write payloadlocation.read payloadlocation.write pix.read pix.send pix.write webhook.read webhook.write"}
+[31-May-2025 15:30:37 America/Sao_Paulo] CURL Verbose Log: *   Trying 52.3.67.197:443...
+* Connected to pix.api.efipay.com.br (52.3.67.197) port 443
+* ALPN: curl offers http/1.1
+*  CAfile: C:\xampp\apache\bin\curl-ca-bundle.crt
+*  CApath: none
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+* ALPN: server accepted http/1.1
+* Server certificate:
+*  subject: C=BR; ST=MINAS GERAIS; L=OURO PRETO; O=EFI S.A. - INSTITUICAO DE PAGAMENTO; CN=*.api.efipay.com.br
+*  start date: May 14 13:46:06 2024 GMT
+*  expire date: Jun 15 13:46:05 2025 GMT
+*  subjectAltName: host "pix.api.efipay.com.br" matched cert's "*.api.efipay.com.br"
+*  issuer: C=BE; O=GlobalSign nv-sa; CN=GlobalSign RSA OV SSL CA 2018
+*  SSL certificate verify ok.
+* using HTTP/1.1
+> POST /oauth/token HTTP/1.1
+Host: pix.api.efipay.com.br
+Accept: */*
+Accept-Encoding: deflate, gzip
+Content-Type: application/json
+Authorization: Basic Q2xpZW50X0lkXzNlOWNlN2I3ZjU2OWQwYTRhYThmOWVjOGIxNzJjM2VkN2RkOWQ5NDg6Q2xpZW50X1NlY3JldF8zMWU4ZjMzZWRiYTc0Mjg2MDAyZjRjOTFhMmRmNjg5NmYyNzY0ZmQx
+Content-Length: 35
+
+* old SSL session ID is stale, removing
+< HTTP/1.1 200 OK
+< Server: nginx
+< Date: Sat, 31 May 2025 18:30:37 GMT
+< Content-Type: application/json; charset=utf-8
+< Transfer-Encoding: chunked
+< Connection: keep-alive
+< x-request-id: 6df8d5af-bd07-4112-b394-9617e66ac8a4
+< vary: Origin
+< access-control-allow-credentials: true
+< cache-control: no-store
+< etag: W/"610-JOC36N67zJfTd7/lGC6tC8LZKcU"
+< pragma: no-cache
+< Content-Encoding: gzip
+< 
+* Connection #0 to host pix.api.efipay.com.br left intact
+
+[31-May-2025 15:30:37 America/Sao_Paulo] Autenticação concluída com sucesso - Token recebido
+[31-May-2025 15:30:37 America/Sao_Paulo] === Fim da autenticação ===
+
+[31-May-2025 15:30:39 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:39 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:39 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:39 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:41 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:41 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:41 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:41 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:44 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:44 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:44 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:44 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:46 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:46 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:46 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:46 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:49 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:49 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:49 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:49 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:51 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:51 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:51 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:51 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:54 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:54 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:54 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:54 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:56 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:56 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:56 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:56 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:30:59 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:30:59 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:30:59 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:30:59 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:01 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:01 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:01 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:01 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:04 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:04 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:04 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:04 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:09 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:09 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:09 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:09 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:14 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:14 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:14 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:14 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:19 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:19 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:19 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:19 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:24 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:24 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:24 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:24 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:29 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:29 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:29 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:29 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:34 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:34 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:34 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:34 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:39 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:39 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:39 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:39 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:44 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:44 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:44 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:44 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:49 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:49 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:49 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:49 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:49 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:49 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:49 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:49 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:52 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:52 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:52 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:52 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:54 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:54 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:54 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:54 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:56 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:56 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:56 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:56 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:31:59 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:31:59 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:31:59 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:31:59 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:32:01 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:01 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:01 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:01 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:32:04 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:04 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:04 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:04 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:32:06 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:06 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:06 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:06 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Undefined constant "DEBUG_MODE" in C:\xampp\htdocs\bolao3\ajax\check-payment.php:137
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\bolao3\ajax\check-payment.php on line 137
+[31-May-2025 15:32:09 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:09 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:09 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:12 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:12 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:12 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:14 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:14 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:14 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:16 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:16 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:16 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:19 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:19 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:19 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:21 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:21 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:21 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:24 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:24 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:24 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:26 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:26 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:26 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:29 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:29 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:29 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:31 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:31 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:31 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:34 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:34 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:34 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:36 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:36 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:36 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:39 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:39 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:39 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:41 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:41 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:41 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:44 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:44 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:44 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:46 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:46 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:46 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:32:49 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:32:49 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:32:49 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:33:50 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:33:50 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:33:50 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:33:50 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:33:50 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:33:50 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:33:55 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:33:55 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:33:55 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:33:55 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:33:55 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:33:55 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:33:56 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:33:56 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:33:56 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:33:59 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:33:59 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:33:59 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:01 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:01 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:01 America/Sao_Paulo] Stack trace: #0 {main}

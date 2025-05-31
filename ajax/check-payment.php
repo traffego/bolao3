@@ -4,6 +4,11 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
+// Verificar se DEBUG_MODE está definido
+if (!defined('DEBUG_MODE')) {
+    define('DEBUG_MODE', false);
+}
+
 // Log do ambiente
 error_log("Ambiente: " . php_uname());
 error_log("PHP Version: " . phpversion());
@@ -134,7 +139,7 @@ try {
     http_response_code(500);
     echo json_encode([
         'error' => $e->getMessage(),
-        'trace' => DEBUG_MODE ? $e->getTraceAsString() : null
+        'trace' => defined('DEBUG_MODE') && DEBUG_MODE ? $e->getTraceAsString() : null
     ]);
 }
 
