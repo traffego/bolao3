@@ -1,3 +1,6 @@
+# Forçar PHP 7.4 (ou a versão que você está usando)
+AddHandler application/x-httpd-php74 .php
+
 # Habilitar o motor de reescrita
 RewriteEngine On
 
@@ -13,22 +16,40 @@ RewriteBase /
     Header set Access-Control-Allow-Origin "*"
     Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
     Header set Access-Control-Allow-Headers "Content-Type"
+    Header set Access-Control-Allow-Credentials "true"
 </IfModule>
 
 # Configurações de PHP
 <IfModule mod_php.c>
+    # Configurações básicas
     php_value upload_max_filesize 10M
     php_value post_max_size 10M
     php_value max_execution_time 300
     php_value max_input_time 300
     php_value memory_limit 256M
-    php_flag display_errors off
+    
+    # Configurações de erro
+    php_flag display_errors on
+    php_flag display_startup_errors on
+    php_value error_reporting E_ALL
     php_flag log_errors on
     php_value error_log "logs/php_errors.log"
+    
+    # Configurações de sessão
+    php_value session.gc_maxlifetime 3600
+    php_value session.cookie_lifetime 3600
+    php_flag session.use_strict_mode on
+    
+    # Configurações de buffer
+    php_value output_buffering 4096
+    php_value default_socket_timeout 60
+    
+    # Configurações de timezone
+    php_value date.timezone "America/Sao_Paulo"
 </IfModule>
 
 # Proteção contra listagem de diretórios
-Options -Indexes
+Options -Indexes +FollowSymLinks
 
 # Proteção de arquivos sensíveis
 <FilesMatch "^\.">
@@ -73,11 +94,11 @@ Options -Indexes
 </IfModule>
 
 # Páginas de erro personalizadas
-ErrorDocument 400 /bolao3/error.php?code=400
-ErrorDocument 401 /bolao3/error.php?code=401
-ErrorDocument 403 /bolao3/error.php?code=403
-ErrorDocument 404 /bolao3/error.php?code=404
-ErrorDocument 500 /bolao3/error.php?code=500
+ErrorDocument 400 /error.php?code=400
+ErrorDocument 401 /error.php?code=401
+ErrorDocument 403 /error.php?code=403
+ErrorDocument 404 /error.php?code=404
+ErrorDocument 500 /error.php?code=500
 
 # Permitir métodos HTTP necessários
 <Limit GET POST OPTIONS>
@@ -98,7 +119,14 @@ ErrorDocument 500 /bolao3/error.php?code=500
     Require all granted
 </FilesMatch>
 
-# Redirecionar erros 404 para a página inicial
-# RewriteCond %{REQUEST_FILENAME} !-f
-# RewriteCond %{REQUEST_FILENAME} !-d
-# RewriteRule ^(.*)$ /bolao3/index.php [L] 
+# Regras de reescrita para URLs amigáveis
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Forçar codificação UTF-8
+AddDefaultCharset UTF-8
+AddCharset UTF-8 .html .css .js .xml .json .rss
+
+# Desabilitar assinaturas do servidor
+ServerSignature Off 
