@@ -47,10 +47,10 @@ define('ITEMS_PER_PAGE', 10);
 // Initialize settings
 date_default_timezone_set(DEFAULT_TIMEZONE);
 
-// Configuração de erros - desabilitado por padrão
-error_reporting(0);
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
+// Configuração de erros - ativado para debug
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 
 // Log de erros - habilitado
 ini_set('log_errors', 1);
