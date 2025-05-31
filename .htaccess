@@ -2,7 +2,7 @@
 RewriteEngine On
 
 # Definir base do diretório
-RewriteBase /bolao3/
+RewriteBase /
 
 # Forçar HTTPS (comentado para ambiente local)
 # RewriteCond %{HTTPS} off
