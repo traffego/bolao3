@@ -1,0 +1,2 @@
+# Prevenir acesso direto aos arquivos de log
+deny from all 

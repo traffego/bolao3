@@ -1,0 +1,4 @@
+[2025-05-30 21:29:00] Verificando pagamento | Context: {"user_id":1,"bolao_id":7,"txid":"BOL0010071748651335b65db0729739b08d"}
+[2025-05-30 21:29:01] Resposta da API | Context: {"status":"ATIVA","txid":"BOL0010071748651335b65db0729739b08d"}
+[2025-05-30 21:29:01] Verificando pagamento | Context: {"user_id":1,"bolao_id":7,"txid":"BOL0010071748651335b65db0729739b08d"}
+[2025-05-30 21:29:03] Resposta da API | Context: {"status":"ATIVA","txid":"BOL0010071748651335b65db0729739b08d"}

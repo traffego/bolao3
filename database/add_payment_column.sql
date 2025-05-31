@@ -1,0 +1,1 @@
+ALTER TABLE jogador ADD COLUMN pagamento_confirmado BOOLEAN DEFAULT FALSE; 

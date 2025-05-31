@@ -1,0 +1,224 @@
+/**
+ * Custom styles for Bolão Football
+ */
+
+/* General Styles */
+body {
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+/* Navbar customization */
+.navbar-brand i {
+    margin-right: 5px;
+}
+
+/* Card enhancements */
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s ease-in-out;
+}
+
+.card-header {
+    border-top-left-radius: 0.5rem !important;
+    border-top-right-radius: 0.5rem !important;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Form styling */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Palpites styling */
+.palpite-form {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.palpite-input {
+    width: 60px;
+    text-align: center;
+    display: inline-block;
+}
+
+.team-logo {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+/* Scoreboard styling */
+.score-display {
+    font-size: 1.25rem;
+    font-weight: bold;
+    background-color: #f8f9fa;
+    padding: 5px 15px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+/* Match results */
+.match-result {
+    border-left: 4px solid #0d6efd;
+    padding-left: 15px;
+    margin-bottom: 15px;
+}
+
+.match-result.win {
+    border-left-color: #198754;
+}
+
+.match-result.loss {
+    border-left-color: #dc3545;
+}
+
+.match-result.draw {
+    border-left-color: #ffc107;
+}
+
+/* Rankings table */
+.ranking-table th {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.ranking-position-1 {
+    background-color: #ffd700 !important; /* Gold */
+}
+
+.ranking-position-2 {
+    background-color: #c0c0c0 !important; /* Silver */
+}
+
+.ranking-position-3 {
+    background-color: #cd7f32 !important; /* Bronze */
+    color: white;
+}
+
+/* Dashboard widgets */
+.dashboard-widget {
+    border-radius: 0.5rem;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.dashboard-widget h3 {
+    margin-top: 0;
+    border-bottom: 2px solid #f8f9fa;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Footer customization */
+footer a {
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 767.98px) {
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Bolão styles */
+.btn-check:checked + .btn-outline-primary {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+/* Card hover effect */
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Alert styles */
+.alert {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    color: #0c5460;
+}
+
+/* Button group styles */
+.btn-group {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-outline-primary {
+    border-width: 2px;
+}
+
+/* Grid gap */
+.gap-2 {
+    gap: 0.5rem !important;
+}
+
+/* Money values */
+.money-value {
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* Badge styles */
+.badge {
+    padding: 0.5em 0.8em;
+    font-weight: 500;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* Text muted */
+.text-muted {
+    color: #6c757d !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .team-logo {
+        width: 48px;
+        height: 48px;
+    }
+    
+    h5 {
+        font-size: 1rem;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        border-radius: 4px !important;
+        margin-bottom: 0.25rem;
+    }
+} 
