@@ -433,33 +433,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Salvar configurações do Pix
-            $stmt = $pdo->prepare("
-                INSERT INTO configuracoes 
-                    (nome_configuracao, valor, categoria, descricao) 
-                VALUES 
-                    ('efi_pix_config', ?, 'pagamentos', 'Configurações da API Pix da Efí')
-                ON DUPLICATE KEY UPDATE 
-                    valor = ?
-            ");
+            try {
+                // Debug - Registrar os dados antes da inserção
+                error_log("Tentando salvar configurações PIX: " . print_r($pixConfig, true));
+                
+                $stmt = $pdo->prepare("
+                    INSERT INTO configuracoes 
+                        (nome_configuracao, valor, categoria, descricao) 
+                    VALUES 
+                        ('efi_pix_config', :valor, 'pagamentos', 'Configurações da API Pix da Efí')
+                    ON DUPLICATE KEY UPDATE 
+                        valor = :valor
+                ");
 
-            $pixConfigJson = json_encode($pixConfig);
-            if ($pixConfigJson === false) {
-                throw new Exception('Erro ao codificar as configurações do Pix');
+                $pixConfigJson = json_encode($pixConfig);
+                if ($pixConfigJson === false) {
+                    throw new Exception('Erro ao codificar as configurações do Pix: ' . json_last_error_msg());
+                }
+
+                $stmt->bindParam(':valor', $pixConfigJson);
+                $result = $stmt->execute();
+                
+                if (!$result) {
+                    throw new Exception('Falha ao executar a query de atualização');
+                }
+                
+                // Debug - Registrar o resultado da operação
+                error_log("Configurações PIX salvas com sucesso. Rows afetadas: " . $stmt->rowCount());
+
+                // Registrar log da alteração
+                $logStmt = $pdo->prepare("
+                    INSERT INTO logs 
+                        (tipo, descricao, usuario_id, data_hora, ip_address) 
+                    VALUES 
+                        ('configuracao', 'Alteração nas configurações do Pix', :user_id, NOW(), :ip)
+                ");
+                
+                $logStmt->execute([
+                    ':user_id' => $_SESSION['admin_id'],
+                    ':ip' => $_SERVER['REMOTE_ADDR']
+                ]);
+
+                // Verificar se a configuração foi realmente salva
+                $checkStmt = $pdo->prepare("
+                    SELECT valor 
+                    FROM configuracoes 
+                    WHERE nome_configuracao = 'efi_pix_config' 
+                    AND categoria = 'pagamentos'
+                ");
+                $checkStmt->execute();
+                $savedConfig = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$savedConfig) {
+                    throw new Exception('Configuração não encontrada após salvamento');
+                }
+
+                setFlashMessage('success', 'Configurações do Pix atualizadas com sucesso!');
+                redirect(APP_URL . '/admin/configuracoes.php?categoria=pagamentos');
+                
+            } catch (PDOException $e) {
+                error_log("Erro PDO ao salvar configurações: " . $e->getMessage());
+                throw new Exception('Erro ao salvar no banco de dados: ' . $e->getMessage());
             }
-
-            $stmt->execute([$pixConfigJson, $pixConfigJson]);
-
-            // Registrar log da alteração
-            $logStmt = $pdo->prepare("
-                INSERT INTO logs 
-                    (tipo, descricao, usuario_id, data_hora) 
-                VALUES 
-                    ('configuracao', 'Alteração nas configurações do Pix', ?, NOW())
-            ");
-            $logStmt->execute([$_SESSION['admin_id']]);
-
-            setFlashMessage('success', 'Configurações do Pix atualizadas com sucesso!');
-            redirect(APP_URL . '/admin/configuracoes.php?categoria=pagamentos');
         } elseif ($currentCategory === 'api_football') {
             // Processar configurações da API Football
             if (isset($_POST['config']['api_football'])) {

@@ -1,4 +1,15 @@
 <?php
+// Configurar cookie SameSite
+$params = session_get_cookie_params();
+session_set_cookie_params([
+    'lifetime' => $params['lifetime'],
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => isset($_SERVER['HTTPS']),
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+
 // Iniciar sessão antes de qualquer saída
 session_start();
 
@@ -20,20 +31,20 @@ header('Access-Control-Max-Age: 86400');    // cache por 1 dia
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
 
-// Configurar cookie SameSite
-$params = session_get_cookie_params();
-session_set_cookie_params([
-    'lifetime' => $params['lifetime'],
-    'path' => '/',
-    'domain' => $_SERVER['HTTP_HOST'],
-    'secure' => isset($_SERVER['HTTPS']),
-    'httponly' => true,
-    'samesite' => 'Lax'
-]);
-
 // Responder imediatamente para requisições OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
+    exit;
+}
+
+// Verificar se a sessão está ativa
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    http_response_code(401);
+    echo json_encode([
+        'error' => 'Sessão não está ativa',
+        'session_status' => session_status(),
+        'session_id' => session_id()
+    ]);
     exit;
 }
 

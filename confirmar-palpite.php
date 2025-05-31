@@ -535,7 +535,7 @@ function checkPaymentStatus() {
             'Expires': '0',
             'X-Requested-With': 'XMLHttpRequest'
         },
-        credentials: 'same-origin',
+        credentials: 'include',
         body: JSON.stringify({
             bolao_id: <?= $bolao['id'] ?>,
             user_id: <?= getCurrentUserId() ?>,
