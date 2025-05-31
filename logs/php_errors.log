@@ -10938,3 +10938,351 @@ Stack trace:
 [31-May-2025 15:34:01 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
 [31-May-2025 15:34:01 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
 [31-May-2025 15:34:01 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:04 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:04 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:04 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:06 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:06 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:06 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:09 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:09 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:09 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:11 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:11 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:11 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:14 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:14 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:14 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:16 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:16 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:16 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:19 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:19 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:19 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:21 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:21 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:21 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:24 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:24 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:24 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:24 America/Sao_Paulo] 
+=== Iniciando autenticação EFIBANK ===
+[31-May-2025 15:34:24 America/Sao_Paulo] API URL: https://pix.api.efipay.com.br
+[31-May-2025 15:34:24 America/Sao_Paulo] Client ID: Configurado
+[31-May-2025 15:34:24 America/Sao_Paulo] Client Secret: Configurado
+[31-May-2025 15:34:24 America/Sao_Paulo] Certificado Path: C:\xampp\htdocs\bolao3\config/certificates/certificate.p12
+[31-May-2025 15:34:24 America/Sao_Paulo] Certificado existe: Sim
+[31-May-2025 15:34:24 America/Sao_Paulo] String de autenticação gerada (base64)
+[31-May-2025 15:34:24 America/Sao_Paulo] Configurando opções do CURL para autenticação
+[31-May-2025 15:34:24 America/Sao_Paulo] Opções CURL: Array
+(
+    [10002] => https://pix.api.efipay.com.br/oauth/token
+    [19913] => 1
+    [10102] => 
+    [68] => 10
+    [13] => 30
+    [84] => 2
+    [10036] => POST
+    [10015] => {"grant_type":"client_credentials"}
+    [10023] => Array
+        (
+            [0] => Content-Type: application/json
+            [1] => Authorization: Basic Q2xpZW50X0lkXzNlOWNlN2I3ZjU2OWQwYTRhYThmOWVjOGIxNzJjM2VkN2RkOWQ5NDg6Q2xpZW50X1NlY3JldF8zMWU4ZjMzZWRiYTc0Mjg2MDAyZjRjOTFhMmRmNjg5NmYyNzY0ZmQx
+        )
+
+    [10025] => C:\xampp\htdocs\bolao3\config/certificates/certificate.p12
+    [10086] => P12
+    [64] => 1
+    [41] => 1
+)
+
+[31-May-2025 15:34:24 America/Sao_Paulo] Executando requisição de autenticação...
+[31-May-2025 15:34:25 America/Sao_Paulo] HTTP Code: 200
+[31-May-2025 15:34:25 America/Sao_Paulo] Resposta: {"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWNjZXNzX3Rva2VuIiwiY2xpZW50SWQiOiJDbGllbnRfSWRfM2U5Y2U3YjdmNTY5ZDBhNGFhOGY5ZWM4YjE3MmMzZWQ3ZGQ5ZDk0OCIsImFjY291bnQiOjMxMzAzNiwiYWNjb3VudF9jb2RlIjoiNzU2ZjFmZGE2NTZlZmQxOGNhZjMwNGQ5NzI0ODBlYjUiLCJzY29wZXMiOlsiY29iLnJlYWQiLCJjb2Iud3JpdGUiLCJjb2J2LnJlYWQiLCJjb2J2LndyaXRlIiwiZ24uYmFsYW5jZS5yZWFkIiwiZ24uaW5mcmFjdGlvbnMucmVhZCIsImduLmluZnJhY3Rpb25zLndyaXRlIiwiZ24ucGl4LmV2cC5yZWFkIiwiZ24ucGl4LmV2cC53cml0ZSIsImduLnBpeC5zZW5kLnJlYWQiLCJnbi5xcmNvZGVzLnBheSIsImduLnJlY2VpcHRzLnJlYWQiLCJnbi5yZXBvcnRzLnJlYWQiLCJnbi5yZXBvcnRzLndyaXRlIiwiZ24uc2V0dGluZ3MucmVhZCIsImduLnNldHRpbmdzLndyaXRlIiwiZ24uc3BsaXQucmVhZCIsImduLnNwbGl0LndyaXRlIiwibG90ZWNvYnYucmVhZCIsImxvdGVjb2J2LndyaXRlIiwicGF5bG9hZGxvY2F0aW9uLnJlYWQiLCJwYXlsb2FkbG9jYXRpb24ud3JpdGUiLCJwaXgucmVhZCIsInBpeC5zZW5kIiwicGl4LndyaXRlIiwid2ViaG9vay5yZWFkIiwid2ViaG9vay53cml0ZSJdLCJleHBpcmVzSW4iOjM2MDAsImNvbmZpZ3VyYXRpb24iOnsieDV0I1MyNTYiOiJMMjErUUpZR29wcy9mdlNFSFNsWUFQLytDdVp0QWRVZHRPUUpiRHd1eVo0PSJ9LCJpYXQiOjE3NDg3MTY0NjYsImV4cCI6MTc0ODcyMDA2Nn0.TsA_dP7f1IUYBiE2cNJe9lEcjRATxhnpTDBhEeHFz8g","token_type":"Bearer","expires_in":3600,"scope":"cob.read cob.write cobv.read cobv.write gn.balance.read gn.infractions.read gn.infractions.write gn.pix.evp.read gn.pix.evp.write gn.pix.send.read gn.qrcodes.pay gn.receipts.read gn.reports.read gn.reports.write gn.settings.read gn.settings.write gn.split.read gn.split.write lotecobv.read lotecobv.write payloadlocation.read payloadlocation.write pix.read pix.send pix.write webhook.read webhook.write"}
+[31-May-2025 15:34:25 America/Sao_Paulo] CURL Verbose Log: *   Trying 35.170.124.249:443...
+* Connected to pix.api.efipay.com.br (35.170.124.249) port 443
+* ALPN: curl offers http/1.1
+*  CAfile: C:\xampp\apache\bin\curl-ca-bundle.crt
+*  CApath: none
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+* ALPN: server accepted http/1.1
+* Server certificate:
+*  subject: C=BR; ST=MINAS GERAIS; L=OURO PRETO; O=EFI S.A. - INSTITUICAO DE PAGAMENTO; CN=*.api.efipay.com.br
+*  start date: May 14 13:46:06 2024 GMT
+*  expire date: Jun 15 13:46:05 2025 GMT
+*  subjectAltName: host "pix.api.efipay.com.br" matched cert's "*.api.efipay.com.br"
+*  issuer: C=BE; O=GlobalSign nv-sa; CN=GlobalSign RSA OV SSL CA 2018
+*  SSL certificate verify ok.
+* using HTTP/1.1
+> POST /oauth/token HTTP/1.1
+Host: pix.api.efipay.com.br
+Accept: */*
+Accept-Encoding: deflate, gzip
+Content-Type: application/json
+Authorization: Basic Q2xpZW50X0lkXzNlOWNlN2I3ZjU2OWQwYTRhYThmOWVjOGIxNzJjM2VkN2RkOWQ5NDg6Q2xpZW50X1NlY3JldF8zMWU4ZjMzZWRiYTc0Mjg2MDAyZjRjOTFhMmRmNjg5NmYyNzY0ZmQx
+Content-Length: 35
+
+* old SSL session ID is stale, removing
+< HTTP/1.1 200 OK
+< Server: nginx
+< Date: Sat, 31 May 2025 18:34:26 GMT
+< Content-Type: application/json; charset=utf-8
+< Transfer-Encoding: chunked
+< Connection: keep-alive
+< x-request-id: 3795ffd5-2ac4-4038-ac12-bfba55d91e68
+< vary: Origin
+< access-control-allow-credentials: true
+< cache-control: no-store
+< etag: W/"610-rq9+eYK0Uk4o0LTnp7F1BbYkKE8"
+< pragma: no-cache
+< Content-Encoding: gzip
+< 
+* Connection #0 to host pix.api.efipay.com.br left intact
+
+[31-May-2025 15:34:25 America/Sao_Paulo] Autenticação concluída com sucesso - Token recebido
+[31-May-2025 15:34:25 America/Sao_Paulo] === Fim da autenticação ===
+
+[31-May-2025 15:34:26 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:26 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:26 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:27 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:27 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:27 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:31 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:31 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:31 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:32 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:32 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:32 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:36 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:36 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:36 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:37 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:37 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:37 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:41 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:41 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:41 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:42 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:42 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:42 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:47 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:47 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:47 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:47 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:47 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:47 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:51 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:51 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:51 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:52 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:52 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:52 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:56 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:56 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:56 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:34:57 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:34:57 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:34:57 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:01 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:01 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:35:01 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:02 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:02 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:35:02 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:06 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:06 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:35:06 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:07 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:07 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:35:07 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:11 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:11 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:35:11 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:12 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:12 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada
+[31-May-2025 15:35:12 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:17 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:17 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:35:17 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:35:17 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:21 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:21 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:35:21 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:35:21 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:26 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:26 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:35:26 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:35:26 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:31 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:31 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:35:31 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:35:31 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:36 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:36 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:35:36 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:35:36 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:41 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:41 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:35:41 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:35:41 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:46 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:46 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:35:46 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:35:46 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:51 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:51 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:35:51 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:35:51 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:35:56 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:35:56 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:35:56 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:35:56 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:36:01 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:36:01 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:36:01 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:36:01 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:36:50 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:36:50 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:36:50 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:36:50 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:37:07 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:37:07 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:37:07 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:37:07 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:37:11 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:37:11 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:37:11 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:37:11 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:37:16 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:37:16 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:37:16 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:37:16 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:37:21 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:37:21 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:37:21 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:37:21 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:37:26 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:37:26 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:37:26 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:37:26 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:37:31 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:37:31 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:37:31 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:37:31 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:37:36 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:37:36 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:37:36 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:37:36 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:37:41 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:37:41 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:37:41 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:37:41 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:37:46 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:37:46 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:37:46 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:37:46 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:37:51 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:37:51 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:37:51 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:37:51 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:37:56 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:37:56 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:37:56 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:37:56 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:38:01 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:38:01 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:38:01 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:38:01 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:38:06 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:38:06 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:38:06 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:38:06 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:38:28 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:38:28 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:38:28 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:38:28 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:38:31 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:38:31 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:38:31 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:38:31 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:38:36 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:38:36 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:38:36 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:38:36 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:38:41 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:38:41 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:38:41 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:38:41 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:38:46 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:38:46 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:38:46 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:38:46 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:38:51 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:38:51 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:38:51 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:38:51 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:38:56 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:38:56 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:38:56 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:38:56 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:39:01 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:39:01 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:39:01 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:39:01 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:39:06 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:39:06 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:39:06 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:39:06 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:39:11 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:39:11 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:39:11 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:39:11 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:39:16 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:39:16 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:39:16 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:39:16 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:39:22 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:39:22 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:39:22 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:39:22 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:39:26 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:39:26 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:39:26 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:39:26 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:39:31 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:39:31 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:39:31 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:39:31 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:39:36 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:39:36 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:39:36 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:39:36 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:39:41 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:39:41 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:39:41 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:39:41 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:39:46 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:39:46 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:39:46 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:39:46 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:40:28 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:40:28 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:40:28 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:40:28 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:40:31 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:40:31 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:40:31 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:40:31 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:40:36 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:40:36 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:40:36 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:40:36 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:40:41 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:40:41 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:40:41 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:40:41 America/Sao_Paulo] Stack trace: #0 {main}
+[31-May-2025 15:40:46 America/Sao_Paulo] Dados processados - Bolão ID: 7, User ID: 1
+[31-May-2025 15:40:46 America/Sao_Paulo] Session user_id: não definido
+[31-May-2025 15:40:46 America/Sao_Paulo] Erro na verificação de pagamento: Sessão não encontrada. Session ID: tf7tei4rmurh744gqe1j7ilsva
+[31-May-2025 15:40:46 America/Sao_Paulo] Stack trace: #0 {main}

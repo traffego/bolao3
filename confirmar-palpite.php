@@ -532,14 +532,15 @@ function checkPaymentStatus() {
             'Content-Type': 'application/json',
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',
-            'Expires': '0'
+            'Expires': '0',
+            'X-Requested-With': 'XMLHttpRequest'
         },
+        credentials: 'same-origin',
         body: JSON.stringify({
             bolao_id: <?= $bolao['id'] ?>,
             user_id: <?= getCurrentUserId() ?>,
             _: new Date().getTime()
-        }),
-        credentials: 'same-origin'
+        })
     })
     .then(response => {
         console.log('Status da resposta:', response.status);
