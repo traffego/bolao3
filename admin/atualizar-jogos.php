@@ -1,7 +1,5 @@
 <?php
-require_once '../config/config.php';
-require_once '../includes/database.php';
-require_once '../includes/functions.php';
+require_once '../config/config.php';require_once '../includes/functions.php';
 
 // Verificar se o administrador está logado
 if (!isAdmin()) {

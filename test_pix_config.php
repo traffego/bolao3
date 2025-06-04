@@ -1,7 +1,6 @@
 <?php
 require_once 'config/config.php';
-require_once 'config/database.php';
-require_once 'includes/database_functions.php';
+// database_functions.php não é mais necessário pois está incluído em database.php
 
 echo "Configurações do PIX no banco de dados:\n";
 echo "--------------------------------\n";

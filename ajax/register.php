@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/database_functions.php';
+// database_functions.php não é mais necessário pois está incluído em database.php
 require_once __DIR__ . '/../includes/functions.php';
 
 // Verificar se é uma requisição POST

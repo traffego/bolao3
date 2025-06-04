@@ -10,7 +10,7 @@ $baseDir = dirname(__DIR__);
 
 // Carregar dependências
 require_once $baseDir . '/config/config.php';
-require_once $baseDir . '/includes/database.php';
+require_once $baseDir . '/config/database.php';
 require_once $baseDir . '/includes/functions.php';
 
 // Função para registrar log

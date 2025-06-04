@@ -2,9 +2,7 @@
 /**
  * Admin Login Page - Bolão Football
  */
-require_once '../config/config.php';
-require_once '../includes/database.php';
-require_once '../includes/functions.php';
+require_once '../config/config.php';require_once '../includes/functions.php';
 
 // If admin is already logged in, redirect to admin dashboard
 if (isAdmin()) {

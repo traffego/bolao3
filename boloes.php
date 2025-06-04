@@ -2,9 +2,7 @@
 /**
  * Bolões Page - Bolão Football
  */
-require_once 'config/config.php';
-require_once 'includes/database.php';
-require_once 'includes/functions.php';
+require_once 'config/config.php';require_once 'includes/functions.php';
 
 // Buscar bolões ativos e públicos 
 // (se o usuário estiver logado, também mostrar bolões privados que ele participa)

@@ -1,29 +1,10 @@
 <?php
-// Configurar cookie SameSite
-$params = session_get_cookie_params();
-session_set_cookie_params([
-    'lifetime' => $params['lifetime'],
-    'path' => '/',
-    'domain' => $_SERVER['HTTP_HOST'],
-    'secure' => isset($_SERVER['HTTPS']),
-    'httponly' => true,
-    'samesite' => 'Lax'
-]);
-
-// Iniciar sessão antes de qualquer saída
-session_start();
-
 // Habilitar exibição de erros para debug em ambiente local
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', 0); // Desabilitar exibição de erros para evitar HTML na saída
+ini_set('display_startup_errors', 0);
 
-// Log do ambiente e sessão
-error_log("Session ID: " . session_id());
-error_log("Session Data: " . print_r($_SESSION, true));
-error_log("Cookies: " . print_r($_COOKIE, true));
-
-// Headers para CORS e cache
+// Headers para CORS e cache (definir antes de qualquer saída)
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: ' . (isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '*'));
 header('Access-Control-Allow-Credentials: true');
@@ -33,38 +14,48 @@ header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
 
 // Responder imediatamente para requisições OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
-// Verificar se a sessão está ativa
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    http_response_code(401);
-    echo json_encode([
-        'error' => 'Sessão não está ativa',
-        'session_status' => session_status(),
-        'session_id' => session_id()
-    ]);
+    echo json_encode(['status' => 'ok']);
     exit;
 }
 
 try {
-    // Carregar configurações e funções
-    require_once __DIR__ . '/../config/config.php';
-    require_once __DIR__ . '/../config/database.php';
-    require_once __DIR__ . '/../includes/database_functions.php';
-    require_once __DIR__ . '/../includes/functions.php';
-    require_once __DIR__ . '/../includes/EfiPixManager.php';
+    // Configurar cookie SameSite
+    $params = session_get_cookie_params();
+    session_set_cookie_params([
+        'lifetime' => 86400, // 24 horas
+        'path' => '/',
+        'domain' => '',  // Deixar vazio para usar o domínio atual
+        'secure' => false,  // Desabilitar temporariamente para debug
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
 
-    // Verificar se é POST
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        throw new Exception('Método não permitido: ' . $_SERVER['REQUEST_METHOD']);
-    }
-
-    // Obter e validar dados JSON
+    // Obter dados da requisição antes de iniciar a sessão
     $jsonData = json_decode(file_get_contents('php://input'), true);
     if (json_last_error() !== JSON_ERROR_NONE) {
         throw new Exception('JSON inválido: ' . json_last_error_msg());
+    }
+
+    // Se tiver session_id na requisição, usar ele
+    if (isset($jsonData['session_id'])) {
+        session_id($jsonData['session_id']);
+    }
+
+    // Iniciar sessão
+    session_start();
+
+    // Log detalhado do ambiente e sessão
+    error_log("=== Debug de Sessão ===");
+    error_log("Session ID Recebido: " . ($jsonData['session_id'] ?? 'não informado'));
+    error_log("Session ID Atual: " . session_id());
+    error_log("Session Status: " . session_status());
+    error_log("Session Data: " . print_r($_SESSION, true));
+    error_log("Request Data: " . print_r($jsonData, true));
+    error_log("=== Fim Debug de Sessão ===");
+
+    // Verificar se a sessão está ativa e tem usuário
+    if (!isset($_SESSION['user_id'])) {
+        throw new Exception('Sessão não encontrada. Session ID: ' . session_id());
     }
 
     // Validar dados necessários
@@ -75,27 +66,19 @@ try {
     $bolaoId = (int)$jsonData['bolao_id'];
     $userId = (int)$jsonData['user_id'];
 
-    // Log dos dados processados
-    error_log("Dados processados - Bolão ID: $bolaoId, User ID: $userId");
-    error_log("Session user_id: " . ($_SESSION['user_id'] ?? 'não definido'));
-
-    // Verificar sessão
-    if (!isset($_SESSION['user_id'])) {
-        throw new Exception('Sessão não encontrada. Session ID: ' . session_id());
-    }
-
+    // Verificar se o usuário da sessão corresponde
     if ($_SESSION['user_id'] != $userId) {
-        throw new Exception('ID do usuário não corresponde à sessão. Esperado: ' . $userId . ', Atual: ' . $_SESSION['user_id']);
+        throw new Exception('ID do usuário não corresponde à sessão');
     }
+
+    // Carregar configurações e funções
+    require_once __DIR__ . '/../config/config.php';
+    require_once __DIR__ . '/../config/database.php';
+    require_once __DIR__ . '/../includes/functions.php';
+    require_once __DIR__ . '/../includes/EfiPixManager.php';
 
     // Buscar dados do usuário
-    try {
-        $user = dbFetchOne("SELECT txid_pagamento, pagamento_confirmado FROM jogador WHERE id = ?", [$userId]);
-        error_log("Dados do usuário: " . print_r($user, true));
-    } catch (Exception $e) {
-        throw new Exception('Erro ao buscar usuário: ' . $e->getMessage());
-    }
-
+    $user = dbFetchOne("SELECT txid_pagamento, pagamento_confirmado FROM jogador WHERE id = ?", [$userId]);
     if (!$user) {
         throw new Exception('Usuário não encontrado');
     }
@@ -113,31 +96,32 @@ try {
     }
 
     // Verificar status na API do EFIBANK
-    try {
-        $efiPix = new EfiPixManager();
-        $paymentStatus = $efiPix->checkPayment($user['txid_pagamento']);
-        error_log("Status do pagamento: " . print_r($paymentStatus, true));
+    $efiPix = new EfiPixManager();
+    $paymentStatus = $efiPix->checkPayment($user['txid_pagamento']);
 
-        if ($paymentStatus['status'] === 'CONCLUIDA') {
-            // Atualizar status no banco
-            dbExecute("UPDATE jogador SET pagamento_confirmado = 1 WHERE id = ?", [$userId]);
-            echo json_encode(['status' => 'paid']);
-        } else {
-            echo json_encode(['status' => 'pending']);
+    if ($paymentStatus['status'] === 'CONCLUIDA') {
+        // Atualizar status no banco
+        dbExecute("UPDATE jogador SET pagamento_confirmado = 1 WHERE id = ?", [$userId]);
+        
+        // Garantir que a sessão está iniciada
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
         }
-    } catch (Exception $e) {
-        throw new Exception('Erro ao verificar pagamento: ' . $e->getMessage());
+        
+        // Definir flag na sessão
+        $_SESSION['payment_confirmed'] = true;
+        
+        echo json_encode(['status' => 'paid']);
+    } else {
+        echo json_encode(['status' => 'pending']);
     }
 
 } catch (Exception $e) {
     error_log("Erro na verificação de pagamento: " . $e->getMessage());
     error_log("Stack trace: " . $e->getTraceAsString());
     
-    http_response_code(500);
     echo json_encode([
         'error' => $e->getMessage(),
         'trace' => DEBUG_MODE ? $e->getTraceAsString() : null
     ]);
-}
-
-exit; 
+} 

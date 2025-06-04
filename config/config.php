@@ -13,12 +13,8 @@ if (!defined('DEBUG_MODE')) {
     define('DEBUG_MODE', $isLocalhost);
 }
 
-// Carregar configurações do banco de dados baseado no ambiente
-if ($isLocalhost) {
-    require_once __DIR__ . '/database_config.local.php';
-} else {
-    require_once __DIR__ . '/database_config.php';
-}
+// Carregar configurações do banco de dados
+require_once __DIR__ . '/database.php';
 
 // Application Configuration
 define('APP_NAME', 'Bolão Football');
@@ -35,8 +31,10 @@ define('UPLOAD_DIR', PUBLIC_DIR . '/uploads');
 define('SESSION_NAME', 'bolao_session');
 define('SESSION_LIFETIME', 86400); // 24 hours
 define('SESSION_PATH', '/');
-define('SESSION_SECURE', false);
+define('SESSION_DOMAIN', ''); // Deixar vazio para usar o domínio atual
+define('SESSION_SECURE', false); // Temporariamente false para debug
 define('SESSION_HTTPONLY', true);
+define('SESSION_SAMESITE', 'Lax');
 
 // API Configuration
 define('API_FOOTBALL_URL', 'https://v3.football.api-sports.io');
@@ -69,6 +67,26 @@ ini_set('error_log', ROOT_DIR . '/logs/php_errors.log');
 // Iniciar sessão após definir todas as constantes
 if (session_status() === PHP_SESSION_NONE) {
     session_name(SESSION_NAME);
-    session_set_cookie_params(SESSION_LIFETIME, SESSION_PATH, $_SERVER['HTTP_HOST'] ?? '', SESSION_SECURE, SESSION_HTTPONLY);
+    session_set_cookie_params([
+        'lifetime' => SESSION_LIFETIME,
+        'path' => SESSION_PATH,
+        'domain' => SESSION_DOMAIN,
+        'secure' => SESSION_SECURE,
+        'httponly' => SESSION_HTTPONLY,
+        'samesite' => SESSION_SAMESITE
+    ]);
     session_start();
+    
+    // Regenerar ID da sessão se não existir
+    if (empty($_SESSION['initialized'])) {
+        session_regenerate_id(true);
+        $_SESSION['initialized'] = true;
+        $_SESSION['created'] = time();
+    }
+    
+    // Renovar sessão se estiver próxima de expirar
+    if (isset($_SESSION['created']) && (time() - $_SESSION['created'] > SESSION_LIFETIME / 2)) {
+        session_regenerate_id(true);
+        $_SESSION['created'] = time();
+    }
 } 

@@ -1,8 +1,5 @@
 <?php
-require_once '../config/config.php';
-require_once '../includes/database.php';
-
-// Receber payload do webhook
+require_once '../config/config.php';// Receber payload do webhook
 $payload = file_get_contents('php://input');
 $data = json_decode($payload, true);
 

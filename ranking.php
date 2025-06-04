@@ -2,9 +2,7 @@
 /**
  * Ranking - Bolão Football
  */
-require_once 'config/config.php';
-require_once 'includes/database.php';
-require_once 'includes/functions.php';
+require_once 'config/config.php';require_once 'includes/functions.php';
 
 // Get bolão ID from URL
 $bolaoId = isset($_GET['bolao_id']) ? (int)$_GET['bolao_id'] : 0;

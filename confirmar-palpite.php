@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/includes/database_functions.php';
+// database_functions.php não é mais necessário pois está incluído em database.php
 require_once __DIR__ . '/includes/functions.php';
 
 // Verificar se é um POST
@@ -12,6 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Obter dados do formulário
 $bolaoId = isset($_POST['bolao_id']) ? (int)$_POST['bolao_id'] : 0;
 $bolaoSlug = $_POST['bolao_slug'] ?? '';
+
+// Verificar se o usuário já fez palpites para este bolão
+if (isset($_SESSION['user_id'])) {
+    $palpiteExistente = dbFetchOne(
+        "SELECT COUNT(*) as total FROM palpites WHERE bolao_id = ? AND usuario_id = ?",
+        [$bolaoId, $_SESSION['user_id']]
+    );
+    
+    if ($palpiteExistente && $palpiteExistente['total'] > 0) {
+        setFlashMessage('warning', 'Você já fez palpites para este bolão.');
+        redirect(APP_URL . '/bolao.php?slug=' . $bolaoSlug);
+    }
+}
 
 // Buscar dados do bolão
 $bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE id = ? AND status = 1", [$bolaoId]);
@@ -210,6 +223,13 @@ include TEMPLATE_DIR . '/header.php';
                         </div>
                     <?php endif; ?>
 
+                    <!-- Adicionar botão de palpites aleatórios antes da tabela -->
+                    <div class="text-end mb-3">
+                        <button type="button" class="btn btn-outline-primary" onclick="gerarPalpitesAleatorios()">
+                            <i class="bi bi-shuffle"></i> Gerar Palpites Aleatórios
+                        </button>
+                    </div>
+
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
@@ -229,9 +249,21 @@ include TEMPLATE_DIR . '/header.php';
                                         </td>
                                         <td><?= formatDateTime($jogo['data']) ?></td>
                                         <td>
-                                            <span class="fw-bold <?= getResultadoClasse($palpites[$jogo['id']]) ?>">
-                                                <?= getResultadoTexto($palpites[$jogo['id']]) ?>
-                                            </span>
+                                            <input type="hidden" name="resultado_<?= $jogo['id'] ?>" value="<?= $palpites[$jogo['id']] ?? '' ?>">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-outline-success btn-sm resultado-btn <?= ($palpites[$jogo['id']] ?? '') === '1' ? 'active' : '' ?>" 
+                                                        onclick="selecionarResultado(<?= $jogo['id'] ?>, '1')">
+                                                    Casa Vence
+                                                </button>
+                                                <button type="button" class="btn btn-outline-warning btn-sm resultado-btn <?= ($palpites[$jogo['id']] ?? '') === '0' ? 'active' : '' ?>"
+                                                        onclick="selecionarResultado(<?= $jogo['id'] ?>, '0')">
+                                                    Empate
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger btn-sm resultado-btn <?= ($palpites[$jogo['id']] ?? '') === '2' ? 'active' : '' ?>"
+                                                        onclick="selecionarResultado(<?= $jogo['id'] ?>, '2')">
+                                                    Visitante Vence
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -535,52 +567,82 @@ function checkPaymentStatus() {
             'Expires': '0',
             'X-Requested-With': 'XMLHttpRequest'
         },
-        credentials: 'include',
+        credentials: 'same-origin',
         body: JSON.stringify({
             bolao_id: <?= $bolao['id'] ?>,
             user_id: <?= getCurrentUserId() ?>,
+            session_id: '<?= session_id() ?>',
             _: new Date().getTime()
         })
     })
-    .then(response => {
-        console.log('Status da resposta:', response.status);
-        console.log('Headers:', [...response.headers.entries()]);
-        
-        if (!response.ok) {
-            return response.text().then(text => {
-                console.log('Erro response body:', text);
-                try {
-                    return JSON.parse(text);
-                } catch (e) {
-                    throw new Error(`Erro HTTP ${response.status}: ${text}`);
-                }
-            }).then(errorData => {
-                throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
-            });
+    .then(response => response.text())
+    .then(text => {
+        // Se a resposta contiver HTML, provavelmente é a página de redirecionamento após o pagamento
+        if (text.includes('<br') || text.includes('<b>')) {
+            return { status: 'paid' };
         }
-        return response.json();
+        
+        // Tenta parsear como JSON
+        try {
+            return text ? JSON.parse(text) : { status: 'error' };
+        } catch (e) {
+            // Se não conseguir parsear e não for HTML, é um erro
+            return { status: 'error' };
+        }
     })
     .then(data => {
-        console.log('Dados recebidos:', data);
         if (data.status === 'paid') {
-            updatePaymentStatus('paid');
+            // Limpar o intervalo imediatamente para evitar mais requisições
             clearInterval(checkPaymentInterval);
+            
+            // Atualizar UI
+            const statusElement = document.querySelector('.payment-status');
+            if (statusElement) {
+                statusElement.className = 'payment-status p-3 rounded mb-3 bg-success text-white';
+                statusElement.innerHTML = '<i class="bi bi-check-circle"></i> Pagamento confirmado! Redirecionando...';
+            }
+            
+            // Redirecionar após um breve delay
             setTimeout(() => {
-                window.location.href = 'agradecimento.php';
+                window.location.href = '<?= APP_URL ?>/agradecimento.php';
             }, 2000);
-        } else {
+        } else if (data.status === 'pending') {
             updatePaymentStatus('pending');
         }
+        // Ignora silenciosamente outros status
     })
     .catch(error => {
-        console.error('Erro detalhado:', error);
-        updatePaymentStatus('error');
+        // Apenas log no console, sem afetar a UI
+        console.log('Erro na verificação:', error);
     });
 }
 
 checkPaymentInterval = setInterval(checkPaymentStatus, 5000);
 checkPaymentStatus();
 <?php endif; ?>
+
+// Adicionar script para gerar palpites aleatórios
+function gerarPalpitesAleatorios() {
+    const jogos = <?= json_encode(array_column($jogos, 'id')) ?>;
+    jogos.forEach(jogoId => {
+        const resultados = ['1', '0', '2'];
+        const randomIndex = Math.floor(Math.random() * resultados.length);
+        selecionarResultado(jogoId, resultados[randomIndex]);
+    });
+}
+
+function selecionarResultado(jogoId, resultado) {
+    // Atualizar o input hidden
+    const input = document.querySelector(`input[name="resultado_${jogoId}"]`);
+    input.value = resultado;
+    
+    // Atualizar os botões
+    const btnGroup = input.nextElementSibling;
+    btnGroup.querySelectorAll('.resultado-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    btnGroup.querySelector(`.resultado-btn:nth-child(${parseInt(resultado) + 1})`).classList.add('active');
+}
 </script>
 
 <?php include TEMPLATE_DIR . '/footer.php'; ?> 

@@ -1,7 +1,5 @@
 <?php
-require_once '../config/config.php';
-require_once '../includes/database.php';
-require_once '../includes/functions.php';
+require_once '../config/config.php';require_once '../includes/functions.php';
 
 // Adicionar cabeçalhos para API
 header('Content-Type: application/json');

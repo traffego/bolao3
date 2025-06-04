@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/includes/database_functions.php';
+// database_functions.php não é mais necessário pois está incluído em database.php
 require_once __DIR__ . '/includes/functions.php';
 
 // Obter o slug do bolão da URL
@@ -329,10 +329,53 @@ include TEMPLATE_DIR . '/header.php';
     <!-- Lista de Jogos -->
     <div class="col-md-8">
         <?php if (!empty($jogos)): ?>
+            <?php
+            // Verificar se o usuário já tem palpites para este bolão
+            if ($usuarioId) {
+                $palpiteExistente = dbFetchOne(
+                    "SELECT COUNT(*) as total FROM palpites WHERE bolao_id = ? AND jogador_id = ?",
+                    [$bolao['id'], $usuarioId]
+                );
+                
+                if ($palpiteExistente && $palpiteExistente['total'] > 0) {
+                    echo '<div class="alert alert-warning mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Você já fez palpites para este bolão. Novos palpites irão substituir os anteriores.
+                    </div>';
+                }
+            }
+            ?>
+            
             <form method="post" action="<?= APP_URL ?>/confirmar-palpite.php" id="formPalpites">
                 <input type="hidden" name="bolao_id" value="<?= $bolao['id'] ?>">
                 <input type="hidden" name="bolao_slug" value="<?= $slug ?>">
                 
+                <!-- Card de palpites aleatórios -->
+                <?php if (!$prazoEncerrado): ?>
+                    <div class="card mb-4 border-primary">
+                        <div class="card-body d-flex align-items-center justify-content-between">
+                            <div>
+                                <h5 class="card-title mb-1">
+                                    <i class="bi bi-dice-5-fill text-primary me-2"></i>
+                                    Quer ajuda com os palpites?
+                                </h5>
+                                <p class="card-text text-muted mb-0">
+                                    Clique no botão ao lado para gerar palpites aleatórios
+                                </p>
+                            </div>
+                            <button type="button" 
+                                    class="btn btn-primary btn-lg" 
+                                    onclick="gerarPalpitesAleatorios(this)"
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="top" 
+                                    title="Gera resultados aleatórios para todos os jogos">
+                                <i class="bi bi-shuffle me-2"></i>
+                                Gerar Palpites
+                            </button>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <?php foreach ($jogos as $jogo): ?>
                     <?php 
                     $jogoId = $jogo['id'];
@@ -342,65 +385,77 @@ include TEMPLATE_DIR . '/header.php';
                     <div class="card mb-3">
                         <div class="card-body">
                             <div class="row align-items-center">
-                                <div class="col-md-4 text-center">
-                                    <img src="<?= getTeamLogo($jogo['time_casa']) ?>" alt="<?= $jogo['time_casa'] ?>" class="team-logo mb-2">
-                                    <h5><?= htmlspecialchars($jogo['time_casa']) ?></h5>
-                                </div>
-                                
-                                <div class="col-md-4 text-center">
-                                    <div class="mb-2">
-                                        <small class="text-muted"><?= formatDateTime($jogo['data']) ?></small>
-                                                    </div>
+                                <div class="col-md-12">
+                                    <div class="palpites-container text-center">
+                                        <div class="mb-2">
+                                            <small class="text-muted"><?= formatDateTime($jogo['data']) ?></small>
+                                        </div>
                                                     
-                                    <?php if (!$prazoEncerrado): ?>
-                                        <div class="col-md-4 text-center">
-                                            <div class="btn-group" role="group">
+                                        <?php if (!$prazoEncerrado): ?>
+                                            <div class="btn-group-vertical" role="group">
+                                                <!-- Input hidden para armazenar o valor -->
                                                 <input type="radio" class="btn-check" name="resultado_<?= $jogo['id'] ?>" 
                                                        id="casa_<?= $jogo['id'] ?>" value="1" 
                                                        <?= ($palpiteJogo === "1") ? 'checked' : '' ?> 
                                                        <?= $disabled ?> required>
-                                                <label class="btn btn-outline-success" for="casa_<?= $jogo['id'] ?>">
-                                                    Casa Vence
-                                                </label>
-
                                                 <input type="radio" class="btn-check" name="resultado_<?= $jogo['id'] ?>" 
                                                        id="empate_<?= $jogo['id'] ?>" value="0" 
                                                        <?= ($palpiteJogo === "0") ? 'checked' : '' ?> 
                                                        <?= $disabled ?> required>
-                                                <label class="btn btn-outline-warning" for="empate_<?= $jogo['id'] ?>">
-                                                    Empate
-                                                </label>
-
                                                 <input type="radio" class="btn-check" name="resultado_<?= $jogo['id'] ?>" 
                                                        id="visitante_<?= $jogo['id'] ?>" value="2" 
                                                        <?= ($palpiteJogo === "2") ? 'checked' : '' ?> 
                                                        <?= $disabled ?> required>
-                                                <label class="btn btn-outline-danger" for="visitante_<?= $jogo['id'] ?>">
-                                                    Visitante Vence
-                                                </label>
+
+                                                <!-- Botões personalizados -->
+                                                <div class="palpites-buttons">
+                                                    <!-- Botão Time Casa -->
+                                                    <label class="btn-palpite btn-time-casa <?= ($palpiteJogo === "1") ? 'active' : '' ?>" 
+                                                           for="casa_<?= $jogo['id'] ?>"
+                                                           style="background-image: url('<?= getTeamLogo($jogo['time_casa']) ?>')">
+                                                        <div class="team-name"><?= htmlspecialchars($jogo['time_casa']) ?></div>
+                                                        <div class="hover-overlay">
+                                                            <i class="bi bi-check-lg"></i>
+                                                        </div>
+                                                    </label>
+
+                                                    <!-- Botão Empate -->
+                                                    <label class="btn-palpite btn-empate <?= ($palpiteJogo === "0") ? 'active' : '' ?>" 
+                                                           for="empate_<?= $jogo['id'] ?>">
+                                                        <span>X</span>
+                                                        <div class="hover-overlay">
+                                                            <i class="bi bi-check-lg"></i>
+                                                        </div>
+                                                    </label>
+
+                                                    <!-- Botão Time Visitante -->
+                                                    <label class="btn-palpite btn-time-visitante <?= ($palpiteJogo === "2") ? 'active' : '' ?>" 
+                                                           for="visitante_<?= $jogo['id'] ?>"
+                                                           style="background-image: url('<?= getTeamLogo($jogo['time_visitante']) ?>')">
+                                                        <div class="team-name"><?= htmlspecialchars($jogo['time_visitante']) ?></div>
+                                                        <div class="hover-overlay">
+                                                            <i class="bi bi-check-lg"></i>
+                                                        </div>
+                                                    </label>
+                                                </div>
                                             </div>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="alert alert-info mb-0">
-                                            <?php if ($palpiteJogo): ?>
-                                                Seu palpite: 
-                                                <?php if ($palpiteJogo['casa'] > $palpiteJogo['visitante']): ?>
-                                                    <strong>Vitória do <?= htmlspecialchars($jogo['time_casa']) ?></strong>
-                                                <?php elseif ($palpiteJogo['casa'] < $palpiteJogo['visitante']): ?>
-                                                    <strong>Vitória do <?= htmlspecialchars($jogo['time_visitante']) ?></strong>
+                                        <?php else: ?>
+                                            <div class="alert alert-info mb-0">
+                                                <?php if ($palpiteJogo): ?>
+                                                    Seu palpite: 
+                                                    <?php if ($palpiteJogo === "1"): ?>
+                                                        <strong>Vitória do <?= htmlspecialchars($jogo['time_casa']) ?></strong>
+                                                    <?php elseif ($palpiteJogo === "2"): ?>
+                                                        <strong>Vitória do <?= htmlspecialchars($jogo['time_visitante']) ?></strong>
+                                                    <?php else: ?>
+                                                        <strong>Empate</strong>
+                                                    <?php endif; ?>
                                                 <?php else: ?>
-                                                    <strong>Empate</strong>
+                                                    Prazo encerrado
                                                 <?php endif; ?>
-                                            <?php else: ?>
-                                                Prazo encerrado
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
-                                
-                                <div class="col-md-4 text-center">
-                                    <img src="<?= getTeamLogo($jogo['time_visitante']) ?>" alt="<?= $jogo['time_visitante'] ?>" class="team-logo mb-2">
-                                    <h5><?= htmlspecialchars($jogo['time_visitante']) ?></h5>
                                 </div>
                             </div>
                         </div>
@@ -426,5 +481,238 @@ include TEMPLATE_DIR . '/header.php';
         <?= $mensagem['texto'] ?>
     </div>
 <?php endif; ?>
+
+<script>
+// Inicializar tooltips do Bootstrap
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+function gerarPalpitesAleatorios(button) {
+    // Desabilitar o botão e mostrar loading
+    button.disabled = true;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-arrow-repeat spin me-2"></i>Gerando...';
+    button.classList.add('btn-generating');
+    
+    const jogos = <?= json_encode(array_column($jogos, 'id')) ?>;
+    
+    // Pequeno delay para efeito visual
+    setTimeout(() => {
+        jogos.forEach((jogoId, index) => {
+            setTimeout(() => {
+                const resultados = ['1', '0', '2'];
+                const randomIndex = Math.floor(Math.random() * resultados.length);
+                const resultado = resultados[randomIndex];
+                
+                // Encontrar o radio button e sua label
+                const radio = document.querySelector(`input[name="resultado_${jogoId}"][value="${resultado}"]`);
+                const label = document.querySelector(`label[for="${radio.id}"]`);
+                
+                if (radio && label) {
+                    // Remover classes ativas de todos os botões do grupo
+                    const btnGroup = label.closest('.palpites-buttons');
+                    btnGroup.querySelectorAll('.btn-palpite').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Marcar o radio e adicionar classe ativa
+                    radio.checked = true;
+                    label.classList.add('active');
+                    
+                    // Adicionar animação de seleção
+                    label.classList.add('selecting');
+                    setTimeout(() => {
+                        label.classList.remove('selecting');
+                    }, 500);
+                }
+            }, index * 200); // Delay maior entre cada seleção
+        });
+        
+        // Restaurar o botão após todos os palpites
+        setTimeout(() => {
+            button.disabled = false;
+            button.innerHTML = originalText;
+            button.classList.remove('btn-generating');
+            
+            // Mostrar toast de sucesso
+            const toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            toastContainer.innerHTML = `
+                <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            Palpites gerados com sucesso!
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(toastContainer);
+            const toastElement = toastContainer.querySelector('.toast');
+            const bsToast = new bootstrap.Toast(toastElement);
+            bsToast.show();
+            
+            // Remover o toast após ser fechado
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastContainer.remove();
+            });
+        }, jogos.length * 200 + 500);
+    }, 500);
+}
+</script>
+
+<style>
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0.5; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.btn-generating {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-generating::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.1) 50%,
+        rgba(255,255,255,0) 100%
+    );
+    animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+    from { transform: translateX(-100%) rotate(45deg); }
+    to { transform: translateX(100%) rotate(45deg); }
+}
+
+.team-logo {
+    max-width: 64px;
+    height: auto;
+}
+
+/* Novos estilos para os botões de palpite */
+.palpites-container {
+    padding: 10px;
+}
+
+.palpites-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-palpite {
+    width: 120px; /* Aumentado para acomodar os nomes */
+    height: 120px; /* Aumentado para manter proporção */
+    border-radius: 10px; /* Mudado para quadrado com cantos arredondados */
+    border: 2px solid #dee2e6;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    background-size: 60px; /* Tamanho do brasão */
+    background-position: center 20px; /* Posição do brasão */
+    background-repeat: no-repeat;
+    overflow: hidden;
+    padding: 10px;
+}
+
+.team-name {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 5px;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: bold;
+    color: #495057;
+    border-radius: 0 0 8px 8px;
+}
+
+.btn-empate {
+    background-color: #f8f9fa;
+    font-size: 32px;
+    font-weight: bold;
+    color: #495057;
+    width: 80px; /* Menor que os botões dos times */
+    height: 120px; /* Mesma altura dos outros botões */
+}
+
+.btn-empate span {
+    margin-top: -20px; /* Ajuste para centralizar o X */
+}
+
+.btn-palpite:hover {
+    transform: translateY(-2px);
+    border-color: #0d6efd;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-palpite.active {
+    border-color: #0d6efd;
+    border-width: 3px;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+.btn-empate.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(13, 110, 253, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 8px;
+}
+
+/* Ajuste na função de palpites aleatórios */
+@keyframes selectPalpite {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.btn-palpite.selecting {
+    animation: selectPalpite 0.5s ease;
+}
+</style>
 
 <?php include TEMPLATE_DIR . '/footer.php'; ?> 

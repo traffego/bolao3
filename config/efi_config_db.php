@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/database.php';
-require_once __DIR__ . '/../includes/database_functions.php';
+// database_functions.php não é mais necessário pois está incluído em database.php
 
 // Buscar configurações do Pix no banco
 $pixConfig = dbFetchOne("SELECT valor FROM configuracoes WHERE nome_configuracao = 'efi_pix_config' AND categoria = 'pagamentos'");

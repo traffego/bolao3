@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/includes/database_functions.php';
 
 $pixConfig = dbFetchOne("SELECT * FROM configuracoes WHERE nome_configuracao = 'efi_pix_config' AND categoria = 'pagamentos'");
 

@@ -2,9 +2,12 @@
 /**
  * Admin Configurações - Bolão Football
  */
-require_once '../config/config.php';
-require_once '../includes/database.php';
-require_once '../includes/functions.php';
+require_once '../config/config.php';require_once '../includes/functions.php';
+
+// Verificar se a extensão OpenSSL está instalada
+if (!extension_loaded('openssl')) {
+    die("A extensão OpenSSL do PHP não está instalada. Por favor, instale a extensão OpenSSL para continuar.");
+}
 
 // Obter conexão com o banco de dados
 global $pdo;
@@ -37,30 +40,25 @@ function convertP12ToPem($p12Path, $p12Password = '') {
     $pemKeyPath = $certDir . '/certificate.key.pem';
     $pemCertPath = $certDir . '/certificate.cert.pem';
 
-    // Extrair a chave privada
-    $keyCommand = sprintf(
-        'openssl pkcs12 -in "%s" -nocerts -nodes -out "%s" -passin pass:"%s" 2>&1',
-        $p12Path,
-        $pemKeyPath,
-        $p12Password
-    );
-    exec($keyCommand, $keyOutput, $keyReturnVar);
-
-    if ($keyReturnVar !== 0) {
-        throw new Exception("Erro ao extrair chave privada: " . implode("\n", $keyOutput));
+    // Ler o conteúdo do arquivo P12
+    $p12Content = file_get_contents($p12Path);
+    if ($p12Content === false) {
+        throw new Exception("Erro ao ler o arquivo P12");
     }
 
-    // Extrair o certificado
-    $certCommand = sprintf(
-        'openssl pkcs12 -in "%s" -clcerts -nokeys -out "%s" -passin pass:"%s" 2>&1',
-        $p12Path,
-        $pemCertPath,
-        $p12Password
-    );
-    exec($certCommand, $certOutput, $certReturnVar);
+    // Converter P12 para PEM
+    if (!openssl_pkcs12_read($p12Content, $certs, $p12Password)) {
+        throw new Exception("Erro ao ler o certificado P12: " . openssl_error_string());
+    }
 
-    if ($certReturnVar !== 0) {
-        throw new Exception("Erro ao extrair certificado: " . implode("\n", $certOutput));
+    // Salvar a chave privada
+    if (!file_put_contents($pemKeyPath, $certs['pkey'])) {
+        throw new Exception("Erro ao salvar a chave privada PEM");
+    }
+
+    // Salvar o certificado
+    if (!file_put_contents($pemCertPath, $certs['cert'])) {
+        throw new Exception("Erro ao salvar o certificado PEM");
     }
 
     return [
@@ -418,61 +416,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'ambiente' => $_POST['ambiente'],
                 'client_id' => $_POST['client_id'],
                 'client_secret' => !empty($_POST['client_secret']) ? $_POST['client_secret'] : ($pixConfig['client_secret'] ?? ''),
-                'pix_key' => $_POST['pix_key'],
-                'webhook_url' => $_POST['webhook_url'] ?? APP_URL . '/api/webhook_pix.php'
+                'pix_key' => $_POST['pix_key']
             ];
-
-            // Validar URL do webhook
-            if (!filter_var($pixConfig['webhook_url'], FILTER_VALIDATE_URL)) {
-                throw new Exception('URL do webhook inválida');
-            }
-
-            // Verificar se a URL do webhook é HTTPS em produção
-            if ($pixConfig['ambiente'] === 'producao' && parse_url($pixConfig['webhook_url'], PHP_URL_SCHEME) !== 'https') {
-                throw new Exception('URL do webhook deve usar HTTPS em ambiente de produção');
-            }
 
             // Salvar configurações do Pix
             try {
                 // Debug - Registrar os dados antes da inserção
                 error_log("Tentando salvar configurações PIX: " . print_r($pixConfig, true));
+                error_log("POST data recebida: " . print_r($_POST, true));
+                
+                // Verificar se a tabela existe
+                $tableCheck = $pdo->query("SHOW TABLES LIKE 'configuracoes'");
+                if ($tableCheck->rowCount() === 0) {
+                    // Criar a tabela se não existir
+                    $sql = file_get_contents(__DIR__ . '/../sql/create_configuracoes_table.sql');
+                    $pdo->exec($sql);
+                    error_log("Tabela configuracoes criada");
+                }
                 
                 $stmt = $pdo->prepare("
                     INSERT INTO configuracoes 
                         (nome_configuracao, valor, categoria, descricao) 
                     VALUES 
-                        ('efi_pix_config', :valor, 'pagamentos', 'Configurações da API Pix da Efí')
+                        (?, ?, ?, ?)
                     ON DUPLICATE KEY UPDATE 
-                        valor = :valor
+                        valor = ?,
+                        data_atualizacao = CURRENT_TIMESTAMP
                 ");
 
-                $pixConfigJson = json_encode($pixConfig);
+                $pixConfigJson = json_encode($pixConfig, JSON_PRETTY_PRINT);
                 if ($pixConfigJson === false) {
+                    error_log("Erro ao codificar JSON: " . json_last_error_msg());
                     throw new Exception('Erro ao codificar as configurações do Pix: ' . json_last_error_msg());
                 }
 
-                $stmt->bindParam(':valor', $pixConfigJson);
-                $result = $stmt->execute();
-                
-                if (!$result) {
-                    throw new Exception('Falha ao executar a query de atualização');
-                }
+                error_log("JSON a ser salvo: " . $pixConfigJson);
+
+                $stmt->execute([
+                    'efi_pix_config',
+                    $pixConfigJson,
+                    'pagamentos',
+                    'Configurações da API Pix da Efí',
+                    $pixConfigJson
+                ]);
                 
                 // Debug - Registrar o resultado da operação
                 error_log("Configurações PIX salvas com sucesso. Rows afetadas: " . $stmt->rowCount());
-
-                // Registrar log da alteração
-                $logStmt = $pdo->prepare("
-                    INSERT INTO logs 
-                        (tipo, descricao, usuario_id, data_hora, ip_address) 
-                    VALUES 
-                        ('configuracao', 'Alteração nas configurações do Pix', :user_id, NOW(), :ip)
-                ");
-                
-                $logStmt->execute([
-                    ':user_id' => $_SESSION['admin_id'],
-                    ':ip' => $_SERVER['REMOTE_ADDR']
-                ]);
 
                 // Verificar se a configuração foi realmente salva
                 $checkStmt = $pdo->prepare("
@@ -485,15 +474,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $savedConfig = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
                 if (!$savedConfig) {
+                    error_log("Configuração não encontrada após salvamento");
                     throw new Exception('Configuração não encontrada após salvamento');
                 }
 
+                error_log("Configuração recuperada do banco: " . print_r($savedConfig, true));
+
+                // Registrar log da alteração
+                $logStmt = $pdo->prepare("
+                    INSERT INTO logs 
+                        (tipo, descricao, usuario_id, data_hora, ip_address) 
+                    VALUES 
+                        (?, ?, ?, NOW(), ?)
+                ");
+                
+                $logStmt->execute([
+                    'configuracao',
+                    'Alteração nas configurações do Pix',
+                    $_SESSION['admin_id'],
+                    $_SERVER['REMOTE_ADDR']
+                ]);
+
                 setFlashMessage('success', 'Configurações do Pix atualizadas com sucesso!');
+                
+                // Debug - Registrar redirecionamento
+                error_log("Redirecionando após salvar configurações");
                 redirect(APP_URL . '/admin/configuracoes.php?categoria=pagamentos');
                 
             } catch (PDOException $e) {
                 error_log("Erro PDO ao salvar configurações: " . $e->getMessage());
+                error_log("Stack trace: " . $e->getTraceAsString());
                 throw new Exception('Erro ao salvar no banco de dados: ' . $e->getMessage());
+            } catch (Exception $e) {
+                error_log("Erro geral ao salvar configurações: " . $e->getMessage());
+                error_log("Stack trace: " . $e->getTraceAsString());
+                throw $e;
             }
         } elseif ($currentCategory === 'api_football') {
             // Processar configurações da API Football
@@ -571,8 +586,7 @@ $pixConfig = array_merge([
     'ambiente' => 'producao',
     'client_id' => '',
     'client_secret' => '',
-    'pix_key' => '',
-    'webhook_url' => APP_URL . '/api/webhook_pix.php'
+    'pix_key' => ''
 ], $pixConfig);
 
 // Get configurations for the current category
@@ -682,10 +696,17 @@ include '../templates/admin/header.php';
 
                             <div class="row mb-3">
                                 <div class="col-md-12">
-                                    <label for="webhook_url" class="form-label">URL do Webhook</label>
-                                    <input type="url" class="form-control" id="webhook_url" name="webhook_url" 
-                                           value="<?= htmlspecialchars($pixConfig['webhook_url']) ?>" required>
-                                    <div class="form-text">URL que receberá as notificações de pagamento</div>
+                                    <label class="form-label">URL do Webhook</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" value="<?= htmlspecialchars(APP_URL . '/api/webhook_pix.php') ?>" readonly>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="copyWebhookUrl(this)" title="Copiar URL do webhook">
+                                            <i class="fas fa-copy"></i> Copiar URL
+                                        </button>
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Esta é a URL que receberá as notificações de pagamento. Configure-a no painel da Efí.
+                                    </div>
                                 </div>
                             </div>
 
@@ -693,76 +714,41 @@ include '../templates/admin/header.php';
                                 <div class="col-md-6">
                                     <label for="certificado" class="form-label">Certificado (.P12 ou .PEM)</label>
                                     <input type="file" class="form-control" id="certificado" name="certificado" accept=".p12,.pem">
-                                    <div class="form-text">
+                                    <div class="form-text mb-2">
                                         Faça upload do certificado fornecido pela Efí (formato .P12 ou .PEM)
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h6 class="mb-0">Certificados Instalados</h6>
+                                    <?php
+                                    $certDir = __DIR__ . '/../config/certificates/';
+                                    $certificates = [
+                                        'certificate.p12' => $certDir . 'certificate.p12',
+                                        'certificate.key.pem' => $certDir . 'certificate.key.pem',
+                                        'certificate.cert.pem' => $certDir . 'certificate.cert.pem'
+                                    ];
+                                    
+                                    foreach ($certificates as $fileName => $path):
+                                        if (file_exists($path)):
+                                    ?>
+                                        <div class="d-flex align-items-center p-2 border rounded mb-2">
+                                            <i class="fas fa-file-certificate text-primary me-2"></i>
+                                            <span class="me-auto"><?= htmlspecialchars($fileName) ?></span>
+                                            <form method="post" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este certificado?');">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                <input type="hidden" name="action" value="delete_certificate">
+                                                <input type="hidden" name="certificate_path" value="<?= htmlspecialchars($path) ?>">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Excluir certificado">
+                                                    <i class="fas fa-trash-alt"></i> Excluir
+                                                </button>
+                                            </form>
                                         </div>
-                                        <div class="card-body">
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered mb-0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Tipo</th>
-                                                            <th>Status</th>
-                                                            <th>Data de Modificação</th>
-                                                            <th>Ações</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <?php
-                                                        $certDir = __DIR__ . '/../config/certificates/';
-                                                        $certificates = [
-                                                            'P12' => $certDir . 'certificate.p12',
-                                                            'PEM Chave' => $certDir . 'certificate.key.pem',
-                                                            'PEM Certificado' => $certDir . 'certificate.cert.pem'
-                                                        ];
-                                                        
-                                                        foreach ($certificates as $type => $path):
-                                                            $exists = file_exists($path);
-                                                            $modTime = $exists ? date('d/m/Y H:i:s', filemtime($path)) : '-';
-                                                            ?>
-                                                            <tr>
-                                                                <td><?= htmlspecialchars($type) ?></td>
-                                                                <td>
-                                                                    <?php if ($exists): ?>
-                                                                        <span class="badge bg-success">Instalado</span>
-                                                                    <?php else: ?>
-                                                                        <span class="badge bg-warning">Não Encontrado</span>
-                                                                    <?php endif; ?>
-                                                                </td>
-                                                                <td><?= htmlspecialchars($modTime) ?></td>
-                                                                <td>
-                                                                    <?php if ($exists): ?>
-                                                                        <form method="post" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este certificado?');">
-                                                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                                                            <input type="hidden" name="action" value="delete_certificate">
-                                                                            <input type="hidden" name="certificate_path" value="<?= htmlspecialchars($path) ?>">
-                                                                            <button type="submit" class="btn btn-danger btn-sm">
-                                                                                <i class="fas fa-trash"></i> Excluir
-                                                                            </button>
-                                                                        </form>
-                                                                    <?php endif; ?>
-                                                                </td>
-                                                            </tr>
-                                                        <?php endforeach; ?>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <?php 
+                                        endif;
+                                    endforeach; 
+                                    ?>
                                 </div>
                             </div>
 
                             <div class="alert alert-info">
-                                <h6>Instruções:</h6>
+                                <h6><i class="fas fa-info-circle me-2"></i>Instruções:</h6>
                                 <ol class="mb-0">
                                     <li>Obtenha suas credenciais no painel da Efí</li>
                                     <li>Faça o upload do certificado .P12 ou .PEM</li>
@@ -771,9 +757,15 @@ include '../templates/admin/header.php';
                                 </ol>
                             </div>
 
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-1"></i> Salvar Configurações
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> Salvar Configurações
                             </button>
+                            
+                            <?php if ($currentCategory === 'pagamentos'): ?>
+                                <a href="<?= APP_URL ?>/admin/teste-pix.php" class="btn btn-outline-primary btn-lg ms-2">
+                                    <i class="fas fa-vial me-2"></i> Testar Integração
+                                </a>
+                            <?php endif; ?>
                         </form>
                     </div>
                 </div>
@@ -902,5 +894,26 @@ include '../templates/admin/header.php';
         </div>
     </div>
 </div>
+
+<script>
+function copyWebhookUrl(button) {
+    const input = button.parentElement.querySelector('input');
+    input.select();
+    document.execCommand('copy');
+    
+    // Feedback visual
+    const icon = button.querySelector('i');
+    const text = button.textContent;
+    icon.classList.remove('fa-copy');
+    icon.classList.add('fa-check');
+    button.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+    
+    setTimeout(() => {
+        icon.classList.remove('fa-check');
+        icon.classList.add('fa-copy');
+        button.innerHTML = '<i class="fas fa-copy"></i> Copiar URL';
+    }, 2000);
+}
+</script>
 
 <?php include '../templates/admin/footer.php'; ?> 

@@ -2,9 +2,7 @@
 /**
  * Registration Page - Bolão Football
  */
-require_once 'config/config.php';
-require_once 'includes/database.php';
-require_once 'includes/functions.php';
+require_once 'config/config.php';require_once 'includes/functions.php';
 
 // If user is already logged in, redirect to home
 if (isLoggedIn()) {

@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Verifica se já pagou
-require_once 'config/database.php';
+require_once 'config/config.php';
 $stmt = $pdo->prepare("SELECT pagamento_confirmado FROM jogador WHERE id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $usuario = $stmt->fetch();
