@@ -4,41 +4,48 @@ require_once __DIR__ . '/config/database.php';
 // database_functions.php não é mais necessário pois está incluído em database.php
 require_once __DIR__ . '/includes/functions.php';
 
-// Verificar se é um POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+// Verificar se é um POST ou se tem um palpite pendente na sessão
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !isset($_SESSION['palpite_pendente'])) {
     redirect(APP_URL . '/boloes.php');
 }
 
 // Obter IDs importantes
 $jogadorId = getCurrentUserId(); // ID do jogador logado
-$bolaoId = isset($_POST['bolao_id']) ? (int)$_POST['bolao_id'] : 0; // ID do bolão vem do POST
-
-// Coletar palpites do formulário
+$bolaoId = 0;
+$palpiteId = 0;
 $palpites = [];
-foreach ($_POST as $key => $value) {
-    if (strpos($key, 'resultado_') === 0) {
-        $jogoId = substr($key, strlen('resultado_'));
-        $palpites[$jogoId] = $value; // "1" = casa vence, "0" = empate, "2" = visitante vence
-    }
-}
 
-// Verificar se o usuário já fez exatamente os mesmos palpites para este bolão
-if (isset($_SESSION['user_id'])) {
-    // Preparar o JSON de palpites para verificação
-    $palpitesJson = json_encode(['jogos' => $palpites]);
-
-    // Verificar se já existe um palpite idêntico
+// Se for um palpite pendente da sessão
+if (isset($_SESSION['palpite_pendente'])) {
+    $palpiteId = $_SESSION['palpite_pendente']['id'];
+    $bolaoId = $_SESSION['palpite_pendente']['bolao_id'];
+    
+    // Buscar palpite existente
     $palpiteExistente = dbFetchOne(
-        "SELECT COUNT(*) as total FROM palpites 
-         WHERE bolao_id = ? 
-         AND jogador_id = ? 
-         AND palpites = ?",
-        [$bolaoId, $jogadorId, $palpitesJson]
+        "SELECT p.*, b.valor_participacao 
+         FROM palpites p 
+         JOIN dados_boloes b ON p.bolao_id = b.id 
+         WHERE p.id = ? AND p.jogador_id = ?",
+        [$palpiteId, $jogadorId]
     );
     
-    if ($palpiteExistente && $palpiteExistente['total'] > 0) {
-        setFlashMessage('warning', 'Você já fez exatamente estes mesmos palpites para este bolão.');
-        redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
+    if ($palpiteExistente) {
+        $palpitesJson = json_decode($palpiteExistente['palpites'], true);
+        $palpites = $palpitesJson['jogos'] ?? [];
+    } else {
+        unset($_SESSION['palpite_pendente']);
+        redirect(APP_URL . '/boloes.php');
+    }
+} else {
+    // Lógica existente para novos palpites via POST
+    $bolaoId = isset($_POST['bolao_id']) ? (int)$_POST['bolao_id'] : 0;
+    
+    // Coletar palpites do formulário
+    foreach ($_POST as $key => $value) {
+        if (strpos($key, 'resultado_') === 0) {
+            $jogoId = substr($key, strlen('resultado_'));
+            $palpites[$jogoId] = $value;
+        }
     }
 }
 
@@ -67,57 +74,55 @@ if ($prazoEncerrado) {
 // Decodificar jogos do bolão
 $jogos = json_decode($bolao['jogos'], true) ?: [];
 
-// Verificar se todos os jogos foram palpitados
-if (count($palpites) !== count($jogos)) {
-    setFlashMessage('warning', 'Você precisa dar palpites para todos os jogos.');
-    redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
-}
-
-// Preparar o JSON de palpites
-$palpitesJson = json_encode(['jogos' => $palpites]);
-
-// Debug: Mostrar valores que serão inseridos
-echo "<pre>";
-echo "jogadorId: " . $jogadorId . "\n";
-echo "bolaoId: " . $bolaoId . "\n";
-echo "palpitesJson: " . $palpitesJson . "\n";
-echo "</pre>";
-
-// Inserir palpite no banco de dados
-try {
-    $stmt = $pdo->prepare("
-        INSERT INTO palpites (
-            jogador_id,
-            bolao_id,
-            palpites,
-            status
-        ) VALUES (
-            :jogador_id,
-            :bolao_id,
-            :palpites,
-            'pendente'
-        )
-    ");
-
-    $stmt->execute([
-        ':jogador_id' => $jogadorId,
-        ':bolao_id' => $bolaoId,
-        ':palpites' => $palpitesJson
-    ]);
-
-    // Se não houver valor de participação, marcar como pago automaticamente
-    if ($bolao['valor_participacao'] <= 0) {
-        $palpiteId = $pdo->lastInsertId();
-        $stmt = $pdo->prepare("UPDATE palpites SET status = 'pago' WHERE id = ?");
-        $stmt->execute([$palpiteId]);
+// Se não for um palpite pendente, verificar se todos os jogos foram palpitados
+if (!isset($_SESSION['palpite_pendente'])) {
+    if (count($palpites) !== count($jogos)) {
+        setFlashMessage('warning', 'Você precisa dar palpites para todos os jogos.');
+        redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
     }
 
-} catch (PDOException $e) {
-    // Debug: Mostrar erro específico
-    die("Erro SQL: " . $e->getMessage() . "<br>Código: " . $e->getCode());
-    
-    setFlashMessage('danger', 'Erro ao salvar seus palpites. Por favor, tente novamente.');
-    redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
+    // Preparar o JSON de palpites
+    $palpitesJson = json_encode(['jogos' => $palpites]);
+
+    try {
+        // Sempre inserir como pendente inicialmente
+        $stmt = $pdo->prepare("
+            INSERT INTO palpites (
+                jogador_id,
+                bolao_id,
+                palpites,
+                status,
+                data_palpite
+            ) VALUES (
+                :jogador_id,
+                :bolao_id,
+                :palpites,
+                'pendente',
+                NOW()
+            )
+        ");
+
+        $stmt->execute([
+            ':jogador_id' => $jogadorId,
+            ':bolao_id' => $bolaoId,
+            ':palpites' => $palpitesJson
+        ]);
+
+        $palpiteId = $pdo->lastInsertId();
+
+        // Se não houver valor de participação, atualizar para pago e redirecionar
+        if ($bolao['valor_participacao'] <= 0) {
+            $stmt = $pdo->prepare("UPDATE palpites SET status = 'pago' WHERE id = ?");
+            $stmt->execute([$palpiteId]);
+            
+            setFlashMessage('success', 'Seus palpites foram registrados com sucesso!');
+            redirect(APP_URL . '/agradecimento.php');
+        }
+    } catch (PDOException $e) {
+        error_log("Erro ao salvar palpite: " . $e->getMessage());
+        setFlashMessage('danger', 'Erro ao salvar seus palpites. Por favor, tente novamente.');
+        redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
+    }
 }
 
 // Helper function para obter o texto do resultado
@@ -565,115 +570,124 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Função para copiar código PIX
+// Função para copiar o código PIX
 function copyPixCode() {
     const pixCode = document.getElementById('pixCode');
     pixCode.select();
     document.execCommand('copy');
     
-    // Feedback visual
-    const button = document.querySelector('.copy-button');
-    const originalText = button.innerHTML;
-    button.innerHTML = '<i class="bi bi-check"></i> Código Copiado!';
-    button.classList.add('btn-success');
-    button.classList.remove('btn-outline-primary');
+    const copyButton = document.querySelector('.copy-button');
+    const originalText = copyButton.innerHTML;
+    copyButton.innerHTML = '<i class="bi bi-check"></i> Copiado!';
     
     setTimeout(() => {
-        button.innerHTML = originalText;
-        button.classList.remove('btn-success');
-        button.classList.add('btn-outline-primary');
+        copyButton.innerHTML = originalText;
     }, 2000);
 }
 
-// Verificar status do pagamento a cada 5 segundos
-<?php if ($usuarioLogado && $bolao['valor_participacao'] > 0): ?>
-let checkPaymentInterval;
-
-function updatePaymentStatus(status) {
-    const statusElement = document.querySelector('.payment-status');
-    if (!statusElement) return;
-
-    statusElement.className = 'payment-status p-3 rounded mb-3';
-    
-    switch (status) {
-        case 'paid':
-            statusElement.classList.add('bg-success', 'text-white');
-            statusElement.innerHTML = '<i class="bi bi-check-circle"></i> Pagamento confirmado! Redirecionando...';
-            break;
-        case 'pending':
-            statusElement.classList.add('bg-warning', 'text-dark');
-            statusElement.innerHTML = '<i class="bi bi-clock"></i> Aguardando confirmação do pagamento...';
-            break;
-        case 'error':
-            statusElement.classList.add('bg-danger', 'text-white');
-            statusElement.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Erro ao verificar pagamento. Tentando novamente...';
-            break;
-    }
-}
-
+// Função para verificar o status do pagamento
 function checkPaymentStatus() {
-    fetch('ajax/check-payment.php', {
+    const userId = <?= $jogadorId ?>;
+    const bolaoId = <?= $bolaoId ?>;
+    const sessionId = '<?= session_id() ?>';
+
+    fetch('<?= APP_URL ?>/ajax/check-payment.php', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-            'X-Requested-With': 'XMLHttpRequest'
+            'Content-Type': 'application/json'
         },
-        credentials: 'same-origin',
         body: JSON.stringify({
-            bolao_id: <?= $bolao['id'] ?>,
-            user_id: <?= getCurrentUserId() ?>,
-            session_id: '<?= session_id() ?>',
-            _: new Date().getTime()
+            user_id: userId,
+            bolao_id: bolaoId,
+            session_id: sessionId
         })
     })
-    .then(response => response.text())
-    .then(text => {
-        // Se a resposta contiver HTML, provavelmente é a página de redirecionamento após o pagamento
-        if (text.includes('<br') || text.includes('<b>')) {
-            return { status: 'paid' };
-        }
-        
-        // Tenta parsear como JSON
-        try {
-            return text ? JSON.parse(text) : { status: 'error' };
-        } catch (e) {
-            // Se não conseguir parsear e não for HTML, é um erro
-            return { status: 'error' };
-        }
-    })
+    .then(response => response.json())
     .then(data => {
+        console.log('Payment status:', data);
+        
+        const paymentStatus = document.querySelector('.payment-status');
+        const statusBadge = document.querySelector('.badge');
+        
         if (data.status === 'paid') {
-            // Limpar o intervalo imediatamente para evitar mais requisições
-            clearInterval(checkPaymentInterval);
-            
-            // Atualizar UI
-            const statusElement = document.querySelector('.payment-status');
-            if (statusElement) {
-                statusElement.className = 'payment-status p-3 rounded mb-3 bg-success text-white';
-                statusElement.innerHTML = '<i class="bi bi-check-circle"></i> Pagamento confirmado! Redirecionando...';
+            // Atualizar interface para mostrar pagamento confirmado
+            if (paymentStatus) {
+                paymentStatus.className = 'payment-status p-3 rounded mb-3 bg-success text-white';
+                paymentStatus.innerHTML = '<i class="bi bi-check-circle"></i> Pagamento confirmado!';
             }
             
-            // Redirecionar após um breve delay
-            setTimeout(() => {
-                window.location.href = '<?= APP_URL ?>/agradecimento.php';
-            }, 2000);
+            // Atualizar badge de status
+            if (statusBadge) {
+                statusBadge.className = 'badge bg-success';
+                statusBadge.textContent = 'Pago';
+            }
+            
+            // Redirecionar para página de agradecimento
+            window.location.href = '<?= APP_URL ?>/agradecimento.php';
+            
+            // Parar a verificação
+            clearInterval(checkInterval);
+        } else if (data.status === 'cancelled') {
+            // Atualizar interface para mostrar pagamento cancelado
+            if (paymentStatus) {
+                paymentStatus.className = 'payment-status p-3 rounded mb-3 bg-danger text-white';
+                paymentStatus.innerHTML = '<i class="bi bi-x-circle"></i> ' + (data.message || 'Pagamento cancelado');
+            }
+            
+            // Atualizar badge de status
+            if (statusBadge) {
+                statusBadge.className = 'badge bg-danger';
+                statusBadge.textContent = 'Cancelado';
+            }
+            
+            // Parar a verificação
+            clearInterval(checkInterval);
         } else if (data.status === 'pending') {
-            updatePaymentStatus('pending');
+            // Atualizar interface para mostrar pagamento pendente
+            if (paymentStatus) {
+                paymentStatus.className = 'payment-status p-3 rounded mb-3 bg-warning text-dark';
+                paymentStatus.innerHTML = '<i class="bi bi-clock"></i> ' + (data.message || 'Aguardando confirmação do pagamento...');
+            }
+            
+            // Atualizar badge de status
+            if (statusBadge) {
+                statusBadge.className = 'badge bg-warning text-dark';
+                statusBadge.textContent = 'Pendente';
+            }
+        } else if (data.status === 'error') {
+            // Atualizar interface para mostrar erro
+            if (paymentStatus) {
+                paymentStatus.className = 'payment-status p-3 rounded mb-3 bg-danger text-white';
+                paymentStatus.innerHTML = '<i class="bi bi-exclamation-triangle"></i> ' + (data.message || 'Erro ao verificar pagamento');
+            }
+            
+            // Atualizar badge de status
+            if (statusBadge) {
+                statusBadge.className = 'badge bg-danger';
+                statusBadge.textContent = 'Erro';
+            }
+            
+            // Parar a verificação em caso de erro
+            clearInterval(checkInterval);
         }
-        // Ignora silenciosamente outros status
     })
     .catch(error => {
-        // Apenas log no console, sem afetar a UI
-        console.log('Erro na verificação:', error);
+        console.error('Erro na requisição:', error);
+        
+        // Mostrar erro na interface
+        const paymentStatus = document.querySelector('.payment-status');
+        if (paymentStatus) {
+            paymentStatus.className = 'payment-status p-3 rounded mb-3 bg-danger text-white';
+            paymentStatus.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Erro ao verificar pagamento';
+        }
     });
 }
 
-checkPaymentInterval = setInterval(checkPaymentStatus, 5000);
+// Iniciar verificação a cada 5 segundos
+const checkInterval = setInterval(checkPaymentStatus, 5000);
+
+// Verificar imediatamente ao carregar a página
 checkPaymentStatus();
-<?php endif; ?>
 
 // Adicionar script para gerar palpites aleatórios
 function gerarPalpitesAleatorios() {

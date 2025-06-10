@@ -284,20 +284,66 @@ class EfiPixManager {
             throw new Exception('Erro ao verificar pagamento: ' . $err);
         }
 
-        $responseData = json_decode($response, true);
-        error_log("Resposta decodificada: " . print_r($responseData, true));
-
-        // Verificar se o pagamento foi concluído
-        $status = 'PENDENTE';
-        if (isset($responseData['status'])) {
-            $status = $responseData['status'];
-        } else if (isset($responseData['pix']) && !empty($responseData['pix'])) {
-            $status = 'CONCLUIDA';
+        if ($httpCode !== 200) {
+            error_log("ERRO: Código HTTP inválido - " . $httpCode);
+            throw new Exception('Erro ao verificar pagamento. HTTP Code: ' . $httpCode);
         }
 
-        error_log("Status final determinado: " . $status);
+        $responseData = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("ERRO: Falha ao decodificar JSON - " . json_last_error_msg());
+            throw new Exception('Erro ao decodificar resposta da API');
+        }
+
+        error_log("Resposta decodificada: " . print_r($responseData, true));
+
+        // Verificar se a resposta contém os campos necessários
+        if (!isset($responseData['status'])) {
+            error_log("ERRO: Campo 'status' não encontrado na resposta");
+            throw new Exception('Resposta da API inválida: campo status não encontrado');
+        }
+
+        // Verificar se há pagamentos PIX
+        $pixPagamentos = isset($responseData['pix']) ? $responseData['pix'] : [];
+        $valorPago = 0;
+
+        // Calcular valor total pago
+        foreach ($pixPagamentos as $pix) {
+            if (isset($pix['valor'])) {
+                $valorPago += floatval($pix['valor']);
+            }
+        }
+
+        // Verificar se o valor cobrado está presente
+        if (!isset($responseData['valor']['original'])) {
+            error_log("ERRO: Valor original não encontrado na resposta");
+            throw new Exception('Resposta da API inválida: valor original não encontrado');
+        }
+
+        $valorCobrado = floatval($responseData['valor']['original']);
+        $status = $responseData['status'];
+
+        // Determinar o status final
+        if ($status === 'CONCLUIDA' && $valorPago >= $valorCobrado) {
+            $statusFinal = 'CONCLUIDA';
+        } else if ($status === 'REMOVIDA_PELO_PSP') {
+            $statusFinal = 'REMOVIDA';
+        } else {
+            $statusFinal = 'PENDENTE';
+        }
+
+        error_log("Status final determinado: " . $statusFinal);
+        error_log("Valor cobrado: " . $valorCobrado);
+        error_log("Valor pago: " . $valorPago);
         error_log("=== Fim checkPayment ===\n");
 
-        return ['status' => $status];
+        return [
+            'status' => $statusFinal,
+            'valor' => [
+                'cobrado' => $valorCobrado,
+                'pago' => $valorPago
+            ],
+            'pix' => $pixPagamentos
+        ];
     }
 } 

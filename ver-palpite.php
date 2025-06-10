@@ -13,7 +13,7 @@ $palpiteId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 // Buscar dados do palpite
 $palpite = dbFetchOne(
-    "SELECT p.*, b.nome as bolao_nome, b.jogos, b.data_inicio, b.data_fim 
+    "SELECT p.*, b.nome as bolao_nome, b.jogos, b.data_inicio, b.data_fim, b.valor_participacao 
      FROM palpites p 
      JOIN dados_boloes b ON p.bolao_id = b.id 
      WHERE p.id = ? AND p.jogador_id = ?",
@@ -23,6 +23,17 @@ $palpite = dbFetchOne(
 if (!$palpite) {
     setFlashMessage('danger', 'Palpite não encontrado ou você não tem permissão para visualizá-lo.');
     redirect(APP_URL . '/meus-palpites.php');
+}
+
+// Se o palpite estiver pendente e o bolão tem valor de participação, redirecionar para confirmação
+if ($palpite['status'] === 'pendente' && $palpite['valor_participacao'] > 0) {
+    // Salvar dados do palpite na sessão para recuperar na página de confirmação
+    $_SESSION['palpite_pendente'] = [
+        'id' => $palpiteId,
+        'bolao_id' => $palpite['bolao_id']
+    ];
+    
+    redirect(APP_URL . '/confirmar-palpite.php?id=' . $palpite['bolao_id']);
 }
 
 // Decodificar palpites e jogos

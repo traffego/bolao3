@@ -345,6 +345,16 @@ include TEMPLATE_DIR . '/header.php';
 
     <!-- Lista de Jogos -->
     <div class="col-md-8">
+        <!-- Loader -->
+        <div id="palpitesLoader" class="text-center p-5">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            <p class="mt-3">Carregando palpites...</p>
+        </div>
+
+        <!-- Área de Palpites (inicialmente oculta) -->
+        <div id="areaPalpites" style="display: none;">
         <?php if (!empty($jogos)): ?>
             <?php
             // Verificar se o usuário já tem palpites para este bolão
@@ -474,8 +484,9 @@ include TEMPLATE_DIR . '/header.php';
             <div class="alert alert-info">
                 Nenhum jogo cadastrado neste bolão ainda.
             </div>
-    <?php endif; ?>
+        <?php endif; ?>
         </div>
+    </div>
 </div>
 
 <?php if (isset($mensagem) && !empty($mensagem)): ?>
@@ -535,6 +546,39 @@ include TEMPLATE_DIR . '/header.php';
 </div>
 
 <script>
+// Função para mostrar o loader e esconder a área de palpites
+function showLoader() {
+    document.getElementById('palpitesLoader').style.display = 'block';
+    document.getElementById('areaPalpites').style.display = 'none';
+}
+
+// Função para esconder o loader e mostrar a área de palpites
+function hideLoader() {
+    document.getElementById('palpitesLoader').style.display = 'none';
+    document.getElementById('areaPalpites').style.display = 'block';
+}
+
+// Quando a página carregar completamente
+document.addEventListener('DOMContentLoaded', function() {
+    // Mostra o loader inicialmente
+    showLoader();
+    
+    // Espera todas as imagens carregarem
+    Promise.all(Array.from(document.images).map(img => {
+        if (img.complete) {
+            return Promise.resolve();
+        } else {
+            return new Promise(resolve => {
+                img.addEventListener('load', resolve);
+                img.addEventListener('error', resolve); // Em caso de erro, também continua
+            });
+        }
+    })).then(() => {
+        // Quando todas as imagens estiverem carregadas, esconde o loader
+        hideLoader();
+    });
+});
+
 // Inicializar tooltips do Bootstrap
 document.addEventListener('DOMContentLoaded', function() {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

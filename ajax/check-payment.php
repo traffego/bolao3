@@ -60,7 +60,7 @@ try {
 
     // Validar dados necessários
     if (!isset($jsonData['bolao_id']) || !isset($jsonData['user_id'])) {
-        throw new Exception('Dados obrigatórios não fornecidos');
+        throw new Exception('Dados obrigatórios não fornecidos (bolao_id e user_id)');
     }
 
     $bolaoId = (int)$jsonData['bolao_id'];
@@ -78,98 +78,124 @@ try {
     require_once __DIR__ . '/../includes/EfiPixManager.php';
 
     // Buscar dados do usuário
-    $user = dbFetchOne("SELECT txid_pagamento, pagamento_confirmado FROM jogador WHERE id = ?", [$userId]);
+    $user = dbFetchOne("
+        SELECT j.id, j.txid_pagamento, j.pagamento_confirmado, p.id as palpite_id, p.status as palpite_status
+        FROM jogador j
+        LEFT JOIN palpites p ON p.jogador_id = j.id 
+            AND p.bolao_id = ? 
+            AND p.status = 'pendente'
+        WHERE j.id = ?
+        ORDER BY p.data_palpite DESC
+        LIMIT 1
+    ", [$bolaoId, $userId]);
+
+    $bolao = dbFetchOne("SELECT valor_participacao FROM dados_boloes WHERE id = ?", [$bolaoId]);
+
     if (!$user) {
         throw new Exception('Usuário não encontrado');
     }
+    if (!$bolao) {
+        throw new Exception('Bolão não encontrado');
+    }
 
-    // Se já confirmado, retornar status pago
-    if ($user['pagamento_confirmado']) {
-        echo json_encode(['status' => 'paid']);
+    error_log("Dados do usuário: " . print_r($user, true));
+    error_log("Dados do bolão: " . print_r($bolao, true));
+
+    // Se não tem palpite pendente
+    if (empty($user['palpite_id'])) {
+        error_log("Nenhum palpite pendente encontrado");
+        echo json_encode(['status' => 'error', 'message' => 'Nenhum palpite pendente encontrado']);
         exit;
     }
 
-    // Se não tem TXID, ainda não iniciou o pagamento
+    // Se não tem TXID
     if (empty($user['txid_pagamento'])) {
-        echo json_encode(['status' => 'pending']);
+        error_log("TXID não encontrado");
+        echo json_encode(['status' => 'pending', 'message' => 'Aguardando início do pagamento']);
         exit;
     }
 
     // Verificar status na API do EFIBANK
     $efiPix = new EfiPixManager();
     $paymentStatus = $efiPix->checkPayment($user['txid_pagamento']);
+    error_log("Status do pagamento EFIBANK: " . print_r($paymentStatus, true));
 
-    // Debug logs
-    error_log("=== Debug Check Payment ===");
-    error_log("TXID: " . $user['txid_pagamento']);
-    error_log("Payment Status: " . print_r($paymentStatus, true));
-    error_log("User ID: " . $userId);
-    error_log("Bolao ID: " . $bolaoId);
-
+    // Verificar status do pagamento
     if ($paymentStatus['status'] === 'CONCLUIDA') {
-        error_log("Payment status is CONCLUIDA - Starting transaction");
+        // Verificar valor pago
+        $valorPago = $paymentStatus['valor']['pago'];
+        $valorBolao = (float)$bolao['valor_participacao'];
+        
+        if ($valorPago < $valorBolao) {
+            error_log("Valor pago insuficiente - Esperado: {$valorBolao}, Recebido: {$valorPago}");
+            echo json_encode([
+                'status' => 'pending',
+                'message' => 'Valor pago inferior ao valor do bolão'
+            ]);
+            exit;
+        }
+
         // Iniciar transação
+        error_log("Iniciando transação para confirmar pagamento");
         $pdo->beginTransaction();
         
         try {
-            // Atualizar status do pagamento do jogador
-            error_log("Updating jogador payment status");
-            dbExecute("UPDATE jogador SET pagamento_confirmado = 1 WHERE id = ?", [$userId]);
-            
-            // Buscar o ID do último palpite
-            $lastPalpite = dbFetchOne("
-                SELECT id 
-                FROM palpites 
-                WHERE jogador_id = ? 
-                AND bolao_id = ? 
-                ORDER BY data_palpite DESC 
-                LIMIT 1", 
-                [$userId, $bolaoId]
+            // Atualizar status do palpite
+            dbExecute("UPDATE palpites SET status = 'pago' WHERE id = ?", [$user['palpite_id']]);
+            error_log("Palpite {$user['palpite_id']} atualizado para pago");
+
+            // Registrar pagamento na tabela pagamentos
+            dbExecute("
+                INSERT INTO pagamentos (
+                    jogador_id, 
+                    bolao_id, 
+                    valor, 
+                    tipo,
+                    status, 
+                    metodo_pagamento,
+                    data_pagamento
+                ) VALUES (?, ?, ?, 'entrada', 'confirmado', 'pix', NOW())",
+                [$userId, $bolaoId, $valorPago]
             );
-            
-            if ($lastPalpite) {
-                // Atualizar status do palpite para 'pago'
-                error_log("Updating palpite status for ID: " . $lastPalpite['id']);
-                dbExecute("UPDATE palpites SET status = 'pago' WHERE id = ?", [$lastPalpite['id']]);
-                
-                // Salvar o ID do palpite na sessão
-                $_SESSION['palpite_pago_id'] = $lastPalpite['id'];
-                error_log("Saved palpite ID in session: " . $lastPalpite['id']);
-            }
-            
+            error_log("Pagamento registrado na tabela pagamentos");
+
             // Commit da transação
-            error_log("Committing transaction");
             $pdo->commit();
-            
-            // Garantir que a sessão está iniciada
-            if (session_status() !== PHP_SESSION_ACTIVE) {
-                session_start();
-            }
-            
-            // Definir flag na sessão
-            $_SESSION['payment_confirmed'] = true;
-            error_log("Payment confirmation complete");
-            
-            echo json_encode(['status' => 'paid']);
+            error_log("Transação concluída com sucesso");
+
+            echo json_encode([
+                'status' => 'paid',
+                'palpite_id' => $user['palpite_id']
+            ]);
+
         } catch (Exception $e) {
-            // Se houver erro, fazer rollback
-            error_log("Error in transaction: " . $e->getMessage());
-            error_log("Stack trace: " . $e->getTraceAsString());
             $pdo->rollBack();
-            throw $e;
+            error_log("Erro na transação: " . $e->getMessage());
+            throw new Exception('Erro ao processar pagamento: ' . $e->getMessage());
         }
+    } else if ($paymentStatus['status'] === 'REMOVIDA') {
+        error_log("Pagamento removido pelo PSP");
+        echo json_encode([
+            'status' => 'cancelled',
+            'message' => 'Pagamento foi cancelado ou removido'
+        ]);
     } else {
-        error_log("Payment status is not CONCLUIDA: " . ($paymentStatus['status'] ?? 'unknown'));
-        echo json_encode(['status' => 'pending']);
+        error_log("Pagamento ainda pendente: " . $paymentStatus['status']);
+        echo json_encode([
+            'status' => 'pending',
+            'message' => 'Aguardando confirmação do pagamento'
+        ]);
     }
-    error_log("=== End Debug Check Payment ===");
+
+    error_log("=== Fim da Verificação de Pagamento ===\n");
 
 } catch (Exception $e) {
     error_log("Erro na verificação de pagamento: " . $e->getMessage());
     error_log("Stack trace: " . $e->getTraceAsString());
     
     echo json_encode([
-        'error' => $e->getMessage(),
+        'status' => 'error',
+        'message' => $e->getMessage(),
         'trace' => DEBUG_MODE ? $e->getTraceAsString() : null
     ]);
 } 
