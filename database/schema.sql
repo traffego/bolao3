@@ -108,6 +108,7 @@ CREATE TABLE IF NOT EXISTS palpites (
     bolao_id INT NOT NULL,
     palpites JSON NOT NULL COMMENT 'JSON com os palpites no formato: {"jogo_id": "1"} onde 1=casa vence, 0=empate, 2=visitante vence',
     data_palpite DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('pendente', 'pago', 'cancelado') DEFAULT 'pendente',
     FOREIGN KEY (jogador_id) REFERENCES jogadores(id) ON DELETE CASCADE,
     FOREIGN KEY (bolao_id) REFERENCES boloes(id) ON DELETE CASCADE,
     UNIQUE KEY unique_palpite (jogador_id, bolao_id)

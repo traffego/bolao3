@@ -99,22 +99,70 @@ try {
     $efiPix = new EfiPixManager();
     $paymentStatus = $efiPix->checkPayment($user['txid_pagamento']);
 
+    // Debug logs
+    error_log("=== Debug Check Payment ===");
+    error_log("TXID: " . $user['txid_pagamento']);
+    error_log("Payment Status: " . print_r($paymentStatus, true));
+    error_log("User ID: " . $userId);
+    error_log("Bolao ID: " . $bolaoId);
+
     if ($paymentStatus['status'] === 'CONCLUIDA') {
-        // Atualizar status no banco
-        dbExecute("UPDATE jogador SET pagamento_confirmado = 1 WHERE id = ?", [$userId]);
+        error_log("Payment status is CONCLUIDA - Starting transaction");
+        // Iniciar transação
+        $pdo->beginTransaction();
         
-        // Garantir que a sessão está iniciada
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
+        try {
+            // Atualizar status do pagamento do jogador
+            error_log("Updating jogador payment status");
+            dbExecute("UPDATE jogador SET pagamento_confirmado = 1 WHERE id = ?", [$userId]);
+            
+            // Buscar o ID do último palpite
+            $lastPalpite = dbFetchOne("
+                SELECT id 
+                FROM palpites 
+                WHERE jogador_id = ? 
+                AND bolao_id = ? 
+                ORDER BY data_palpite DESC 
+                LIMIT 1", 
+                [$userId, $bolaoId]
+            );
+            
+            if ($lastPalpite) {
+                // Atualizar status do palpite para 'pago'
+                error_log("Updating palpite status for ID: " . $lastPalpite['id']);
+                dbExecute("UPDATE palpites SET status = 'pago' WHERE id = ?", [$lastPalpite['id']]);
+                
+                // Salvar o ID do palpite na sessão
+                $_SESSION['palpite_pago_id'] = $lastPalpite['id'];
+                error_log("Saved palpite ID in session: " . $lastPalpite['id']);
+            }
+            
+            // Commit da transação
+            error_log("Committing transaction");
+            $pdo->commit();
+            
+            // Garantir que a sessão está iniciada
+            if (session_status() !== PHP_SESSION_ACTIVE) {
+                session_start();
+            }
+            
+            // Definir flag na sessão
+            $_SESSION['payment_confirmed'] = true;
+            error_log("Payment confirmation complete");
+            
+            echo json_encode(['status' => 'paid']);
+        } catch (Exception $e) {
+            // Se houver erro, fazer rollback
+            error_log("Error in transaction: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            $pdo->rollBack();
+            throw $e;
         }
-        
-        // Definir flag na sessão
-        $_SESSION['payment_confirmed'] = true;
-        
-        echo json_encode(['status' => 'paid']);
     } else {
+        error_log("Payment status is not CONCLUIDA: " . ($paymentStatus['status'] ?? 'unknown'));
         echo json_encode(['status' => 'pending']);
     }
+    error_log("=== End Debug Check Payment ===");
 
 } catch (Exception $e) {
     error_log("Erro na verificação de pagamento: " . $e->getMessage());

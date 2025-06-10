@@ -13,10 +13,10 @@ $pageTitle = 'Início';
 $boloes = dbFetchAll("SELECT b.*, 
                        COUNT(DISTINCT p.jogador_id) as total_jogadores,
                        a.nome as admin_nome
-                    FROM boloes b
+                    FROM dados_boloes b
                     LEFT JOIN palpites p ON p.bolao_id = b.id
-                    JOIN administrador a ON a.id = b.admin_id
-                    WHERE b.status = 'aberto' 
+                    LEFT JOIN administrador a ON a.id = b.admin_id
+                    WHERE b.status = 1 
                     GROUP BY b.id
                     ORDER BY b.data_fim ASC
                     LIMIT 4");
@@ -93,10 +93,12 @@ include TEMPLATE_DIR . '/header.php';
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><?= sanitize($bolao['titulo']) ?></h5>
+                        <h5 class="mb-0"><?= sanitize($bolao['nome']) ?></h5>
                     </div>
                     <div class="card-body">
-                        <p><?= nl2br(sanitize($bolao['descricao'])) ?></p>
+                        <?php if (!empty($bolao['descricao'])): ?>
+                            <p><?= nl2br(sanitize($bolao['descricao'])) ?></p>
+                        <?php endif; ?>
                         <div class="d-flex justify-content-between mb-2">
                             <span><i class="bi bi-calendar-event"></i> Término: <?= formatDate($bolao['data_fim']) ?></span>
                             <span><i class="bi bi-people-fill"></i> <?= $bolao['total_jogadores'] ?> jogadores</span>

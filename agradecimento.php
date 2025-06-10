@@ -1,8 +1,10 @@
 <?php
 require_once __DIR__ . '/config/config.php';
 
-// Iniciar a sessão
-session_start();
+// Iniciar a sessão apenas se ainda não estiver ativa
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Verificar se o usuário está logado
 if (!isset($_SESSION['user_id'])) {
@@ -18,9 +20,13 @@ if (!isset($_SESSION['payment_confirmed']) || $_SESSION['payment_confirmed'] !==
     exit;
 }
 
+// Pegar o ID do palpite que foi pago
+$palpiteId = isset($_SESSION['palpite_pago_id']) ? (int)$_SESSION['palpite_pago_id'] : 0;
+
 // Limpar a flag de pagamento confirmado após mostrar a página
 // Isso evita que o usuário acesse a página novamente após sair
 $_SESSION['payment_confirmed'] = false;
+unset($_SESSION['palpite_pago_id']); // Limpar também o ID do palpite
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -47,7 +53,12 @@ $_SESSION['payment_confirmed'] = false;
                             Seus palpites foram registrados com sucesso.<br>
                             Obrigado por participar do nosso bolão!
                         </p>
-                        <div class="mt-4">
+                        <div class="mt-4 d-flex flex-column gap-3">
+                            <?php if ($palpiteId > 0): ?>
+                            <a href="<?= APP_URL ?>/ver-palpite.php?id=<?= $palpiteId ?>" class="btn btn-success btn-lg px-5">
+                                <i class="bi bi-eye me-2"></i> Ver Meu Palpite
+                            </a>
+                            <?php endif; ?>
                             <a href="<?= APP_URL ?>/boloes.php" class="btn btn-primary btn-lg px-5">
                                 <i class="bi bi-trophy me-2"></i> Ver Todos os Bolões
                             </a>

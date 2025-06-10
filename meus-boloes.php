@@ -70,7 +70,7 @@ include TEMPLATE_DIR . '/header.php';
                             </div>
                             
                             <div class="d-flex gap-2">
-                                <a href="<?= APP_URL ?>/bolao.php?slug=<?= $bolao['slug'] ?>" class="btn btn-primary flex-grow-1">
+                                <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="btn btn-primary flex-grow-1">
                                     Ver Detalhes
                                 </a>
                                 <a href="<?= APP_URL ?>/meus-palpites.php?bolao_id=<?= $bolao['id'] ?>" class="btn btn-outline-primary flex-grow-1">

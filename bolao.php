@@ -4,16 +4,19 @@ require_once __DIR__ . '/config/database.php';
 // database_functions.php não é mais necessário pois está incluído em database.php
 require_once __DIR__ . '/includes/functions.php';
 
-// Obter o slug do bolão da URL
-$slug = isset($_GET['slug']) ? $_GET['slug'] : '';
+// Obter o ID do bolão da URL
+$bolaoId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-// Se não tiver slug, redireciona para a lista de bolões públicos
-if (empty($slug)) {
+// Se não tiver ID, redireciona para a lista de bolões públicos
+if ($bolaoId <= 0) {
     redirect(APP_URL . '/boloes.php');
 }
 
 // Buscar dados do bolão
-$bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE slug = ? AND status = 1", [$slug]);
+$bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE id = ? AND status = 1", [$bolaoId]);
+
+// DEBUG: Mostrar ID do bolão
+echo "ID do Bolão: " . ($bolao['id'] ?? 'não encontrado') . "<br>";
 
 // Se bolão não existe ou não está ativo
 if (!$bolao) {
@@ -195,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'bolao_id' => $bolao['id'],
                     'palpites' => $palpitesForm
                 ];
-                $_SESSION['login_redirect'] = APP_URL . '/bolao.php?slug=' . $slug;
+                $_SESSION['login_redirect'] = APP_URL . '/bolao.php?id=' . $bolao['id'];
                 setFlashMessage('info', 'Por favor, faça login para salvar seus palpites.');
                 redirect(APP_URL . '/login.php');
             } 
@@ -287,41 +290,55 @@ include TEMPLATE_DIR . '/header.php';
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">Informações do Bolão</h5>
-        </div>
-        <div class="card-body">
+            </div>
+            <div class="card-body">
                 <h2 class="mb-3"><?= htmlspecialchars($bolao['nome']) ?></h2>
                 <?php if (!empty($bolao['descricao'])): ?>
                     <p class="text-muted"><?= nl2br(htmlspecialchars($bolao['descricao'])) ?></p>
                 <?php endif; ?>
                 
-                <div class="mb-3">
-                    <strong>Período:</strong><br>
-                    <?= formatDate($bolao['data_inicio']) ?> a <?= formatDate($bolao['data_fim']) ?>
+                <div class="bolao-info">
+                    <div class="info-item">
+                        <i class="bi bi-calendar-range text-primary"></i>
+                        <div class="info-content">
+                            <label>Período:</label>
+                            <span><?= formatDate($bolao['data_inicio']) ?> a <?= formatDate($bolao['data_fim']) ?></span>
                         </div>
-                
-                            <?php if (!empty($bolao['data_limite_palpitar'])): ?>
-                    <div class="mb-3">
-                        <strong>Prazo para Palpites:</strong><br>
-                                <?= formatDateTime($bolao['data_limite_palpitar']) ?>
-                                <?php if ($prazoEncerrado): ?>
-                                    <span class="badge bg-danger">Encerrado</span>
-                                <?php endif; ?>
                     </div>
-                            <?php endif; ?>
-                
-                <?php if ($bolao['valor_participacao'] > 0): ?>
-                    <div class="mb-3">
-                        <strong>Valor de Participação:</strong><br>
-                            <?= formatMoney($bolao['valor_participacao']) ?>
+
+                    <?php if (!empty($bolao['data_limite_palpitar'])): ?>
+                    <div class="info-item">
+                        <i class="bi bi-alarm text-warning"></i>
+                        <div class="info-content">
+                            <label>Prazo para Palpites:</label>
+                            <span><?= formatDateTime($bolao['data_limite_palpitar']) ?>
+                            <?php if ($prazoEncerrado): ?>
+                                <span class="badge bg-danger">Encerrado</span>
+                            <?php endif; ?></span>
+                        </div>
                     </div>
-                <?php endif; ?>
-                
-                <?php if ($bolao['premio_total'] > 0): ?>
-                    <div class="mb-3">
-                        <strong>Prêmio Total:</strong><br>
-                            <?= formatMoney($bolao['premio_total']) ?>
+                    <?php endif; ?>
+
+                    <?php if ($bolao['valor_participacao'] > 0): ?>
+                    <div class="info-item">
+                        <i class="bi bi-coin text-success"></i>
+                        <div class="info-content">
+                            <label>Valor de Participação:</label>
+                            <span><?= formatMoney($bolao['valor_participacao']) ?></span>
+                        </div>
                     </div>
-                <?php endif; ?>
+                    <?php endif; ?>
+
+                    <?php if ($bolao['premio_total'] > 0): ?>
+                    <div class="info-item">
+                        <i class="bi bi-trophy text-warning"></i>
+                        <div class="info-content">
+                            <label>Prêmio Total:</label>
+                            <span><?= formatMoney($bolao['premio_total']) ?></span>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>
@@ -348,7 +365,6 @@ include TEMPLATE_DIR . '/header.php';
             
             <form method="post" action="<?= APP_URL ?>/confirmar-palpite.php" id="formPalpites">
                 <input type="hidden" name="bolao_id" value="<?= $bolao['id'] ?>">
-                <input type="hidden" name="bolao_slug" value="<?= $slug ?>">
                 
                 <!-- Card de palpites aleatórios -->
                 <?php if (!$prazoEncerrado): ?>
@@ -387,74 +403,57 @@ include TEMPLATE_DIR . '/header.php';
                             <div class="row align-items-center">
                                 <div class="col-md-12">
                                     <div class="palpites-container text-center">
-                                        <div class="mb-2">
-                                            <small class="text-muted"><?= formatDateTime($jogo['data']) ?></small>
+                                        <div class="mb-3 game-datetime">
+                                            <span class="date-badge">
+                                                <i class="bi bi-calendar-event me-1"></i>
+                                                <?= date('d/m/Y', strtotime($jogo['data'])) ?>
+                                            </span>
+                                            <span class="time-badge ms-2">
+                                                <i class="bi bi-clock me-1"></i>
+                                                <?= date('H:i', strtotime($jogo['data'])) ?>
+                                            </span>
                                         </div>
-                                                    
-                                        <?php if (!$prazoEncerrado): ?>
-                                            <div class="btn-group-vertical" role="group">
-                                                <!-- Input hidden para armazenar o valor -->
-                                                <input type="radio" class="btn-check" name="resultado_<?= $jogo['id'] ?>" 
-                                                       id="casa_<?= $jogo['id'] ?>" value="1" 
-                                                       <?= ($palpiteJogo === "1") ? 'checked' : '' ?> 
-                                                       <?= $disabled ?> required>
-                                                <input type="radio" class="btn-check" name="resultado_<?= $jogo['id'] ?>" 
-                                                       id="empate_<?= $jogo['id'] ?>" value="0" 
-                                                       <?= ($palpiteJogo === "0") ? 'checked' : '' ?> 
-                                                       <?= $disabled ?> required>
-                                                <input type="radio" class="btn-check" name="resultado_<?= $jogo['id'] ?>" 
-                                                       id="visitante_<?= $jogo['id'] ?>" value="2" 
-                                                       <?= ($palpiteJogo === "2") ? 'checked' : '' ?> 
-                                                       <?= $disabled ?> required>
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <div class="palpites-buttons btn-group" role="group">
+                                                <input type="radio" 
+                                                       class="btn-check" 
+                                                       name="resultado_<?= $jogo['id'] ?>" 
+                                                       id="casa_<?= $jogo['id'] ?>" 
+                                                       value="1" 
+                                                       <?= ($palpiteJogo === '1') ? 'checked' : '' ?> 
+                                                       <?= $disabled ?>>
+                                                <label class="btn btn-outline-success btn-palpite btn-time <?= ($palpiteJogo === '1') ? 'active' : '' ?>" 
+                                                       for="casa_<?= $jogo['id'] ?>">
+                                                    <img src="<?= getTeamLogo($jogo['time_casa']) ?>" alt="<?= $jogo['time_casa'] ?>" class="team-logo-btn">
+                                                    <span class="team-name-btn"><?= $jogo['time_casa'] ?></span>
+                                                </label>
 
-                                                <!-- Botões personalizados -->
-                                                <div class="palpites-buttons">
-                                                    <!-- Botão Time Casa -->
-                                                    <label class="btn-palpite btn-time-casa <?= ($palpiteJogo === "1") ? 'active' : '' ?>" 
-                                                           for="casa_<?= $jogo['id'] ?>"
-                                                           style="background-image: url('<?= getTeamLogo($jogo['time_casa']) ?>')">
-                                                        <div class="team-name"><?= htmlspecialchars($jogo['time_casa']) ?></div>
-                                                        <div class="hover-overlay">
-                                                            <i class="bi bi-check-lg"></i>
-                                                        </div>
-                                                    </label>
+                                                <input type="radio" 
+                                                       class="btn-check" 
+                                                       name="resultado_<?= $jogo['id'] ?>" 
+                                                       id="empate_<?= $jogo['id'] ?>" 
+                                                       value="0" 
+                                                       <?= ($palpiteJogo === '0') ? 'checked' : '' ?> 
+                                                       <?= $disabled ?>>
+                                                <label class="btn btn-outline-warning btn-palpite <?= ($palpiteJogo === '0') ? 'active' : '' ?>" 
+                                                       for="empate_<?= $jogo['id'] ?>">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </label>
 
-                                                    <!-- Botão Empate -->
-                                                    <label class="btn-palpite btn-empate <?= ($palpiteJogo === "0") ? 'active' : '' ?>" 
-                                                           for="empate_<?= $jogo['id'] ?>">
-                                                        <span>X</span>
-                                                        <div class="hover-overlay">
-                                                            <i class="bi bi-check-lg"></i>
-                                                        </div>
-                                                    </label>
-
-                                                    <!-- Botão Time Visitante -->
-                                                    <label class="btn-palpite btn-time-visitante <?= ($palpiteJogo === "2") ? 'active' : '' ?>" 
-                                                           for="visitante_<?= $jogo['id'] ?>"
-                                                           style="background-image: url('<?= getTeamLogo($jogo['time_visitante']) ?>')">
-                                                        <div class="team-name"><?= htmlspecialchars($jogo['time_visitante']) ?></div>
-                                                        <div class="hover-overlay">
-                                                            <i class="bi bi-check-lg"></i>
-                                                        </div>
-                                                    </label>
-                                                </div>
+                                                <input type="radio" 
+                                                       class="btn-check" 
+                                                       name="resultado_<?= $jogo['id'] ?>" 
+                                                       id="fora_<?= $jogo['id'] ?>" 
+                                                       value="2" 
+                                                       <?= ($palpiteJogo === '2') ? 'checked' : '' ?> 
+                                                       <?= $disabled ?>>
+                                                <label class="btn btn-outline-danger btn-palpite btn-time <?= ($palpiteJogo === '2') ? 'active' : '' ?>" 
+                                                       for="fora_<?= $jogo['id'] ?>">
+                                                    <img src="<?= getTeamLogo($jogo['time_visitante']) ?>" alt="<?= $jogo['time_visitante'] ?>" class="team-logo-btn">
+                                                    <span class="team-name-btn"><?= $jogo['time_visitante'] ?></span>
+                                                </label>
                                             </div>
-                                        <?php else: ?>
-                                            <div class="alert alert-info mb-0">
-                                                <?php if ($palpiteJogo): ?>
-                                                    Seu palpite: 
-                                                    <?php if ($palpiteJogo === "1"): ?>
-                                                        <strong>Vitória do <?= htmlspecialchars($jogo['time_casa']) ?></strong>
-                                                    <?php elseif ($palpiteJogo === "2"): ?>
-                                                        <strong>Vitória do <?= htmlspecialchars($jogo['time_visitante']) ?></strong>
-                                                    <?php else: ?>
-                                                        <strong>Empate</strong>
-                                                    <?php endif; ?>
-                                                <?php else: ?>
-                                                    Prazo encerrado
-                                                <?php endif; ?>
-                                            </div>
-                                        <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -462,11 +461,14 @@ include TEMPLATE_DIR . '/header.php';
                     </div>
                 <?php endforeach; ?>
                 
-                <?php if (!$prazoEncerrado): ?>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">Salvar Palpites</button>
-                    </div>
-                <?php endif; ?>
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <a href="<?= APP_URL ?>/boloes.php" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Voltar para Bolões
+                    </a>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-check-circle"></i> Salvar Palpites
+                    </button>
+                </div>
             </form>
         <?php else: ?>
             <div class="alert alert-info">
@@ -482,12 +484,131 @@ include TEMPLATE_DIR . '/header.php';
     </div>
 <?php endif; ?>
 
+<!-- Modal de Login/Cadastro -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Acesso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 border-end">
+                        <h4>Já tenho cadastro</h4>
+                        <form id="loginForm" class="mt-3">
+                            <div class="mb-3">
+                                <label for="loginEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="loginEmail" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="loginPassword" class="form-label">Senha</label>
+                                <input type="password" class="form-control" id="loginPassword" name="senha" required>
+                            </div>
+                            <div class="alert alert-danger d-none" id="loginError"></div>
+                            <button type="submit" class="btn btn-primary">Entrar</button>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Quero me cadastrar</h4>
+                        <form id="registerForm" class="mt-3">
+                            <div class="mb-3">
+                                <label for="registerName" class="form-label">Nome</label>
+                                <input type="text" class="form-control" id="registerName" name="nome" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="registerEmail" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerPassword" class="form-label">Senha</label>
+                                <input type="password" class="form-control" id="registerPassword" name="senha" required>
+                            </div>
+                            <div class="alert alert-danger d-none" id="registerError"></div>
+                            <button type="submit" class="btn btn-success">Cadastrar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 // Inicializar tooltips do Bootstrap
 document.addEventListener('DOMContentLoaded', function() {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Handle form submission
+    document.getElementById('formPalpites').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Check if user is logged in
+        <?php if (!isLoggedIn()): ?>
+            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        <?php else: ?>
+            this.submit();
+        <?php endif; ?>
+    });
+
+    // Handle login form submission
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        fetch('<?= APP_URL ?>/ajax/login.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Submit the palpites form after successful login
+                document.getElementById('formPalpites').submit();
+            } else {
+                document.getElementById('loginError').textContent = data.message;
+                document.getElementById('loginError').classList.remove('d-none');
+            }
+        });
+    });
+
+    // Handle register form submission
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        fetch('<?= APP_URL ?>/ajax/register.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Submit the palpites form after successful registration
+                document.getElementById('formPalpites').submit();
+            } else {
+                document.getElementById('registerError').textContent = data.message;
+                document.getElementById('registerError').classList.remove('d-none');
+            }
+        });
+    });
+
+    // Adicionar evento de clique para os botões de palpite
+    document.querySelectorAll('.btn-palpite').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Encontrar o grupo de botões do mesmo jogo
+            const btnGroup = this.closest('.palpites-buttons');
+            // Remover classe active de todos os botões do grupo
+            btnGroup.querySelectorAll('.btn-palpite').forEach(groupBtn => {
+                groupBtn.classList.remove('active');
+            });
+            // Adicionar classe active apenas ao botão clicado
+            this.classList.add('active');
+        });
     });
 });
 
@@ -499,6 +620,14 @@ function gerarPalpitesAleatorios(button) {
     button.classList.add('btn-generating');
     
     const jogos = <?= json_encode(array_column($jogos, 'id')) ?>;
+    
+    // Limpar todas as seleções anteriores primeiro
+    document.querySelectorAll('.btn-palpite').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.checked = false;
+    });
     
     // Pequeno delay para efeito visual
     setTimeout(() => {
@@ -513,12 +642,6 @@ function gerarPalpitesAleatorios(button) {
                 const label = document.querySelector(`label[for="${radio.id}"]`);
                 
                 if (radio && label) {
-                    // Remover classes ativas de todos os botões do grupo
-                    const btnGroup = label.closest('.palpites-buttons');
-                    btnGroup.querySelectorAll('.btn-palpite').forEach(btn => {
-                        btn.classList.remove('active');
-                    });
-                    
                     // Marcar o radio e adicionar classe ativa
                     radio.checked = true;
                     label.classList.add('active');
@@ -586,132 +709,302 @@ function gerarPalpitesAleatorios(button) {
     overflow: hidden;
 }
 
-.btn-generating::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.1) 50%,
-        rgba(255,255,255,0) 100%
-    );
-    animation: shimmer 1.5s linear infinite;
-}
-
-@keyframes shimmer {
-    from { transform: translateX(-100%) rotate(45deg); }
-    to { transform: translateX(100%) rotate(45deg); }
-}
-
-.team-logo {
-    max-width: 64px;
-    height: auto;
-}
-
-/* Novos estilos para os botões de palpite */
-.palpites-container {
-    padding: 10px;
+.selecting {
+    animation: fadeIn 0.5s ease-out;
 }
 
 .palpites-buttons {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    flex-direction: row; /* Força layout horizontal */
+    flex-wrap: nowrap; /* Impede quebra de linha */
 }
 
-.btn-palpite {
-    width: 120px; /* Aumentado para acomodar os nomes */
-    height: 120px; /* Aumentado para manter proporção */
-    border-radius: 10px; /* Mudado para quadrado com cantos arredondados */
-    border: 2px solid #dee2e6;
-    cursor: pointer;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.palpites-buttons .btn-palpite {
+    flex: 1 1 0; /* Distribuição igual do espaço */
+    min-width: 0; /* Permite que os botões encolham */
+    height: 100px;
     transition: all 0.3s ease;
-    background-size: 60px; /* Tamanho do brasão */
-    background-position: center 20px; /* Posição do brasão */
-    background-repeat: no-repeat;
-    overflow: hidden;
-    padding: 10px;
+    border-radius: 0;
+    margin: 0;
+    padding: 3px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border: 2px solid #6c757d;
+    opacity: 0.9;
+    color: #495057;
+    background-color: rgba(108, 117, 125, 0.1);
 }
 
-.team-name {
-    position: absolute;
-    bottom: 10px;
-    left: 0;
-    right: 0;
+/* Botão da esquerda */
+.palpites-buttons .btn-palpite:first-child {
+    border-radius: 8px 0 0 8px;
+    border-right: 1px solid #6c757d;
+}
+
+/* Botão do meio */
+.palpites-buttons .btn-palpite:not(:first-child):not(:last-child) {
+    border-radius: 0;
+    border-left: 1px solid #6c757d;
+    border-right: 1px solid #6c757d;
+}
+
+/* Botão da direita */
+.palpites-buttons .btn-palpite:last-child {
+    border-radius: 0 8px 8px 0;
+    border-left: 1px solid #6c757d;
+}
+
+/* Ajustes para telas pequenas */
+@media (max-width: 576px) {
+    .palpites-buttons {
+        min-width: 100%; /* Força largura total */
+    }
+
+    .palpites-buttons .btn-palpite {
+        padding: 2px;
+    }
+
+    .team-logo-btn {
+        width: 35px; /* Logos um pouco menores no mobile */
+        height: 35px;
+    }
+
+    .team-name-btn {
+        font-size: 9px; /* Fonte um pouco menor no mobile */
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .btn-palpite.btn-outline-warning i {
+        font-size: 24px; /* X um pouco menor no mobile */
+    }
+}
+
+/* Mantém os outros estilos... */
+.team-logo-btn {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    margin-bottom: 2px;
+}
+
+.team-name-btn {
+    font-size: 10px;
     text-align: center;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 5px;
-    font-size: 12px;
-    line-height: 1.2;
+    line-height: 1.1;
     font-weight: bold;
-    color: #495057;
-    border-radius: 0 0 8px 8px;
-}
-
-.btn-empate {
-    background-color: #f8f9fa;
-    font-size: 32px;
-    font-weight: bold;
-    color: #495057;
-    width: 80px; /* Menor que os botões dos times */
-    height: 120px; /* Mesma altura dos outros botões */
-}
-
-.btn-empate span {
-    margin-top: -20px; /* Ajuste para centralizar o X */
-}
-
-.btn-palpite:hover {
-    transform: translateY(-2px);
-    border-color: #0d6efd;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-top: 1px;
+    color: inherit;
+    max-width: 100%;
+    word-wrap: break-word;
 }
 
 .btn-palpite.active {
-    border-color: #0d6efd;
-    border-width: 3px;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+    transform: scale(1.02);
+    z-index: 1;
+    border-color: currentColor;
+    opacity: 1;
 }
 
-.btn-empate.active {
-    background-color: #0d6efd;
-    color: white;
+.btn-palpite:not(.active) {
+    opacity: 0.9;
 }
 
-.hover-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(13, 110, 253, 0.2);
+/* Estado normal para todos os botões (não ativos) */
+.btn-palpite.btn-outline-success,
+.btn-palpite.btn-outline-warning,
+.btn-palpite.btn-outline-danger {
+    color: #495057;
+    background-color: rgba(108, 117, 125, 0.1);
+    border-color: #6c757d;
+}
+
+/* Botão Time Casa (Verde) - apenas hover e ativo */
+.btn-palpite.btn-outline-success:hover,
+.btn-palpite.btn-outline-success.active {
+    color: #fff;
+    background-color: #198754;
+    border-color: #198754;
+    transform: scale(1.02);
+    opacity: 1;
+    z-index: 1;
+}
+
+/* Botão Empate (Amarelo) - apenas hover e ativo */
+.btn-palpite.btn-outline-warning:hover,
+.btn-palpite.btn-outline-warning.active {
+    color: #000;
+    background-color: #ffc107;
+    border-color: #ffc107;
+    transform: scale(1.02);
+    opacity: 1;
+    z-index: 1;
+}
+
+/* Botão Time Visitante (Vermelho) - apenas hover e ativo */
+.btn-palpite.btn-outline-danger:hover,
+.btn-palpite.btn-outline-danger.active {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+    transform: scale(1.02);
+    opacity: 1;
+    z-index: 1;
+}
+
+/* Remover regras específicas de cor no estado normal */
+.btn-palpite:not(.active) {
+    opacity: 0.9;
+}
+
+/* Sombras */
+.btn-palpite {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-palpite:hover,
+.btn-palpite.active {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-palpite.btn-outline-warning {
+    min-width: 70px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: 8px;
 }
 
-/* Ajuste na função de palpites aleatórios */
-@keyframes selectPalpite {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
+.btn-palpite.btn-outline-warning i {
+    font-size: 32px; /* Aumentado de 18px */
+    margin: 0; /* Remove margem */
 }
 
-.btn-palpite.selecting {
-    animation: selectPalpite 0.5s ease;
+.game-datetime {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap; /* Evita quebra de linha */
+}
+
+.date-badge, .time-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    min-width: fit-content; /* Garante que o conteúdo não seja comprimido */
+}
+
+.date-badge {
+    background-color: #e9ecef;
+}
+
+.time-badge {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.date-badge i, .time-badge i {
+    font-size: 1rem;
+}
+
+/* Animação sutil no hover */
+.date-badge:hover, .time-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.bolao-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.info-item i {
+    font-size: 1.2rem;
+    margin-top: 3px;
+}
+
+.info-content {
+    flex: 1;
+}
+
+.info-content label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 2px;
+}
+
+.info-content span {
+    display: block;
+    font-size: 1rem;
+}
+
+/* Ajustes para mobile */
+@media (max-width: 576px) {
+    .card-header h5 {
+        font-size: 1rem;
+    }
+
+    .card-body h2 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .bolao-info {
+        gap: 8px;
+    }
+
+    .info-item {
+        gap: 8px;
+        background-color: #f8f9fa;
+        padding: 8px;
+        border-radius: 8px;
+        margin-bottom: 2px;
+    }
+
+    .info-item i {
+        font-size: 1rem;
+        margin-top: 2px;
+    }
+
+    .info-content label {
+        font-size: 0.75rem;
+        margin-bottom: 0;
+    }
+
+    .info-content span {
+        font-size: 0.9rem;
+    }
+
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.2em 0.4em;
+    }
 }
 </style>
 

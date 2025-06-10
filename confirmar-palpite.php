@@ -9,20 +9,36 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect(APP_URL . '/boloes.php');
 }
 
-// Obter dados do formulário
-$bolaoId = isset($_POST['bolao_id']) ? (int)$_POST['bolao_id'] : 0;
-$bolaoSlug = $_POST['bolao_slug'] ?? '';
+// Obter IDs importantes
+$jogadorId = getCurrentUserId(); // ID do jogador logado
+$bolaoId = isset($_POST['bolao_id']) ? (int)$_POST['bolao_id'] : 0; // ID do bolão vem do POST
 
-// Verificar se o usuário já fez palpites para este bolão
+// Coletar palpites do formulário
+$palpites = [];
+foreach ($_POST as $key => $value) {
+    if (strpos($key, 'resultado_') === 0) {
+        $jogoId = substr($key, strlen('resultado_'));
+        $palpites[$jogoId] = $value; // "1" = casa vence, "0" = empate, "2" = visitante vence
+    }
+}
+
+// Verificar se o usuário já fez exatamente os mesmos palpites para este bolão
 if (isset($_SESSION['user_id'])) {
+    // Preparar o JSON de palpites para verificação
+    $palpitesJson = json_encode(['jogos' => $palpites]);
+
+    // Verificar se já existe um palpite idêntico
     $palpiteExistente = dbFetchOne(
-        "SELECT COUNT(*) as total FROM palpites WHERE bolao_id = ? AND usuario_id = ?",
-        [$bolaoId, $_SESSION['user_id']]
+        "SELECT COUNT(*) as total FROM palpites 
+         WHERE bolao_id = ? 
+         AND jogador_id = ? 
+         AND palpites = ?",
+        [$bolaoId, $jogadorId, $palpitesJson]
     );
     
     if ($palpiteExistente && $palpiteExistente['total'] > 0) {
-        setFlashMessage('warning', 'Você já fez palpites para este bolão.');
-        redirect(APP_URL . '/bolao.php?slug=' . $bolaoSlug);
+        setFlashMessage('warning', 'Você já fez exatamente estes mesmos palpites para este bolão.');
+        redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
     }
 }
 
@@ -45,16 +61,7 @@ if (!empty($bolao['data_limite_palpitar'])) {
 
 if ($prazoEncerrado) {
     setFlashMessage('danger', 'O prazo para envio de palpites já foi encerrado.');
-    redirect(APP_URL . '/bolao.php?slug=' . $bolaoSlug);
-}
-
-// Coletar palpites do formulário
-$palpites = [];
-foreach ($_POST as $key => $value) {
-    if (strpos($key, 'resultado_') === 0) {
-        $jogoId = substr($key, strlen('resultado_'));
-        $palpites[$jogoId] = $value; // "1" = casa vence, "0" = empate, "2" = visitante vence
-    }
+    redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
 }
 
 // Decodificar jogos do bolão
@@ -63,7 +70,54 @@ $jogos = json_decode($bolao['jogos'], true) ?: [];
 // Verificar se todos os jogos foram palpitados
 if (count($palpites) !== count($jogos)) {
     setFlashMessage('warning', 'Você precisa dar palpites para todos os jogos.');
-    redirect(APP_URL . '/bolao.php?slug=' . $bolaoSlug);
+    redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
+}
+
+// Preparar o JSON de palpites
+$palpitesJson = json_encode(['jogos' => $palpites]);
+
+// Debug: Mostrar valores que serão inseridos
+echo "<pre>";
+echo "jogadorId: " . $jogadorId . "\n";
+echo "bolaoId: " . $bolaoId . "\n";
+echo "palpitesJson: " . $palpitesJson . "\n";
+echo "</pre>";
+
+// Inserir palpite no banco de dados
+try {
+    $stmt = $pdo->prepare("
+        INSERT INTO palpites (
+            jogador_id,
+            bolao_id,
+            palpites,
+            status
+        ) VALUES (
+            :jogador_id,
+            :bolao_id,
+            :palpites,
+            'pendente'
+        )
+    ");
+
+    $stmt->execute([
+        ':jogador_id' => $jogadorId,
+        ':bolao_id' => $bolaoId,
+        ':palpites' => $palpitesJson
+    ]);
+
+    // Se não houver valor de participação, marcar como pago automaticamente
+    if ($bolao['valor_participacao'] <= 0) {
+        $palpiteId = $pdo->lastInsertId();
+        $stmt = $pdo->prepare("UPDATE palpites SET status = 'pago' WHERE id = ?");
+        $stmt->execute([$palpiteId]);
+    }
+
+} catch (PDOException $e) {
+    // Debug: Mostrar erro específico
+    die("Erro SQL: " . $e->getMessage() . "<br>Código: " . $e->getCode());
+    
+    setFlashMessage('danger', 'Erro ao salvar seus palpites. Por favor, tente novamente.');
+    redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
 }
 
 // Helper function para obter o texto do resultado
@@ -124,7 +178,7 @@ include TEMPLATE_DIR . '/header.php';
                                     $efiPix = new EfiPixManager();
                                     
                                     // Cria a cobrança
-                                    $charge = $efiPix->createCharge(getCurrentUserId(), $_POST['bolao_id']);
+                                    $charge = $efiPix->createCharge($jogadorId, $bolaoId);
                                     
                                     // Gera QR Code
                                     if (isset($charge['loc']['id'])) {

@@ -101,7 +101,7 @@ include TEMPLATE_DIR . '/header.php';
                                 <?php endforeach; ?>
                             </div>
                             
-                            <a href="<?= APP_URL ?>/bolao.php?slug=<?= $bolao['slug'] ?>" class="btn btn-primary w-100">
+                            <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="btn btn-primary w-100">
                                 <?php if ($prazoEncerrado): ?>
                                     Ver Resultados 
                                 <?php else: ?>

@@ -222,4 +222,25 @@ function dbCommit() {
 function dbRollback() {
     global $pdo;
     return $pdo->rollBack();
+}
+
+/**
+ * Execute a SQL query with parameters
+ * 
+ * @param string $query SQL query with placeholders
+ * @param array $params Parameters to bind
+ * @return PDOStatement|false PDOStatement object or false on failure
+ */
+function dbExecute($query, $params = []) {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
+        return $stmt;
+    } catch (PDOException $e) {
+        error_log("Database Error (dbExecute): " . $e->getMessage());
+        error_log("Query: " . $query);
+        error_log("Params: " . print_r($params, true));
+        throw $e;
+    }
 } 

@@ -1,5 +1,8 @@
 <?php
-require_once '../config/config.php';// Receber payload do webhook
+require_once '../config/config.php';
+require_once '../config/database.php';
+
+// Receber payload do webhook
 $payload = file_get_contents('php://input');
 $data = json_decode($payload, true);
 
@@ -27,6 +30,23 @@ try {
         // Atualizar status do pagamento
         $stmt = $pdo->prepare("UPDATE jogador SET pagamento_confirmado = 1 WHERE id = ?");
         $stmt->execute([$usuario['id']]);
+        
+        // Buscar o último palpite do usuário
+        $stmt = $pdo->prepare("
+            SELECT p.id 
+            FROM palpites p 
+            WHERE p.jogador_id = ? 
+            ORDER BY p.data_palpite DESC 
+            LIMIT 1
+        ");
+        $stmt->execute([$usuario['id']]);
+        $palpite = $stmt->fetch();
+        
+        if ($palpite) {
+            // Atualizar status do palpite
+            $stmt = $pdo->prepare("UPDATE palpites SET status = 'pago' WHERE id = ?");
+            $stmt->execute([$palpite['id']]);
+        }
         
         // Commit da transação
         $pdo->commit();

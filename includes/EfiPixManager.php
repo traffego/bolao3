@@ -216,7 +216,8 @@ class EfiPixManager {
         }
 
         // Log para debug
-        error_log("Iniciando verificação de pagamento para TXID: " . $txid);
+        error_log("\n=== Iniciando checkPayment ===");
+        error_log("TXID: " . $txid);
         error_log("URL da API: " . EFI_API_URL . '/v2/cob/' . $txid);
         error_log("Certificado Path: " . EFI_CERTIFICATE_PATH);
 
@@ -252,9 +253,7 @@ class EfiPixManager {
             CURLOPT_VERBOSE => true
         ];
 
-        // Log das opções do CURL
-        error_log("Opções do CURL: " . print_r($curlOptions, true));
-
+        error_log("Configurando CURL com opções: " . print_r($curlOptions, true));
         curl_setopt_array($curl, $curlOptions);
 
         // Capturar output verbose do CURL
@@ -265,12 +264,12 @@ class EfiPixManager {
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $err = curl_error($curl);
 
-        // Log do resultado da chamada
+        // Log do resultado
         error_log("HTTP Code: " . $httpCode);
         if ($err) {
             error_log("Erro CURL: " . $err);
         }
-        error_log("Resposta: " . $response);
+        error_log("Resposta bruta: " . $response);
 
         // Log verbose do CURL
         rewind($verbose);
@@ -281,19 +280,24 @@ class EfiPixManager {
         curl_close($curl);
 
         if ($err) {
+            error_log("ERRO na verificação: " . $err);
             throw new Exception('Erro ao verificar pagamento: ' . $err);
         }
 
-        if ($httpCode !== 200) {
-            throw new Exception('Erro ao verificar pagamento. HTTP Code: ' . $httpCode . '. Resposta: ' . $response);
+        $responseData = json_decode($response, true);
+        error_log("Resposta decodificada: " . print_r($responseData, true));
+
+        // Verificar se o pagamento foi concluído
+        $status = 'PENDENTE';
+        if (isset($responseData['status'])) {
+            $status = $responseData['status'];
+        } else if (isset($responseData['pix']) && !empty($responseData['pix'])) {
+            $status = 'CONCLUIDA';
         }
 
-        $result = json_decode($response, true);
-        if ($result === null) {
-            error_log("Erro ao decodificar JSON: " . json_last_error_msg());
-            throw new Exception('Erro ao decodificar resposta da API: ' . json_last_error_msg());
-        }
+        error_log("Status final determinado: " . $status);
+        error_log("=== Fim checkPayment ===\n");
 
-        return $result;
+        return ['status' => $status];
     }
 } 
