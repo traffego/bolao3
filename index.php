@@ -148,29 +148,40 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- Available Boloes -->
-<h2 class="mb-3">Bolões Disponíveis</h2>
+<h2 class="mb-4 text-center">Bolões Disponíveis</h2>
 <div class="row g-4 mb-5">
     <?php if (count($boloes) > 0): ?>
         <?php foreach ($boloes as $bolao): ?>
             <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><?= sanitize($bolao['nome']) ?></h5>
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+                    <div class="card-header bg-primary text-white py-3" style="background: linear-gradient(45deg, #0d6efd, #0099ff) !important; border: none;">
+                        <h5 class="mb-0 fw-bold"><?= sanitize($bolao['nome']) ?></h5>
                     </div>
                     <div class="card-body">
-                        <?php if (!empty($bolao['descricao'])): ?>
-                            <p><?= nl2br(sanitize($bolao['descricao'])) ?></p>
-                        <?php endif; ?>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span><i class="bi bi-calendar-event"></i> Término: <?= formatDate($bolao['data_fim']) ?></span>
-                            <span><i class="bi bi-people-fill"></i> <?= $bolao['total_jogadores'] ?> jogadores</span>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-calendar-event text-primary me-2"></i>
+                                <span>Término: <?= formatDate($bolao['data_fim']) ?></span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-people-fill text-success me-2"></i>
+                                <span><?= $bolao['total_jogadores'] ?> jogadores</span>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span><i class="bi bi-cash"></i> Valor: <?= formatMoney($bolao['valor_participacao']) ?></span>
-                            <span><i class="bi bi-trophy-fill"></i> Prêmio: <?= formatMoney($bolao['premio_total']) ?></span>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-ticket-fill text-warning me-2"></i>
+                                <span>Entrada: <?= formatMoney($bolao['valor_participacao']) ?></span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-trophy-fill text-danger me-2"></i>
+                                <span>Prêmio: <?= formatMoney($bolao['premio_total']) ?></span>
+                            </div>
                         </div>
                         <div class="text-center">
-                            <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="btn btn-primary">Ver Detalhes</a>
+                            <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="btn btn-primary btn-lg px-4" style="border-radius: 10px;">
+                                <i class="bi bi-play-fill me-2"></i>Ver Detalhes
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -218,48 +229,78 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php endif; ?>
 
 <!-- Steps to Participate -->
-<div class="bg-light p-4 rounded mt-5">
-    <h2 class="mb-4 text-center">Como Participar</h2>
-    <div class="row g-4">
-        <div class="col-md-3">
-            <div class="text-center mb-3">
-                <div class="bg-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                    <h3 class="mb-0">1</h3>
+<div class="container">
+    <div class="row">
+        <div class="col-12 px-0">
+            <div class="py-5 mb-5 w-100" style="background: linear-gradient(45deg, #0d6efd, #0099ff); margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw !important;">
+                <div class="container">
+                    <h2 class="text-center text-white mb-5">Como Participar</h2>
+                    <div class="row g-4 justify-content-center">
+                        <div class="col-lg-2 col-md-3 col-sm-6">
+                            <div class="card h-100 border-0 shadow" style="border-radius: 15px;">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-4">
+                                        <div class="bg-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px;">
+                                            <i class="bi bi-person-plus-fill fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h4 class="mb-3">Cadastre-se</h4>
+                                    <p class="text-muted mb-0">Crie sua conta gratuitamente em nosso sistema.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-sm-6">
+                            <div class="card h-100 border-0 shadow" style="border-radius: 15px;">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-4">
+                                        <div class="bg-success text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px;">
+                                            <i class="bi bi-ticket-perforated-fill fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h4 class="mb-3">Escolha um Bolão</h4>
+                                    <p class="text-muted mb-0">Selecione um bolão ativo para participar.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-sm-6">
+                            <div class="card h-100 border-0 shadow" style="border-radius: 15px;">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-4">
+                                        <div class="bg-warning text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px;">
+                                            <i class="bi bi-controller fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h4 class="mb-3">Faça seus Palpites</h4>
+                                    <p class="text-muted mb-0">Registre seus palpites para os jogos selecionados.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-sm-6">
+                            <div class="card h-100 border-0 shadow" style="border-radius: 15px;">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-4">
+                                        <div class="bg-danger text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px;">
+                                            <i class="bi bi-trophy-fill fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h4 class="mb-3">Ganhe Prêmios</h4>
+                                    <p class="text-muted mb-0">Acompanhe o ranking e ganhe prêmios em dinheiro.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-5">
+                        <a href="<?= APP_URL ?>/como-funciona.php" class="btn btn-light btn-lg px-5" style="border-radius: 10px;">
+                            <i class="bi bi-info-circle me-2"></i>Saiba Mais
+                        </a>
+                    </div>
                 </div>
             </div>
-            <h5 class="text-center">Cadastre-se</h5>
-            <p class="text-center">Crie sua conta gratuitamente em nosso sistema.</p>
         </div>
-        <div class="col-md-3">
-            <div class="text-center mb-3">
-                <div class="bg-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                    <h3 class="mb-0">2</h3>
-                </div>
-            </div>
-            <h5 class="text-center">Escolha um Bolão</h5>
-            <p class="text-center">Selecione um bolão ativo para participar.</p>
-        </div>
-        <div class="col-md-3">
-            <div class="text-center mb-3">
-                <div class="bg-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                    <h3 class="mb-0">3</h3>
-                </div>
-            </div>
-            <h5 class="text-center">Faça seus Palpites</h5>
-            <p class="text-center">Registre seus palpites para os jogos selecionados.</p>
-        </div>
-        <div class="col-md-3">
-            <div class="text-center mb-3">
-                <div class="bg-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                    <h3 class="mb-0">4</h3>
-                </div>
-            </div>
-            <h5 class="text-center">Ganhe Prêmios</h5>
-            <p class="text-center">Acompanhe o ranking e ganhe prêmios em dinheiro.</p>
-        </div>
-    </div>
-    <div class="text-center mt-4">
-        <a href="<?= APP_URL ?>/como-funciona.php" class="btn btn-outline-primary">Saiba Mais</a>
     </div>
 </div>
 
