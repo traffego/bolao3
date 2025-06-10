@@ -29,6 +29,15 @@ $boloes = dbFetchAll("SELECT
                      GROUP BY b.id, p.pontos
                      ORDER BY b.data_fim DESC", [$userId]);
 
+$palpites = dbFetchAll("
+    SELECT p.*, b.nome as bolao_nome, b.data_inicio, b.data_fim, b.valor_participacao, b.premio_total
+    FROM palpites p
+    JOIN dados_boloes b ON p.bolao_id = b.id
+    WHERE p.jogador_id = ?
+    ORDER BY p.data_palpite DESC",
+    [$userId]
+);
+
 // Include header
 include TEMPLATE_DIR . '/header.php';
 ?>

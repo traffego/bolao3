@@ -20,7 +20,7 @@ if ($bolaoId <= 0) {
 
 // Get bolão data
 $bolao = dbFetchOne(
-    "SELECT b.*, a.nome as admin_nome FROM boloes b
+    "SELECT b.*, a.nome as admin_nome FROM dados_boloes b
      LEFT JOIN administrador a ON a.id = b.admin_id
      WHERE b.id = ?", 
     [$bolaoId]

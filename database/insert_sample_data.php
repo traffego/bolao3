@@ -22,7 +22,7 @@ if ($conn->connect_error) {
 echo "Connected successfully to database: $database\n\n";
 
 // Check if we have at least one bolao
-$result = $conn->query("SELECT id FROM boloes LIMIT 1");
+$result = $conn->query("SELECT id FROM dados_boloes LIMIT 1");
 $bolaoId = null;
 if ($result && $result->num_rows > 0) {
     $bolaoId = $result->fetch_assoc()['id'];

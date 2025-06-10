@@ -115,7 +115,7 @@ if ($result) {
 }
 
 // Verificar bolões
-$result = $conn->query("SELECT COUNT(*) as total FROM boloes");
+$result = $conn->query("SELECT COUNT(*) as total FROM dados_boloes");
 if ($result) {
     $row = $result->fetch_assoc();
     echo "- Bolões: " . $row['total'] . "\n";

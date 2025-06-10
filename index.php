@@ -9,7 +9,7 @@ require_once 'includes/functions.php';
 // Page title
 $pageTitle = 'Início';
 
-// Get active boloes
+// Get active boloes with slider images
 $boloes = dbFetchAll("SELECT b.*, 
                        COUNT(DISTINCT p.jogador_id) as total_jogadores,
                        a.nome as admin_nome
@@ -21,6 +21,12 @@ $boloes = dbFetchAll("SELECT b.*,
                     ORDER BY b.data_fim ASC
                     LIMIT 4");
 
+// Get boloes with slider images
+$slideBoloes = dbFetchAll("SELECT id, nome, imagem_bolao_url, descricao, premio_total, valor_participacao 
+                          FROM dados_boloes 
+                          WHERE status = 1 
+                          ORDER BY data_inicio DESC");
+
 // Get latest results
 $resultados = dbFetchAll("SELECT r.*, j.equipe_casa, j.equipe_visitante, j.campeonato, j.data_hora
                        FROM resultados r
@@ -31,28 +37,84 @@ $resultados = dbFetchAll("SELECT r.*, j.equipe_casa, j.equipe_visitante, j.campe
 
 // Include header
 include TEMPLATE_DIR . '/header.php';
-?>
 
-<!-- Hero Section -->
-<div class="bg-primary text-white py-5 mb-4 rounded">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1>Bem-vindo ao Bolão Football!</h1>
-                <p class="lead">O melhor sistema de bolões de futebol! Participe, faça seus palpites e concorra a prêmios incríveis.</p>
-                <?php if (!isLoggedIn()): ?>
-                    <a href="<?= APP_URL ?>/cadastro.php" class="btn btn-light btn-lg me-2">Cadastre-se</a>
-                    <a href="<?= APP_URL ?>/login.php" class="btn btn-outline-light btn-lg">Entrar</a>
-                <?php else: ?>
-                    <a href="<?= APP_URL ?>/boloes.php" class="btn btn-light btn-lg">Ver Bolões Ativos</a>
-                <?php endif; ?>
+// Adicionar CSS do Swiper
+?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
+
+<?php if (!empty($slideBoloes)): ?>
+<!-- Slider Section -->
+<div class="swiper main-slider mb-4" style="border-radius: 10px; overflow: hidden;">
+    <div class="swiper-wrapper">
+        <?php foreach ($slideBoloes as $bolao): ?>
+            <div class="swiper-slide">
+                <div class="position-relative">
+                    <?php if (!empty($bolao['imagem_bolao_url'])): ?>
+                        <img src="<?= APP_URL ?>/<?= $bolao['imagem_bolao_url'] ?>" 
+                             alt="<?= htmlspecialchars($bolao['nome']) ?>"
+                             class="w-100"
+                             style="height: 600px; object-fit: cover;">
+                    <?php else: ?>
+                        <img src="<?= APP_URL ?>/public/img/noimage.jpg" 
+                             alt="Imagem não disponível"
+                             class="w-100"
+                             style="height: 600px; object-fit: cover;">
+                    <?php endif; ?>
+                    <div class="position-absolute bottom-0 start-0 w-100 p-4" 
+                         style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                        <div class="container">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h3 class="text-white mb-2">
+                                        <i class="bi bi-trophy-fill text-warning"></i> 
+                                        Prêmio: <?= formatMoney($bolao['premio_total']) ?>
+                                    </h3>
+                                    <h4 class="text-white">
+                                        <i class="bi bi-ticket-fill text-info"></i> 
+                                        Participação: <?= formatMoney($bolao['valor_participacao']) ?>
+                                    </h4>
+                                </div>
+                            </div>
+                            <?php if (!empty($bolao['descricao'])): ?>
+                                <p class="text-white mb-3"><?= htmlspecialchars(substr($bolao['descricao'], 0, 150)) ?>...</p>
+                            <?php endif; ?>
+                            <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" 
+                               class="btn btn-primary btn-lg">
+                                <i class="bi bi-play-fill"></i> Participar Agora
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4 d-none d-md-block text-center">
-                <i class="bi bi-trophy-fill" style="font-size: 8rem;"></i>
-            </div>
-        </div>
+        <?php endforeach; ?>
     </div>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
 </div>
+
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    new Swiper('.main-slider', {
+        loop: true,
+        autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+    });
+});
+</script>
+<?php endif; ?>
 
 <!-- Features -->
 <div class="row g-4 mb-5">

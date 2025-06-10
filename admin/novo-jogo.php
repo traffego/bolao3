@@ -19,7 +19,7 @@ if ($bolaoId <= 0) {
 }
 
 // Get bolão data
-$bolao = dbFetchOne("SELECT * FROM boloes WHERE id = ?", [$bolaoId]);
+$bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE id = ?", [$bolaoId]);
 
 if (!$bolao) {
     setFlashMessage('danger', 'Bolão não encontrado.');

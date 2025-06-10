@@ -23,7 +23,7 @@ $bolao = dbFetchOne(
     "SELECT b.*, a.nome as admin_nome, 
             COUNT(DISTINCT p.jogador_id) as total_jogadores,
             COUNT(DISTINCT j.id) as total_jogos
-     FROM boloes b
+     FROM dados_boloes b
      LEFT JOIN participacoes p ON p.bolao_id = b.id
      LEFT JOIN jogos j ON j.bolao_id = b.id
      LEFT JOIN administrador a ON a.id = b.admin_id

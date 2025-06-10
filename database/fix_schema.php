@@ -189,7 +189,7 @@ if (table_exists($conn, 'boloes')) {
                 echo "<p class='success'>Índice UNIQUE adicionado à coluna 'slug'.</p>";
                 
                 // Update existing records with slugs based on names
-                $sql = "SELECT id, nome FROM boloes";
+                $sql = "SELECT id, nome FROM dados_boloes";
                 $result = mysqli_query($conn, $sql);
                 
                 if ($result && mysqli_num_rows($result) > 0) {

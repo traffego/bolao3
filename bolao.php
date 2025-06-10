@@ -16,7 +16,7 @@ if ($bolaoId <= 0) {
 $bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE id = ? AND status = 1", [$bolaoId]);
 
 // DEBUG: Mostrar ID do bolão
-echo "ID do Bolão: " . ($bolao['id'] ?? 'não encontrado') . "<br>";
+// echo "ID do Bolão: " . ($bolao['id'] ?? 'não encontrado') . "<br>";
 
 // Se bolão não existe ou não está ativo
 if (!$bolao) {
