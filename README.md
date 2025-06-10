@@ -1,4 +1,4 @@
-# Bolão Football - Sistema de Bolões para Futebol
+# Bolão Vitimba - Sistema de Bolões para Futebol
 
 Um sistema completo para gerenciar bolões de futebol, permitindo a criação de bolões, participação de jogadores, registro de palpites e acompanhamento de resultados.
 

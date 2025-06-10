@@ -1,4 +1,4 @@
--- Script to create missing tables for Bolão Football
+-- Script to create missing tables for Bolão Vitimba
 
 -- Participacoes (Jogadores em Bolões)
 CREATE TABLE IF NOT EXISTS participacoes (

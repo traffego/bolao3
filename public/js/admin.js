@@ -1,5 +1,5 @@
 /**
- * Admin JavaScript for Bolão Football
+ * Admin JavaScript for Bolão Vitimba
  */
 
 document.addEventListener('DOMContentLoaded', function() {

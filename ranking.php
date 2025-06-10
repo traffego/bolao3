@@ -1,6 +1,6 @@
 <?php
 /**
- * Ranking - Bolão Football
+ * Ranking - Bolão Vitimba
  */
 require_once 'config/config.php';require_once 'includes/functions.php';
 

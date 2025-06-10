@@ -1,5 +1,5 @@
 /**
- * Custom styles for Bolão Football
+ * Custom styles for Bolão Vitimba
  */
 
 /* General Styles */
@@ -221,4 +221,36 @@ footer a:hover {
         border-radius: 4px !important;
         margin-bottom: 0.25rem;
     }
+}
+
+/* Custom color classes */
+.bg-green {
+    background: linear-gradient(45deg, #006400, #008f00) !important;
+}
+
+.bg-green-solid {
+    background-color: #006400 !important;
+}
+
+.text-green {
+    color: #006400 !important;
+}
+
+/* Button with green gradient */
+.btn-green {
+    color: #fff;
+    background: linear-gradient(45deg, #006400, #008f00);
+    border: none;
+}
+
+.btn-green:hover {
+    color: #fff;
+    background: linear-gradient(45deg, #005300, #007f00);
+}
+
+/* Hover effect for cards */
+.card-hover:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 0.5rem 1rem rgba(0, 100, 0, 0.15) !important;
 } 

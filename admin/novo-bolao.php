@@ -490,7 +490,7 @@ if (empty($jogos) && isset($_GET['pais']) && !empty($_GET['pais'])) {
         // Mostrar informações detalhadas para o administrador
         if (isAdmin()) {
             echo '<div class="card mb-4 mt-3 border-primary">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-green text-white">
                         <i class="fas fa-bug me-1"></i>
                         Informações de Depuração (apenas para administradores)
                     </div>

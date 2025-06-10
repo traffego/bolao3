@@ -252,7 +252,7 @@ include '../templates/admin/header.php';
                             <dt class="col-sm-5">Visibilidade</dt>
                             <dd class="col-sm-7">
                                 <?php if (isset($_POST['publico']) && $_POST['publico']): ?>
-                                    <span class="badge bg-primary">Público</span>
+                                    <span class="badge bg-green">Público</span>
                                 <?php else: ?>
                                     <span class="badge bg-warning text-dark">Privado</span>
                                 <?php endif; ?>

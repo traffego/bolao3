@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Editar Bolão - Bolão Football
+ * Admin Editar Bolão - Bolão Vitimba
  */
 require_once '../config/config.php';
 require_once '../includes/functions.php';
@@ -304,7 +304,7 @@ include '../templates/admin/header.php';
                                         </td>
                                         <td>
                                             <?php if ($jogo['resultado_casa'] !== null && $jogo['resultado_visitante'] !== null): ?>
-                                                <span class="badge bg-primary">
+                                                <span class="badge bg-green">
                                                     <?= $jogo['resultado_casa'] ?> x <?= $jogo['resultado_visitante'] ?>
                                                 </span>
                                             <?php else: ?>

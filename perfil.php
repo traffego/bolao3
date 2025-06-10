@@ -1,6 +1,6 @@
 <?php
 /**
- * Perfil do Usuário - Bolão Football
+ * Perfil do Usuário - Bolão Vitimba
  */
 require_once 'config/config.php';require_once 'includes/functions.php';
 

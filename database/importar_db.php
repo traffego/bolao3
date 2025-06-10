@@ -25,7 +25,7 @@ ob_start();
     </style>
 </head>
 <body>
-    <h1>Importação do Banco de Dados - Bolão Football</h1>
+    <h1>Importação do Banco de Dados - Bolão Vitimba</h1>
 
 <?php
 // Manual database creation function

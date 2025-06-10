@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Bolão View - Bolão Football
+ * Admin Bolão View - Bolão Vitimba
  */
 require_once '../config/config.php';require_once '../includes/functions.php';
 
@@ -214,7 +214,7 @@ include '../templates/admin/header.php';
                                         <td><?= sanitize($jogo['local'] ?? 'N/A') ?></td>
                                         <td>
                                             <?php if ($jogo['status'] === 'agendado'): ?>
-                                                <span class="badge bg-primary">Agendado</span>
+                                                <span class="badge bg-green">Agendado</span>
                                             <?php elseif ($jogo['status'] === 'em_andamento'): ?>
                                                 <span class="badge bg-warning">Em Andamento</span>
                                             <?php elseif ($jogo['status'] === 'finalizado'): ?>

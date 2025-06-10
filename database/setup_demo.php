@@ -1,8 +1,8 @@
 <?php
 /**
- * Bolão Football - Setup Database Script
+ * Bolão Vitimba - Setup Database Script
  * 
- * Este script configura o banco de dados para o Bolão Football
+ * Este script configura o banco de dados para o Bolão Vitimba
  * Ele cria todas as tabelas necessárias e insere dados de demonstração
  */
 
@@ -16,7 +16,7 @@ $username = 'root';
 $password = '';
 
 echo "=======================================================\n";
-echo "     Bolão Football - Setup de Banco de Dados          \n";
+echo "     Bolão Vitimba - Setup de Banco de Dados          \n";
 echo "=======================================================\n\n";
 
 // Criar conexão inicial (sem banco específico)

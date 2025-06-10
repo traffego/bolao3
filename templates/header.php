@@ -21,7 +21,7 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-green">
     <div class="container">
         <a class="navbar-brand" href="<?= APP_URL ?>">
             <i class="bi bi-trophy-fill"></i> <?= APP_NAME ?>

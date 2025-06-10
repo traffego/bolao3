@@ -73,7 +73,7 @@ include 'templates/header.php';
     </div>
 
     <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-green text-white">
             <h5 class="card-title mb-0">Detalhes do Bolão</h5>
         </div>
         <div class="card-body">

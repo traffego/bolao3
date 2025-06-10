@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Dashboard - Bolão Football
+ * Admin Dashboard - Bolão Vitimba
  */
 require_once '../config/config.php';require_once '../includes/functions.php';
 
@@ -125,7 +125,7 @@ include '../templates/admin/header.php';
     <!-- Stats Cards -->
     <div class="row">
         <div class="col-xl-3 col-md-6">
-            <div class="card bg-primary text-white mb-4">
+            <div class="card bg-green text-white mb-4">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -285,7 +285,7 @@ include '../templates/admin/header.php';
                                                 <small class="text-muted"><?= htmlspecialchars($jogo['bolao_nome']) ?></small>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge bg-primary fs-5">
+                                                <span class="badge bg-green fs-5">
                                                     <?= $jogo['resultado_casa'] ?> x <?= $jogo['resultado_visitante'] ?>
                                                 </span>
                                             </td>
@@ -456,7 +456,7 @@ include '../templates/admin/header.php';
                     <ul class="list-group">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Versão do Sistema
-                            <span class="badge bg-primary"><?= APP_VERSION ?></span>
+                            <span class="badge bg-green"><?= APP_VERSION ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             API Football

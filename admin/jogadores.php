@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Jogadores - Bolão Football
+ * Admin Jogadores - Bolão Vitimba
  */
 require_once '../config/config.php';require_once '../includes/functions.php';
 

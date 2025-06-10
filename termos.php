@@ -14,14 +14,14 @@ include TEMPLATE_DIR . '/header.php';
     <div class="card mb-4">
         <div class="card-body">
             <h2 class="h5 mb-3">1. Aceitação dos Termos</h2>
-            <p>Ao acessar e usar o Bolão Football, você concorda com estes termos de uso. Se você não concordar com qualquer parte destes termos, não deverá usar nosso serviço.</p>
+            <p>Ao acessar e usar o Bolão Vitimba, você concorda com estes termos de uso. Se você não concordar com qualquer parte destes termos, não deverá usar nosso serviço.</p>
         </div>
     </div>
 
     <div class="card mb-4">
         <div class="card-body">
             <h2 class="h5 mb-3">2. Elegibilidade</h2>
-            <p>Para usar o Bolão Football, você deve:</p>
+            <p>Para usar o Bolão Vitimba, você deve:</p>
             <ul>
                 <li>Ter pelo menos 18 anos de idade</li>
                 <li>Fornecer informações verdadeiras e precisas durante o cadastro</li>
@@ -34,7 +34,7 @@ include TEMPLATE_DIR . '/header.php';
     <div class="card mb-4">
         <div class="card-body">
             <h2 class="h5 mb-3">3. Regras de Uso</h2>
-            <p>Ao usar o Bolão Football, você concorda em:</p>
+            <p>Ao usar o Bolão Vitimba, você concorda em:</p>
             <ul>
                 <li>Não usar o serviço para fins ilegais</li>
                 <li>Não tentar manipular resultados ou pontuações</li>
@@ -68,7 +68,7 @@ include TEMPLATE_DIR . '/header.php';
     <div class="card mb-4">
         <div class="card-body">
             <h2 class="h5 mb-3">6. Modificações dos Termos</h2>
-            <p>O Bolão Football se reserva o direito de modificar estes termos a qualquer momento. Alterações significativas serão notificadas aos usuários por e-mail ou através do site.</p>
+            <p>O Bolão Vitimba se reserva o direito de modificar estes termos a qualquer momento. Alterações significativas serão notificadas aos usuários por e-mail ou através do site.</p>
         </div>
     </div>
 

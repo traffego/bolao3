@@ -1,6 +1,6 @@
 <?php
 /**
- * HomePage - Bolão Football
+ * HomePage - Bolão Vitimba
  */
 require_once 'config/config.php';
 require_once 'config/database.php';
@@ -153,33 +153,33 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php if (count($boloes) > 0): ?>
         <?php foreach ($boloes as $bolao): ?>
             <div class="col-md-6">
-                <div class="card h-100 shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
-                    <div class="card-header bg-primary text-white py-3" style="background: linear-gradient(45deg, #0d6efd, #0099ff) !important; border: none;">
+                <div class="card h-100 shadow-sm border-0 card-hover" style="border-radius: 15px; overflow: hidden;">
+                    <div class="card-header text-white py-3 bg-green">
                         <h5 class="mb-0 fw-bold"><?= sanitize($bolao['nome']) ?></h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex align-items-center">
-                                <i class="bi bi-calendar-event text-primary me-2"></i>
+                                <i class="bi bi-calendar-event text-green me-2"></i>
                                 <span>Término: <?= formatDate($bolao['data_fim']) ?></span>
                             </div>
                             <div class="d-flex align-items-center">
-                                <i class="bi bi-people-fill text-success me-2"></i>
+                                <i class="bi bi-people-fill text-green me-2"></i>
                                 <span><?= $bolao['total_jogadores'] ?> jogadores</span>
                             </div>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div class="d-flex align-items-center">
-                                <i class="bi bi-ticket-fill text-warning me-2"></i>
+                                <i class="bi bi-ticket-fill text-green me-2"></i>
                                 <span>Entrada: <?= formatMoney($bolao['valor_participacao']) ?></span>
                             </div>
                             <div class="d-flex align-items-center">
-                                <i class="bi bi-trophy-fill text-danger me-2"></i>
+                                <i class="bi bi-trophy-fill text-green me-2"></i>
                                 <span>Prêmio: <?= formatMoney($bolao['premio_total']) ?></span>
                             </div>
                         </div>
                         <div class="text-center">
-                            <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="btn btn-primary btn-lg px-4" style="border-radius: 10px;">
+                            <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="btn btn-green btn-lg px-4">
                                 <i class="bi bi-play-fill me-2"></i>Ver Detalhes
                             </a>
                         </div>
@@ -232,15 +232,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="container">
     <div class="row">
         <div class="col-12 px-0">
-            <div class="py-5 mb-5 w-100" style="background: linear-gradient(45deg, #0d6efd, #0099ff); margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw !important;">
+            <div class="py-5 mb-5 w-100 bg-green" style="margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw !important;">
                 <div class="container">
                     <h2 class="text-center text-white mb-5">Como Participar</h2>
                     <div class="row g-4 justify-content-center">
                         <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow" style="border-radius: 15px;">
+                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
                                 <div class="card-body text-center p-4">
                                     <div class="mb-4">
-                                        <div class="bg-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
                                              style="width: 80px; height: 80px;">
                                             <i class="bi bi-person-plus-fill fs-1"></i>
                                         </div>
@@ -251,10 +251,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                         <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow" style="border-radius: 15px;">
+                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
                                 <div class="card-body text-center p-4">
                                     <div class="mb-4">
-                                        <div class="bg-success text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
                                              style="width: 80px; height: 80px;">
                                             <i class="bi bi-ticket-perforated-fill fs-1"></i>
                                         </div>
@@ -265,10 +265,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                         <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow" style="border-radius: 15px;">
+                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
                                 <div class="card-body text-center p-4">
                                     <div class="mb-4">
-                                        <div class="bg-warning text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
                                              style="width: 80px; height: 80px;">
                                             <i class="bi bi-controller fs-1"></i>
                                         </div>
@@ -279,10 +279,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                         <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow" style="border-radius: 15px;">
+                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
                                 <div class="card-body text-center p-4">
                                     <div class="mb-4">
-                                        <div class="bg-danger text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
                                              style="width: 80px; height: 80px;">
                                             <i class="bi bi-trophy-fill fs-1"></i>
                                         </div>

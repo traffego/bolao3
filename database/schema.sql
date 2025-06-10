@@ -1,4 +1,4 @@
--- Bolão Football Betting System Database Schema
+-- Bolão Vitimba Betting System Database Schema
 
 -- Create database if not exists
 CREATE DATABASE IF NOT EXISTS bolao CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -168,7 +168,7 @@ VALUES
 ('pontos_acerto_vencedor', '3', 'pontuacao', 'Pontos por acerto apenas do vencedor'),
 ('api_football', '{"api_key":"API_KEY_HERE","base_url":"https://api.football-data.org/v4"}', 'api', 'Configurações da API de futebol'),
 ('pagamento', '{"pix_key":"EMAIL@EXAMPLE.COM"}', 'pagamento', 'Configurações de pagamento'),
-('site_name', 'Bolão Football', 'geral', 'Nome do sistema');
+('site_name', 'Bolão Vitimba', 'geral', 'Nome do sistema');
 
 -- Tabela de dados dos bolões
 CREATE TABLE IF NOT EXISTS dados_boloes (
@@ -300,7 +300,7 @@ VALUES
 ('pontos_acerto_vencedor', '3', 'pontuacao', 'Pontos por acerto apenas do vencedor'),
 ('api_football', '{"api_key":"API_KEY_HERE","base_url":"https://api.football-data.org/v4"}', 'api', 'Configurações da API de futebol'),
 ('pagamento', '{"pix_key":"EMAIL@EXAMPLE.COM"}', 'pagamento', 'Configurações de pagamento'),
-('site_name', 'Bolão Football', 'geral', 'Nome do sistema');
+('site_name', 'Bolão Vitimba', 'geral', 'Nome do sistema');
 
 CREATE TABLE jogador (
     id INT AUTO_INCREMENT PRIMARY KEY,

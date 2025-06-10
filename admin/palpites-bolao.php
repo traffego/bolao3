@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Palpites do Bolão - Bolão Football
+ * Admin Palpites do Bolão - Bolão Vitimba
  */
 require_once '../config/config.php';require_once '../includes/functions.php';
 
@@ -163,7 +163,7 @@ function getResultClass($tipo) {
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6">
-            <div class="card bg-primary text-white mb-4">
+            <div class="card bg-green text-white mb-4">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>

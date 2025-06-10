@@ -5,7 +5,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4 mb-3">
-                <h5>Bolão Football</h5>
+                <h5>Bolão Vitimba</h5>
                 <p>O melhor sistema de bolões de futebol! Faça seus palpites e concorra a prêmios.</p>
             </div>
             <div class="col-md-4 mb-3">
@@ -32,7 +32,7 @@
         </div>
         <hr class="border-light">
         <div class="text-center">
-            &copy; <?= date('Y') ?> Bolão Football. Todos os direitos reservados.
+            &copy; <?= date('Y') ?> Bolão Vitimba. Todos os direitos reservados.
         </div>
     </div>
 </footer>

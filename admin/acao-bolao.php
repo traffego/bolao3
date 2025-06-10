@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Ação Bolão - Bolão Football
+ * Admin Ação Bolão - Bolão Vitimba
  * Handles bolão-related actions
  */
 require_once '../config/config.php';require_once '../includes/functions.php';

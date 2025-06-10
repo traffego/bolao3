@@ -163,7 +163,7 @@ include TEMPLATE_DIR . '/header.php';
         <div class="col-md-8">
             <?php if ($usuarioLogado && $bolao['valor_participacao'] > 0): ?>
                 <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-green text-white">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-credit-card-2-front me-2"></i>
                             Pagamento

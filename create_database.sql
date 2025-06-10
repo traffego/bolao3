@@ -149,7 +149,7 @@ VALUES ('Administrador', 'admin@bolao.com', '$2y$10$4FQzC/nBpO6jJIgBD0wJBeOSQgXA
 
 -- Inserir configurações padrão
 INSERT INTO configuracoes (nome_configuracao, valor, categoria, descricao) VALUES
-('site_name', 'Bolão Football', 'geral', 'Nome do site'),
+('site_name', 'Bolão Vitimba', 'geral', 'Nome do site'),
 ('site_description', 'O melhor sistema de bolões de futebol!', 'geral', 'Descrição do site'),
 ('moeda', 'BRL', 'geral', 'Moeda padrão do sistema'),
 ('taxa_admin', '10', 'pagamentos', 'Taxa administrativa em percentual'),

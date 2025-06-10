@@ -1,6 +1,6 @@
 <?php
 /**
- * Meus Palpites - Bolão Football
+ * Meus Palpites - Bolão Vitimba
  */
 require_once 'config/config.php';
 require_once 'includes/functions.php';
@@ -101,7 +101,7 @@ include 'templates/header.php';
             <?php foreach ($palpites as $palpite): ?>
                 <div class="col">
                     <div class="card h-100">
-                        <div class="card-header bg-primary text-white">
+                        <div class="card-header bg-green text-white">
                             <h5 class="card-title mb-0"><?= htmlspecialchars($palpite['bolao_nome']) ?></h5>
                         </div>
                         <div class="card-body">

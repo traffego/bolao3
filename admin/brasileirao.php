@@ -133,7 +133,7 @@ include '../templates/admin/header.php';
 
     <?php if (!empty($jogos)): ?>
     <div class="card">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-green text-white">
             <i class="fas fa-list me-1"></i>
             Jogos Encontrados (<?= count($jogos) ?>)
         </div>

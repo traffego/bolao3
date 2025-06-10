@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Logout - Bolão Football
+ * Admin Logout - Bolão Vitimba
  */
 require_once '../config/config.php';
 require_once '../includes/functions.php';

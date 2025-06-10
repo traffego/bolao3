@@ -99,7 +99,7 @@ include '../templates/admin/header.php';
                             <th>Visibilidade</th>
                             <td>
                                 <?php if ($bolao['publico'] == 1): ?>
-                                    <span class="badge bg-primary">Público</span>
+                                    <span class="badge bg-green">Público</span>
                                 <?php else: ?>
                                     <span class="badge bg-warning text-dark">Privado</span>
                                 <?php endif; ?>
@@ -189,7 +189,7 @@ include '../templates/admin/header.php';
                                             </td>
                                             <td>
                                                 <?php if ($jogo['resultado_casa'] !== null && $jogo['resultado_visitante'] !== null): ?>
-                                                    <span class="badge bg-primary">
+                                                    <span class="badge bg-green">
                                                         <?= $jogo['resultado_casa'] ?> x <?= $jogo['resultado_visitante'] ?>
                                                     </span>
                                                 <?php else: ?>

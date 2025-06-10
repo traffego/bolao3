@@ -37,7 +37,7 @@ VALUES
 ('pontos_acerto_vencedor', '3', 'pontuacao', 'Pontos por acerto apenas do vencedor'),
 ('api_football', '{"api_key":"API_KEY_HERE","base_url":"https://api.football-data.org/v4"}', 'api', 'Configurações da API de futebol'),
 ('pagamento', '{"pix_key":"EMAIL@EXAMPLE.COM"}', 'pagamento', 'Configurações de pagamento'),
-('site_name', 'Bolão Football', 'geral', 'Nome do sistema');
+('site_name', 'Bolão Vitimba', 'geral', 'Nome do sistema');
 
 -- Drop da tabela temporária
 DROP TEMPORARY TABLE IF EXISTS temp_configuracoes; 

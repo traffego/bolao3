@@ -1,4 +1,4 @@
--- Bolão Football Betting System Database Setup
+-- Bolão Vitimba Betting System Database Setup
 -- Script para criar todas as tabelas e inserir dados de demonstração
 
 -- Drop database if exists (descomente se quiser recriar o banco)
@@ -297,5 +297,5 @@ INSERT INTO configuracoes (nome_configuracao, valor, descricao) VALUES
 ('pontos_acerto_vencedor', '5', 'Pontos por acerto apenas do vencedor'),
 ('pontos_acerto_empate', '3', 'Pontos por acerto de empate sem placar exato'),
 ('pagamento', '{"pix_key":"bolao@example.com"}', 'Configurações de pagamento'),
-('site', '{"nome":"Bolão Football","url":"https://bolao.example.com","email_contato":"contato@bolao.example.com"}', 'Configurações do site'),
+('site', '{"nome":"Bolão Vitimba","url":"https://bolao.example.com","email_contato":"contato@bolao.example.com"}', 'Configurações do site'),
 ('api_football', '{"api_key":"SUA_CHAVE_API_AQUI","base_url":"https://api-football-v1.p.rapidapi.com/v3"}', 'Configurações da API de futebol'); 

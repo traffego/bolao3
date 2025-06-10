@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Jogos de Bolão - Bolão Football
+ * Admin Jogos de Bolão - Bolão Vitimba
  */
 require_once '../config/config.php';require_once '../includes/functions.php';
 
@@ -143,7 +143,7 @@ include '../templates/admin/header.php';
                                     <td><?= htmlspecialchars($jogo['local'] ?? 'N/A') ?></td>
                                     <td>
                                         <?php if ($jogo['status'] === 'agendado'): ?>
-                                            <span class="badge bg-primary">Agendado</span>
+                                            <span class="badge bg-green">Agendado</span>
                                         <?php elseif ($jogo['status'] === 'em_andamento'): ?>
                                             <span class="badge bg-warning">Em andamento</span>
                                         <?php elseif ($jogo['status'] === 'finalizado'): ?>

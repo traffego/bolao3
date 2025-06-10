@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Jogador Palpites - Bolão Football
+ * Admin Jogador Palpites - Bolão Vitimba
  */
 require_once '../config/config.php';require_once '../includes/functions.php';
 
@@ -124,7 +124,7 @@ include '../templates/admin/header.php';
                         <div class="col-md-6">
                             <p><strong>Data de Entrada:</strong> <?= formatDateTime($participacao['data_entrada']) ?></p>
                             <p><strong>Total de Palpites:</strong> <?= count($palpites) ?></p>
-                            <p><strong>Pontuação Total:</strong> <span class="badge bg-primary"><?= $pontuacaoTotal ?> pontos</span></p>
+                            <p><strong>Pontuação Total:</strong> <span class="badge bg-green"><?= $pontuacaoTotal ?> pontos</span></p>
                             <?php if ($ranking): ?>
                                 <p><strong>Posição no Ranking:</strong> 
                                     <span class="badge bg-warning"><?= $ranking['posicao'] ?>º lugar</span>

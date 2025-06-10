@@ -60,7 +60,7 @@ include TEMPLATE_DIR . '/header.php';
             <?php foreach ($boloes as $bolao): ?>
                 <div class="col-md-6">
                     <div class="card h-100">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <div class="card-header bg-green text-white d-flex justify-content-between align-items-center">
                             <h5 class="mb-0"><?= sanitize($bolao['titulo']) ?></h5>
                             <?php if ($bolao['status'] === 'aberto'): ?>
                                 <span class="badge bg-success">Aberto</span>

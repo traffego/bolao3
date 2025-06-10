@@ -9,13 +9,13 @@ include TEMPLATE_DIR . '/header.php';
 ?>
 
 <div class="container py-4">
-    <h1 class="mb-4">Como Funciona o Bolão Football</h1>
+    <h1 class="mb-4">Como Funciona o Bolão Vitimba</h1>
     
     <!-- Seção Principal -->
     <div class="card mb-4">
         <div class="card-body">
             <h2 class="h4 mb-3">Participar é muito fácil!</h2>
-            <p>O Bolão Football é uma plataforma onde você pode participar de bolões de futebol e concorrer a prêmios em dinheiro. Siga os passos abaixo para começar:</p>
+            <p>O Bolão Vitimba é uma plataforma onde você pode participar de bolões de futebol e concorrer a prêmios em dinheiro. Siga os passos abaixo para começar:</p>
         </div>
     </div>
 
@@ -60,7 +60,7 @@ include TEMPLATE_DIR . '/header.php';
 
     <!-- Regras Gerais -->
     <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-green text-white">
             <h3 class="h5 mb-0">Regras Gerais</h3>
         </div>
         <div class="card-body">

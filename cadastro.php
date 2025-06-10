@@ -1,6 +1,6 @@
 <?php
 /**
- * Registration Page - Bolão Football
+ * Registration Page - Bolão Vitimba
  */
 require_once 'config/config.php';require_once 'includes/functions.php';
 
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $userId;
             $_SESSION['user_nome'] = $formData['nome'];
             
-            setFlashMessage('success', 'Cadastro realizado com sucesso! Bem-vindo ao Bolão Football.');
+            setFlashMessage('success', 'Cadastro realizado com sucesso! Bem-vindo ao Bolão Vitimba.');
             redirect(APP_URL);
         } else {
             $errors[] = 'Ocorreu um erro ao criar sua conta. Por favor, tente novamente.';
@@ -102,7 +102,7 @@ include TEMPLATE_DIR . '/header.php';
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
         <div class="card shadow">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-green text-white">
                 <h4 class="mb-0">Cadastre-se</h4>
             </div>
             <div class="card-body">

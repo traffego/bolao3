@@ -1,6 +1,6 @@
 <?php
 /**
- * Bolões Page - Bolão Football
+ * Bolões Page - Bolão Vitimba
  */
 require_once 'config/config.php';require_once 'includes/functions.php';
 

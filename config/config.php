@@ -17,7 +17,7 @@ if (!defined('DEBUG_MODE')) {
 require_once __DIR__ . '/database.php';
 
 // Application Configuration
-define('APP_NAME', 'Bolão Football');
+define('APP_NAME', 'Bolão Vitimba');
 define('APP_URL', $isLocalhost ? 'http://localhost/bolao3' : 'https://bolao.traffego.agency');
 define('APP_VERSION', '1.0.0');
 

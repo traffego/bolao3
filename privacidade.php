@@ -14,7 +14,7 @@ include TEMPLATE_DIR . '/header.php';
     <div class="card mb-4">
         <div class="card-body">
             <h2 class="h5 mb-3">1. Informações Coletadas</h2>
-            <p>Coletamos as seguintes informações quando você usa o Bolão Football:</p>
+            <p>Coletamos as seguintes informações quando você usa o Bolão Vitimba:</p>
             <ul>
                 <li>Nome completo</li>
                 <li>Endereço de e-mail</li>

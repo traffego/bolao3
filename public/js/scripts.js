@@ -1,5 +1,5 @@
 /**
- * Main JavaScript file for Bolão Football
+ * Main JavaScript file for Bolão Vitimba
  */
 
 document.addEventListener('DOMContentLoaded', function() {

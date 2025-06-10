@@ -1,6 +1,6 @@
 <?php
 /**
- * Login Page - Bolão Football
+ * Login Page - Bolão Vitimba
  */
 require_once 'config/config.php';require_once 'includes/functions.php';
 
@@ -89,7 +89,7 @@ include TEMPLATE_DIR . '/header.php';
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
         <div class="card shadow">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-green text-white">
                 <h4 class="mb-0">Login</h4>
             </div>
             <div class="card-body">
