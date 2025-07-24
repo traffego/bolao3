@@ -86,14 +86,25 @@ if (!empty($jogosIds) && $apiConfig && !empty($apiConfig['api_key'])) {
             if (isset($data['response']) && !empty($data['response'])) {
                 $jogo = $data['response'][0];
                 
+                $fixtureDate = $jogo['fixture']['date'] ?? '';
+                error_log('Fixture date para jogo ' . $jogo['fixture']['id'] . ': ' . $fixtureDate);
+                $timestamp = strtotime($fixtureDate);
+                if (!$timestamp) {
+                    // Se a data vier vazia ou inválida, salva como null
+                    $dataPadrao = null;
+                    $dataFormatadaPadrao = 'Data inválida';
+                } else {
+                    $dataPadrao = date('Y-m-d H:i:s', $timestamp);
+                    $dataFormatadaPadrao = date('d/m/Y H:i', $timestamp);
+                }
                 $jogosFull[] = [
                     'id' => $jogo['fixture']['id'],
                     'campeonato' => $jogo['league']['name'],
                     'campeonato_id' => $jogo['league']['id'],
                     'time_casa' => $jogo['teams']['home']['name'],
                     'time_visitante' => $jogo['teams']['away']['name'],
-                    'data' => date('d/m/Y H:i', strtotime($jogo['fixture']['date'])),
-                    'data_iso' => $jogo['fixture']['date'],
+                    'data' => $dataPadrao,
+                    'data_formatada' => $dataFormatadaPadrao,
                     'status' => $jogo['fixture']['status']['short'],
                     'resultado_casa' => null,
                     'resultado_visitante' => null,

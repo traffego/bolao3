@@ -244,3 +244,13 @@ function dbExecute($query, $params = []) {
         throw $e;
     }
 } 
+
+/**
+ * Get the ID of the last inserted record
+ * 
+ * @return string|false The last insert ID or false on failure
+ */
+function dbLastInsertId() {
+    global $pdo;
+    return $pdo->lastInsertId();
+} 

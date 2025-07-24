@@ -6,7 +6,7 @@
     <title><?= isset($pageTitle) ? $pageTitle . ' - ' . APP_NAME : APP_NAME ?></title>
     
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -48,6 +48,53 @@
             
             <ul class="navbar-nav">
                 <?php if (isLoggedIn()): ?>
+                    <?php
+                        // Buscar saldo do usuário
+                        require_once ROOT_DIR . '/includes/classes/ContaManager.php';
+                        $contaManager = new ContaManager();
+                        $conta = $contaManager->buscarContaPorJogador(getCurrentUserId());
+                        $saldo = $conta ? $contaManager->getSaldo($conta['id']) : 0;
+                    ?>
+                    <!-- Saldo -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="saldoDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-wallet2"></i> R$ <?= number_format($saldo, 2, ',', '.') ?>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="<?= APP_URL ?>/deposito.php">
+                                    <i class="bi bi-plus-circle text-success"></i> Fazer Depósito
+                                </a>
+                            </li>
+                            <?php if ($saldo > 0): ?>
+                            <li>
+                                <a class="dropdown-item" href="<?= APP_URL ?>/minha-conta.php#saque">
+                                    <i class="bi bi-cash text-primary"></i> Solicitar Saque
+                                </a>
+                            </li>
+                            <?php endif; ?>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="<?= APP_URL ?>/minha-conta.php">
+                                    <i class="bi bi-clock-history"></i> Histórico
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- Notificações -->
+                    <li class="nav-item">
+                        <a href="<?= APP_URL ?>/notificacoes.php" class="nav-link">
+                            <i class="bi bi-bell"></i>
+                            <?php
+                            $notificacaoManager = new NotificacaoManager();
+                            $naoLidas = $notificacaoManager->contarNaoLidas(getCurrentUserId());
+                            if ($naoLidas > 0):
+                            ?>
+                                <span class="badge bg-danger"><?= $naoLidas ?></span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
+                    <!-- Menu do Usuário -->
                     <li class="nav-item dropdown">
                         <?php 
                             $user = dbFetchOne("SELECT nome FROM jogador WHERE id = ?", [getCurrentUserId()]);

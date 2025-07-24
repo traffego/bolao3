@@ -21,6 +21,9 @@ define('APP_NAME', 'Bolão Vitimba');
 define('APP_URL', $isLocalhost ? 'http://localhost/bolao3' : 'https://bolao.traffego.agency');
 define('APP_VERSION', '1.0.0');
 
+// Webhook Configuration
+define('WEBHOOK_URL', $isLocalhost ? 'http://localhost/bolao3/api/webhook_pix.php' : 'https://bolao.traffego.agency/bolao3/api/webhook_pix.php');
+
 // Directory Configuration
 define('ROOT_DIR', dirname(__DIR__));
 define('PUBLIC_DIR', ROOT_DIR . '/public');
@@ -89,4 +92,7 @@ if (session_status() === PHP_SESSION_NONE) {
         session_regenerate_id(true);
         $_SESSION['created'] = time();
     }
-} 
+}
+
+// Carregar classes principais
+require_once ROOT_DIR . '/includes/classes/NotificacaoManager.php'; 

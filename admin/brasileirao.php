@@ -55,11 +55,6 @@ include '../templates/admin/header.php';
 <div class="container-fluid px-4" style="padding-top: 4.5rem;">
     <h1 class="mt-4">Jogos do Brasileirão</h1>
     
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-        <li class="breadcrumb-item active">Brasileirão</li>
-    </ol>
-    
     <?php $flashMessage = getFlashMessage(); ?>
     <?php if ($flashMessage): ?>
         <div class="alert alert-<?= $flashMessage['type'] ?> alert-dismissible fade show" role="alert">

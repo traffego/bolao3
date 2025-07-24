@@ -1,0 +1,187 @@
+# Documentação de Integração com API Football
+
+## 1. Configuração Inicial
+
+Primeiro, é necessário ter a configuração da API salva no banco de dados:
+
+```sql
+INSERT INTO configuracoes (nome_configuracao, valor, categoria, descricao) 
+VALUES (
+    'api_football',
+    '{"api_key":"SUA_API_KEY","base_url":"https://v3.football.api-sports.io"}',
+    'api',
+    'Configurações da API Football'
+);
+```
+
+## 2. Busca de Jogos
+
+### 2.1. Buscar Jogos por Período
+
+```php
+// Configuração da API
+$apiConfig = getConfig('api_football');
+$headers = [
+    "x-rapidapi-key: {$apiConfig['api_key']}",
+    "x-rapidapi-host: v3.football.api-sports.io"
+];
+
+// Parâmetros da busca
+$parametros = [
+    'league' => $campeonatoId,  // Ex: 71 (Brasileirão Série A)
+    'season' => date('Y'),      // Ano atual
+    'from' => $dataInicio,      // Formato: YYYY-MM-DD
+    'to' => $dataFim,           // Formato: YYYY-MM-DD
+    'status' => 'NS'            // NS = Not Started (jogos não iniciados)
+];
+
+// URL da API
+$apiUrl = "https://v3.football.api-sports.io/fixtures?" . http_build_query($parametros);
+
+// Fazer a requisição
+$ch = curl_init();
+curl_setopt_array($ch, [
+    CURLOPT_URL => $apiUrl,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => $headers
+]);
+
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+// Processar resposta
+if ($httpCode === 200) {
+    $data = json_decode($response, true);
+    $jogos = $data['response'] ?? [];
+}
+```
+
+### 2.2. IDs dos Campeonatos Brasileiros
+
+```php
+$campeonatos = [
+    71 => 'Brasileirão Série A',
+    72 => 'Brasileirão Série B',
+    75 => 'Brasileirão Série C',
+    76 => 'Brasileirão Série D',
+    73 => 'Copa do Brasil',
+    13 => 'Libertadores'
+];
+```
+
+## 3. Busca de Resultados
+
+### 3.1. Buscar Resultado de um Jogo Específico
+
+```php
+function requestApiFootball($jogoId, $apiConfig) {
+    $apiUrl = "https://v3.football.api-sports.io/fixtures?id=" . $jogoId;
+    $headers = [
+        "x-rapidapi-key: {$apiConfig['api_key']}",
+        "x-rapidapi-host: v3.football.api-sports.io"
+    ];
+    
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $apiUrl,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => $headers
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) {
+        return null;
+    }
+    
+    $data = json_decode($response, true);
+    return $data['response'][0] ?? null;
+}
+```
+
+### 3.2. Status dos Jogos
+
+```php
+$statusJogos = [
+    'NS'   => 'Não Iniciado',
+    'LIVE' => 'Ao Vivo',
+    '1H'   => 'Primeiro Tempo',
+    'HT'   => 'Intervalo',
+    '2H'   => 'Segundo Tempo',
+    'FT'   => 'Finalizado',
+    'AET'  => 'Prorrogação',
+    'PEN'  => 'Pênaltis',
+    'SUSP' => 'Suspenso',
+    'INT'  => 'Interrompido'
+];
+```
+
+## 4. Atualização Automática de Resultados
+
+### 4.1. Script de Atualização
+
+```php
+// Buscar jogos que precisam ser atualizados
+foreach ($jogos as &$jogo) {
+    // Verificar se o jogo precisa ser atualizado
+    if ($jogo['status'] === 'NS' || in_array($jogo['status'], ['LIVE', '1H', 'HT', '2H'])) {
+        $jogoApi = requestApiFootball($jogo['id']);
+        
+        if ($jogoApi) {
+            // Atualizar status
+            $jogo['status'] = $jogoApi['fixture']['status']['short'];
+            
+            // Atualizar resultados se o jogo estiver em andamento ou finalizado
+            if (in_array($jogo['status'], ['FT', 'AET', 'PEN', '1H', 'HT', '2H'])) {
+                $jogo['resultado_casa'] = $jogoApi['goals']['home'];
+                $jogo['resultado_visitante'] = $jogoApi['goals']['away'];
+            }
+        }
+    }
+}
+```
+
+## 5. Boas Práticas
+
+1. **Limite de Requisições**:
+   - Aguardar entre requisições para evitar limites da API
+   ```php
+   usleep(300000); // 0.3 segundos entre requisições
+   ```
+
+2. **Cache de Respostas**:
+   - Implementar cache para logos de times e dados que não mudam frequentemente
+   - Tempo de cache recomendado: 7 dias para logos
+
+3. **Tratamento de Erros**:
+   ```php
+   if ($httpCode !== 200) {
+       error_log("Erro na API Football: HTTP Code $httpCode");
+       // Tratar erro apropriadamente
+   }
+   ```
+
+4. **Logs de Atualização**:
+   ```php
+   function logMessage($message) {
+       $logFile = "../logs/atualizacao_jogos.log";
+       $timestamp = date('Y-m-d H:i:s');
+       file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
+   }
+   ```
+
+## 6. Configurações Recomendadas
+
+```sql
+INSERT INTO configuracoes (nome_configuracao, valor, categoria) VALUES
+('atualizacao_automatica', '1', 'resultados'),
+('intervalo_atualizacao', '30', 'resultados'),
+('horario_inicio', '08:00', 'resultados'),
+('horario_fim', '23:00', 'resultados'),
+('dias_semana', '1,2,3,4,5,6,7', 'resultados');
+```
+
+Esta documentação fornece as informações básicas necessárias para integrar e manter a comunicação com a API Football no sistema de bolão. 

@@ -1,6 +1,7 @@
 <?php
 require_once '../config/config.php';
 require_once '../config/database.php';
+require_once '../includes/functions.php';
 
 // Receber payload do webhook
 $payload = file_get_contents('php://input');
@@ -21,41 +22,109 @@ try {
     // Iniciar transação
     $pdo->beginTransaction();
     
-    // Buscar usuário pelo TXID
-    $stmt = $pdo->prepare("SELECT id FROM jogador WHERE txid_pagamento = ?");
+    // Buscar transação pelo TXID
+    $stmt = $pdo->prepare("
+        SELECT t.*, c.jogador_id, p.id as palpite_id
+        FROM transacoes t
+        INNER JOIN contas c ON t.conta_id = c.id
+        LEFT JOIN palpites p ON t.palpite_id = p.id
+        WHERE t.txid = ?
+    ");
     $stmt->execute([$data['txid']]);
-    $usuario = $stmt->fetch();
+    $transacao = $stmt->fetch();
     
-    if ($usuario) {
-        // Atualizar status do pagamento
-        $stmt = $pdo->prepare("UPDATE jogador SET pagamento_confirmado = 1 WHERE id = ?");
-        $stmt->execute([$usuario['id']]);
-        
-        // Buscar o último palpite do usuário
-        $stmt = $pdo->prepare("
-            SELECT p.id 
-            FROM palpites p 
-            WHERE p.jogador_id = ? 
-            ORDER BY p.data_palpite DESC 
-            LIMIT 1
-        ");
-        $stmt->execute([$usuario['id']]);
-        $palpite = $stmt->fetch();
-        
-        if ($palpite) {
-            // Atualizar status do palpite
-            $stmt = $pdo->prepare("UPDATE palpites SET status = 'pago' WHERE id = ?");
-            $stmt->execute([$palpite['id']]);
-        }
-        
-        // Commit da transação
-        $pdo->commit();
-        
-        http_response_code(200);
-        echo json_encode(['status' => 'success']);
-    } else {
-        throw new Exception('User not found for TXID: ' . $data['txid']);
+    if (!$transacao) {
+        throw new Exception('Transação não encontrada para TXID: ' . $data['txid']);
     }
+
+    // Verificar se o pagamento já foi processado
+    if ($transacao['status'] === 'aprovado') {
+        http_response_code(200);
+        echo json_encode(['status' => 'already_processed']);
+        exit;
+    }
+
+    // Calcular saldo atual se a transação afeta saldo
+    if ($transacao['afeta_saldo']) {
+        $stmt = $pdo->prepare("
+            SELECT COALESCE(SUM(CASE 
+                WHEN tipo IN ('deposito', 'premio', 'bonus') THEN valor 
+                WHEN tipo IN ('saque', 'aposta') THEN -valor 
+            END), 0) as saldo_atual
+            FROM transacoes 
+            WHERE conta_id = ? 
+            AND status = 'aprovado' 
+            AND afeta_saldo = TRUE
+        ");
+        $stmt->execute([$transacao['conta_id']]);
+        $saldoAtual = $stmt->fetch()['saldo_atual'];
+
+        // Atualizar transação com os saldos
+        $stmt = $pdo->prepare("
+            UPDATE transacoes 
+            SET status = 'aprovado',
+                saldo_anterior = ?,
+                saldo_posterior = ?,
+                data_processamento = NOW()
+            WHERE txid = ?
+        ");
+        $stmt->execute([
+            $saldoAtual,
+            $saldoAtual + $transacao['valor'],
+            $data['txid']
+        ]);
+    } else {
+        // Se não afeta saldo, apenas atualizar status
+        $stmt = $pdo->prepare("
+            UPDATE transacoes 
+            SET status = 'aprovado',
+                data_processamento = NOW()
+            WHERE txid = ?
+        ");
+        $stmt->execute([$data['txid']]);
+    }
+
+    // Se houver palpite associado, atualizar seu status
+    if ($transacao['palpite_id']) {
+        $stmt = $pdo->prepare("UPDATE palpites SET status = 'pago' WHERE id = ?");
+        $stmt->execute([$transacao['palpite_id']]);
+    }
+
+    // Registrar log da operação
+    $stmt = $pdo->prepare("
+        INSERT INTO logs 
+            (tipo, descricao, usuario_id, data_hora, ip_address, dados_adicionais) 
+        VALUES 
+            (?, ?, ?, NOW(), ?, ?)
+    ");
+    
+    $logData = [
+        'tipo' => 'pagamento',
+        'descricao' => 'Pagamento PIX confirmado via webhook',
+        'usuario_id' => $transacao['jogador_id'],
+        'ip' => $_SERVER['REMOTE_ADDR'] ?? 'webhook',
+        'dados' => json_encode([
+            'txid' => $data['txid'],
+            'valor' => $transacao['valor'],
+            'afeta_saldo' => $transacao['afeta_saldo'],
+            'palpite_id' => $transacao['palpite_id']
+        ])
+    ];
+    
+    $stmt->execute([
+        $logData['tipo'],
+        $logData['descricao'],
+        $logData['usuario_id'],
+        $logData['ip'],
+        $logData['dados']
+    ]);
+    
+    // Commit da transação
+    $pdo->commit();
+    
+    http_response_code(200);
+    echo json_encode(['status' => 'success']);
+
 } catch (Exception $e) {
     // Rollback em caso de erro
     $pdo->rollBack();

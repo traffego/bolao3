@@ -110,8 +110,7 @@ CREATE TABLE IF NOT EXISTS palpites (
     data_palpite DATETIME DEFAULT CURRENT_TIMESTAMP,
     status ENUM('pendente', 'pago', 'cancelado') DEFAULT 'pendente',
     FOREIGN KEY (jogador_id) REFERENCES jogadores(id) ON DELETE CASCADE,
-    FOREIGN KEY (bolao_id) REFERENCES boloes(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_palpite (jogador_id, bolao_id)
+    FOREIGN KEY (bolao_id) REFERENCES boloes(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Pagamentos

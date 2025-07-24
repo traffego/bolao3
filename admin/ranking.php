@@ -2,26 +2,28 @@
 /**
  * Admin Ranking - Bolão Vitimba
  */
-require_once '../config/config.php';require_once '../includes/functions.php';
+require_once '../config/config.php';
+require_once '../includes/functions.php';
 
 // Check if admin is logged in
 if (!isAdmin()) {
-    $_SESSION['redirect_after_login'] = APP_URL . '/admin/ranking.php';
+    setFlashMessage('danger', 'Acesso negado. Faça login como administrador.');
     redirect(APP_URL . '/admin/login.php');
 }
 
 // Get bolão ID from URL
-$bolaoId = isset($_GET['bolao_id']) ? (int)$_GET['bolao_id'] : 0;
-
-if ($bolaoId <= 0) {
-    setFlashMessage('danger', 'Bolão não encontrado.');
+$bolaoId = filter_input(INPUT_GET, 'bolao_id', FILTER_VALIDATE_INT);
+if (!$bolaoId) {
+    setFlashMessage('danger', 'ID do bolão inválido.');
     redirect(APP_URL . '/admin/boloes.php');
 }
 
-// Get bolão data
+// Get bolão data with all games
 $bolao = dbFetchOne(
-    "SELECT b.*, a.nome as admin_nome FROM dados_boloes b
-     LEFT JOIN administrador a ON a.id = b.admin_id
+    "SELECT b.*, 
+            (SELECT COUNT(DISTINCT p.id) FROM palpites p WHERE p.bolao_id = b.id) as total_palpites,
+            (SELECT COUNT(DISTINCT jogador_id) FROM palpites p WHERE p.bolao_id = b.id) as total_jogadores
+     FROM dados_boloes b
      WHERE b.id = ?", 
     [$bolaoId]
 );
@@ -31,226 +33,333 @@ if (!$bolao) {
     redirect(APP_URL . '/admin/boloes.php');
 }
 
-// Handle recalculate ranking request
-if (isset($_GET['recalcular']) && $_GET['recalcular'] == 1) {
-    // Call the update ranking function
-    $success = updateRanking($bolaoId);
-    
-    if ($success) {
-        setFlashMessage('success', 'Ranking recalculado com sucesso!');
-    } else {
-        setFlashMessage('danger', 'Erro ao recalcular o ranking.');
-    }
-    
-    redirect(APP_URL . '/admin/ranking.php?bolao_id=' . $bolaoId);
-}
+// Decodificar jogos do bolão
+$jogos = json_decode($bolao['jogos'], true) ?: [];
 
-// Get ranking data
-$ranking = dbFetchAll(
-    "SELECT r.*, j.nome, j.email, 
-            (SELECT COUNT(*) FROM palpites WHERE jogador_id = r.jogador_id AND bolao_id = r.bolao_id) as total_palpites,
-            (SELECT COUNT(*) FROM jogos WHERE bolao_id = r.bolao_id) as total_jogos
-     FROM ranking r
-     JOIN jogador j ON j.id = r.jogador_id
-     WHERE r.bolao_id = ?
-     ORDER BY r.posicao ASC, r.pontos_total DESC", 
-    [$bolaoId]
-);
+// Buscar todos os palpites com detalhes e acertos
+$sql = "WITH jogos_resultados AS (
+    SELECT 
+        jogo.id,
+        CASE 
+            WHEN CAST(JSON_EXTRACT(jogo.value, '$.resultado_casa') AS SIGNED) = CAST(JSON_EXTRACT(jogo.value, '$.resultado_visitante') AS SIGNED) THEN '0'
+            WHEN CAST(JSON_EXTRACT(jogo.value, '$.resultado_casa') AS SIGNED) > CAST(JSON_EXTRACT(jogo.value, '$.resultado_visitante') AS SIGNED) THEN '1'
+            ELSE '2'
+        END as resultado,
+        JSON_EXTRACT(jogo.value, '$.time_casa') as time_casa,
+        JSON_EXTRACT(jogo.value, '$.time_visitante') as time_visitante,
+        JSON_EXTRACT(jogo.value, '$.resultado_casa') as gols_casa,
+        JSON_EXTRACT(jogo.value, '$.resultado_visitante') as gols_visitante,
+        JSON_EXTRACT(jogo.value, '$.status') as status
+    FROM dados_boloes b
+    CROSS JOIN JSON_TABLE(
+        b.jogos,
+        '$[*]' COLUMNS(
+            id VARCHAR(20) PATH '$.id',
+            value JSON PATH '$'
+        )
+    ) as jogo
+    WHERE b.id = ?
+)
+SELECT 
+    p.id as palpite_id,
+    p.jogador_id,
+    p.data_palpite,
+    p.palpites,
+    j.nome as jogador_nome,
+    j.email as jogador_email,
+    (
+        SELECT COUNT(*)
+        FROM jogos_resultados jr
+        WHERE jr.status = 'FT'
+        AND jr.resultado = JSON_EXTRACT(p.palpites, CONCAT('$.jogos.', jr.id))
+    ) as acertos,
+    (
+        SELECT COUNT(*)
+        FROM jogos_resultados
+        WHERE status = 'FT'
+    ) as total_jogos_finalizados,
+    (
+        SELECT JSON_OBJECTAGG(
+            jr.id,
+            JSON_OBJECT(
+                'palpite', JSON_EXTRACT(p.palpites, CONCAT('$.jogos.', jr.id)),
+                'resultado', jr.resultado,
+                'time_casa', jr.time_casa,
+                'time_visitante', jr.time_visitante,
+                'gols_casa', jr.gols_casa,
+                'gols_visitante', jr.gols_visitante,
+                'status', jr.status,
+                'acertou', jr.status = 'FT' AND jr.resultado = JSON_EXTRACT(p.palpites, CONCAT('$.jogos.', jr.id))
+            )
+        )
+        FROM jogos_resultados jr
+        WHERE JSON_EXTRACT(p.palpites, CONCAT('$.jogos.', jr.id)) IS NOT NULL
+    ) as detalhes_palpites
+FROM palpites p
+JOIN jogador j ON j.id = p.jogador_id
+WHERE p.bolao_id = ?
+ORDER BY acertos DESC, p.data_palpite DESC";
 
-// If ranking is empty, try to auto-generate it
-if (empty($ranking)) {
-    updateRanking($bolaoId);
-    
-    // Try to get ranking data again
-    $ranking = dbFetchAll(
-        "SELECT r.*, j.nome, j.email, 
-                (SELECT COUNT(*) FROM palpites WHERE jogador_id = r.jogador_id AND bolao_id = r.bolao_id) as total_palpites,
-                (SELECT COUNT(*) FROM jogos WHERE bolao_id = r.bolao_id) as total_jogos
-         FROM ranking r
-         JOIN jogador j ON j.id = r.jogador_id
-         WHERE r.bolao_id = ?
-         ORDER BY r.posicao ASC, r.pontos_total DESC", 
-        [$bolaoId]
-    );
-}
-
-// Get total completed games
-$completedGames = dbFetchOne(
-    "SELECT COUNT(*) as total FROM jogos WHERE bolao_id = ? AND status = 'finalizado'",
-    [$bolaoId]
-);
-$totalCompletedGames = $completedGames ? $completedGames['total'] : 0;
+$palpites = dbFetchAll($sql, [$bolaoId, $bolaoId]);
 
 // Page title
-$pageTitle = 'Ranking do Bolão: ' . $bolao['nome'];
+$pageTitle = 'Palpites do Bolão: ' . $bolao['nome'];
 $currentPage = 'boloes';
 
 // Include admin header
 include '../templates/admin/header.php';
 ?>
 
-<div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mt-4">Ranking: <?= htmlspecialchars($bolao['nome']) ?></h1>
-        <div>
-            <a href="<?= APP_URL ?>/admin/ranking.php?bolao_id=<?= $bolaoId ?>&recalcular=1" class="btn btn-primary">
-                <i class="fas fa-sync-alt"></i> Recalcular Ranking
-            </a>
-            <a href="<?= APP_URL ?>/admin/bolao.php?id=<?= $bolaoId ?>" class="btn btn-info">
-                <i class="fas fa-info-circle"></i> Detalhes do Bolão
-            </a>
-            <a href="<?= APP_URL ?>/admin/boloes.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </a>
-        </div>
-    </div>
-    
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="<?= APP_URL ?>/admin/index.php">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="<?= APP_URL ?>/admin/boloes.php">Bolões</a></li>
-        <li class="breadcrumb-item"><a href="<?= APP_URL ?>/admin/bolao.php?id=<?= $bolaoId ?>">Detalhes</a></li>
-        <li class="breadcrumb-item active">Ranking</li>
-    </ol>
-    
-    <?php $flashMessage = getFlashMessage(); ?>
-    <?php if ($flashMessage): ?>
-        <div class="alert alert-<?= $flashMessage['type'] ?> alert-dismissible fade show" role="alert">
-            <?= $flashMessage['message'] ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-        </div>
-    <?php endif; ?>
-    
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <div>
-                <i class="fas fa-trophy me-1"></i>
-                Classificação dos Jogadores
-            </div>
-            <div>
-                <span class="badge bg-info">
-                    <i class="fas fa-futbol"></i> Jogos Finalizados: <?= $totalCompletedGames ?>
-                </span>
-                <span class="badge bg-success ms-2">
-                    <i class="fas fa-users"></i> Participantes: <?= count($ranking) ?>
-                </span>
-            </div>
-        </div>
-        <div class="card-body">
-            <?php if (empty($ranking)): ?>
-                <div class="alert alert-info">
-                    Nenhum jogador participando deste bolão ou o ranking ainda não foi calculado.
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1><?= htmlspecialchars($bolao['nome']) ?></h1>
                 </div>
-            <?php else: ?>
-                <div class="table-responsive">
-                    <table class="table table-striped table-bordered table-hover">
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Cards de Estatísticas -->
+            <div class="row">
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3><?= count($palpites) ?></h3>
+                            <p>Total de Palpites</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-list-ol"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3><?= count($jogos) ?></h3>
+                            <p>Total de Jogos</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-futbol"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3><?= count(array_unique(array_column($palpites, 'jogador_id'))) ?></h3>
+                            <p>Participantes</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3><?= formatMoney($bolao['premio_total']) ?></h3>
+                            <p>Prêmio Total</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Palpites -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-list"></i> 
+                        Lista de Palpites
+                    </h3>
+                    <div class="card-tools">
+                        <span class="badge badge-info">
+                            <?= count($palpites) ?> palpites registrados
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-hover text-nowrap">
                         <thead>
-                            <tr class="table-dark">
-                                <th>Posição</th>
+                            <tr>
+                                <th>ID</th>
                                 <th>Jogador</th>
-                                <th>Pontos</th>
-                                <th>Acertos Exatos</th>
-                                <th>Acertos Parciais</th>
+                                <th>Data do Palpite</th>
+                                <th class="text-center">Acertos</th>
                                 <th>Palpites</th>
-                                <th>Aproveitamento</th>
-                                <th>Última Atualização</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($ranking as $index => $item): ?>
-                                <tr class="<?= $index < 3 ? 'table-success' : '' ?>">
-                                    <td>
-                                        <span class="badge rounded-pill bg-<?= getPosicaoClass($index) ?>">
-                                            <?= $item['posicao'] ?>º
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="fw-bold"><?= htmlspecialchars($item['nome']) ?></div>
-                                        <small class="text-muted"><?= htmlspecialchars($item['email']) ?></small>
-                                    </td>
-                                    <td class="text-center fw-bold"><?= $item['pontos_total'] ?></td>
-                                    <td class="text-center"><?= $item['acertos_exatos'] ?></td>
-                                    <td class="text-center"><?= $item['acertos_parciais'] ?></td>
-                                    <td class="text-center">
-                                        <?= $item['total_palpites'] ?> / <?= $item['total_jogos'] ?>
-                                        <div class="progress mt-1" style="height: 5px;">
-                                            <div class="progress-bar" role="progressbar" 
-                                                style="width: <?= ($item['total_palpites'] / max(1, $item['total_jogos'])) * 100 ?>%;" 
-                                                aria-valuenow="<?= $item['total_palpites'] ?>" 
-                                                aria-valuemin="0" 
-                                                aria-valuemax="<?= $item['total_jogos'] ?>">
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <?php 
-                                            $aproveitamento = 0;
-                                            if ($totalCompletedGames > 0) {
-                                                $aproveitamento = ($item['pontos_total'] / ($totalCompletedGames * 10)) * 100;
-                                            }
-                                            echo number_format($aproveitamento, 1) . '%';
-                                        ?>
-                                    </td>
-                                    <td><?= formatDateTime($item['data_atualizacao']) ?></td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="<?= APP_URL ?>/admin/jogador-palpites.php?jogador_id=<?= $item['jogador_id'] ?>&bolao_id=<?= $bolaoId ?>" 
-                                               class="btn btn-sm btn-info" title="Ver Palpites">
-                                                <i class="fas fa-list-ol"></i>
-                                            </a>
-                                            <a href="<?= APP_URL ?>/admin/jogador.php?id=<?= $item['jogador_id'] ?>" 
-                                               class="btn btn-sm btn-primary" title="Perfil do Jogador">
-                                                <i class="fas fa-user"></i>
-                                            </a>
-                                        </div>
+                            <?php if (empty($palpites)): ?>
+                                <tr>
+                                    <td colspan="6" class="text-center">
+                                        Nenhum palpite registrado ainda.
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
+                            <?php else: ?>
+                                <?php foreach ($palpites as $palpite): 
+                                    $palpitesJson = json_decode($palpite['palpites'], true);
+                                    $totalPalpites = isset($palpitesJson['jogos']) ? count($palpitesJson['jogos']) : 0;
+                                    $detalhesPalpites = json_decode($palpite['detalhes_palpites'], true) ?: [];
+                                    
+                                    // Calcular aproveitamento
+                                    $aproveitamento = $palpite['total_jogos_finalizados'] > 0 
+                                        ? ($palpite['acertos'] / $palpite['total_jogos_finalizados']) * 100 
+                                        : 0;
+                                ?>
+                                    <tr>
+                                        <td>
+                                            <span class="badge badge-primary">
+                                                <?= $palpite['palpite_id'] ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <img src="https://www.gravatar.com/avatar/<?= md5(strtolower(trim($palpite['jogador_email']))) ?>?s=32&d=mp" 
+                                                 class="img-circle mr-2" alt="Avatar">
+                                            <?= htmlspecialchars($palpite['jogador_nome']) ?>
+                                        </td>
+                                        <td>
+                                            <?= formatDateTime($palpite['data_palpite']) ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge badge-success">
+                                                <?= $palpite['acertos'] ?>
+                                            </span>
+                                            <?php if ($palpite['total_jogos_finalizados'] > 0): ?>
+                                                <div class="progress mt-1" style="height: 4px;">
+                                                    <div class="progress-bar bg-success" 
+                                                         role="progressbar" 
+                                                         style="width: <?= $aproveitamento ?>%"
+                                                         aria-valuenow="<?= $aproveitamento ?>" 
+                                                         aria-valuemin="0" 
+                                                         aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                                <small class="text-muted">
+                                                    <?= number_format($aproveitamento, 1) ?>%
+                                                </small>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-info" 
+                                                    data-toggle="modal" 
+                                                    data-target="#modalPalpites"
+                                                    data-palpites='<?= json_encode($detalhesPalpites) ?>'
+                                                    data-jogador="<?= htmlspecialchars($palpite['jogador_nome']) ?>">
+                                                <i class="fas fa-eye"></i>
+                                                Ver <?= $totalPalpites ?> palpites
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="<?= APP_URL ?>/admin/palpites-bolao.php?bolao_id=<?= $bolaoId ?>&jogador_id=<?= $palpite['jogador_id'] ?>" 
+                                                   class="btn btn-sm btn-info" 
+                                                   title="Ver Todos os Palpites">
+                                                    <i class="fas fa-list"></i>
+                                                </a>
+                                                <a href="<?= APP_URL ?>/admin/jogador.php?id=<?= $palpite['jogador_id'] ?>" 
+                                                   class="btn btn-sm btn-primary" 
+                                                   title="Perfil do Jogador">
+                                                    <i class="fas fa-user"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
-            <?php endif; ?>
+            </div>
         </div>
-    </div>
-    
-    <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-info-circle me-1"></i>
-            Informações do Ranking
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Regras de Pontuação</h5>
-                    <ul>
-                        <li><strong>Acerto exato (placar correto):</strong> 10 pontos</li>
-                        <li><strong>Acerto do vencedor (sem placar exato):</strong> 5 pontos</li>
-                        <li><strong>Acerto de empate (sem placar exato):</strong> 3 pontos</li>
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                    <h5>Observações</h5>
-                    <ul>
-                        <li>O ranking é atualizado após o registro de cada resultado</li>
-                        <li>Em caso de empate, o desempate é feito pelo número de acertos exatos</li>
-                        <li>Se o empate persistir, o desempate é feito pelo número de acertos parciais</li>
-                    </ul>
-                </div>
+    </section>
+</div>
+
+<!-- Modal para visualizar palpites -->
+<div class="modal fade" id="modalPalpites" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Palpites do Jogador</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="palpitesContent"></div>
             </div>
         </div>
     </div>
 </div>
 
-<?php
-// Helper function to get the class for position badges
-function getPosicaoClass($index) {
-    switch ($index) {
-        case 0: return 'warning'; // gold
-        case 1: return 'secondary'; // silver
-        case 2: return 'danger'; // bronze
-        default: return 'primary';
+<script>
+$(document).ready(function() {
+    // Modal de palpites
+    $('#modalPalpites').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        const palpites = button.data('palpites');
+        const jogador = button.data('jogador');
+        const modal = $(this);
+        
+        modal.find('.modal-title').text('Palpites de ' + jogador);
+        
+        let content = '<div class="table-responsive"><table class="table">';
+        content += `<thead>
+            <tr>
+                <th>Jogo</th>
+                <th>Times</th>
+                <th>Resultado</th>
+                <th>Palpite</th>
+                <th>Status</th>
+            </tr>
+        </thead><tbody>`;
+        
+        for (const [jogoId, dados] of Object.entries(palpites)) {
+            const resultadoReal = dados.status === 'FT' 
+                ? `${dados.gols_casa} x ${dados.gols_visitante}` 
+                : '-';
+            
+            const statusClass = dados.status === 'FT' 
+                ? (dados.acertou ? 'success' : 'danger')
+                : 'warning';
+            
+            const statusText = dados.status === 'FT'
+                ? (dados.acertou ? 'Acertou' : 'Errou')
+                : 'Aguardando';
+            
+            content += `<tr>
+                <td>Jogo ${jogoId}</td>
+                <td>${dados.time_casa.replace(/"/g, '')} x ${dados.time_visitante.replace(/"/g, '')}</td>
+                <td>${resultadoReal}</td>
+                <td>${getPalpiteText(dados.palpite)}</td>
+                <td><span class="badge badge-${statusClass}">${statusText}</span></td>
+            </tr>`;
+        }
+        
+        content += '</tbody></table></div>';
+        modal.find('#palpitesContent').html(content);
+    });
+});
+
+function getPalpiteText(palpite) {
+    switch(palpite) {
+        case '1': return 'Casa Vence';
+        case '0': return 'Empate';
+        case '2': return 'Visitante Vence';
+        default: return 'Inválido';
     }
 }
-?>
+</script>
 
-<?php include '../templates/admin/footer.php'; ?> 
+<?php require_once '../templates/admin/footer.php'; ?> 

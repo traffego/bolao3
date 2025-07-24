@@ -303,7 +303,7 @@ include '../templates/admin/header.php';
                                         <div class="campeonato"><?= htmlspecialchars($jogo['campeonato']) ?></div>
                                         <div class="times"><?= htmlspecialchars($jogo['times']) ?></div>
                                     </div>
-                                    <div class="data"><?= htmlspecialchars($jogo['data']) ?></div>
+                                    <div class="data"><?= htmlspecialchars($jogo['data_formatada'] ?? $jogo['data']) ?></div>
                                 </div>
                             <?php endforeach; ?>
                         </div>

@@ -124,7 +124,7 @@ include 'templates/header.php';
                                 </span>
                             </p>
                         </div>
-                        <div class="card-footer bg-white border-top-0">
+                        <div class="card-footer bg-green border-top-0">
                             <a href="<?= APP_URL ?>/ver-palpite.php?id=<?= $palpite['id'] ?>" class="btn btn-primary w-100">
                                 <i class="bi bi-eye"></i> Ver Detalhes
                             </a>

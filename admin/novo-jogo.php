@@ -126,13 +126,6 @@ include '../templates/admin/header.php';
         </div>
     </div>
     
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="<?= APP_URL ?>/admin/index.php">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="<?= APP_URL ?>/admin/boloes.php">Bolões</a></li>
-        <li class="breadcrumb-item"><a href="<?= APP_URL ?>/admin/jogos-bolao.php?bolao_id=<?= $bolaoId ?>">Jogos</a></li>
-        <li class="breadcrumb-item active">Novo Jogo</li>
-    </ol>
-    
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-futbol me-1"></i>

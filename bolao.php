@@ -33,14 +33,20 @@ if ($bolao['publico'] != 1 && !isLoggedIn()) {
 // Verificar status do usuário logado
 $usuarioId = isLoggedIn() ? getCurrentUserId() : 0;
 $podeApostar = false;
+$saldoInfo = null;
 
 if ($usuarioId) {
-    // Verificar se o usuário já pagou
-    $stmt = $pdo->prepare("SELECT pagamento_confirmado FROM jogador WHERE id = ?");
-    $stmt->execute([$usuarioId]);
-    $usuario = $stmt->fetch();
+    // Verificar modelo de pagamento
+    $modeloPagamento = getModeloPagamento();
     
-    $podeApostar = $usuario['pagamento_confirmado'];
+    if ($modeloPagamento === 'conta_saldo') {
+        // Verificar saldo
+        $saldoInfo = verificarSaldoJogador($usuarioId);
+        $podeApostar = $saldoInfo['tem_saldo'] && $saldoInfo['saldo_atual'] >= $bolao['valor_participacao'];
+    } else {
+        // No modelo por_aposta, sempre pode apostar (pagará depois)
+        $podeApostar = true;
+    }
 }
 
 // Decodificar dados JSON
@@ -59,26 +65,10 @@ function getTeamLogo($teamName) {
         return $timeLogosCache[$teamName];
     }
     
-    // Diretório para cache de imagens
-    $cacheDir = 'cache/team_logos/';
-    if (!is_dir($cacheDir)) {
-        mkdir($cacheDir, 0755, true);
-    }
-    
-    // Nome do arquivo de cache (remover caracteres especiais)
-    $cacheFileName = $cacheDir . preg_replace('/[^a-zA-Z0-9]/', '_', $teamName) . '.png';
-    
-    // Se o arquivo de cache existir e não estiver expirado (7 dias), use-o
-    if (file_exists($cacheFileName) && (time() - filemtime($cacheFileName) < 604800)) {
-        $logoUrl = APP_URL . '/' . $cacheFileName;
-        $timeLogosCache[$teamName] = $logoUrl;
-        return $logoUrl;
-    }
-    
     // Configuração da API
     $apiConfig = getConfig('api_football');
     if (!$apiConfig || empty($apiConfig['api_key'])) {
-        // Se não tiver configuração, use uma URL padrão e salve no cache
+        // Se não tiver configuração, use uma URL padrão
         $logoUrl = APP_URL . '/assets/img/team-placeholder.png';
         $timeLogosCache[$teamName] = $logoUrl;
         return $logoUrl;
@@ -112,12 +102,9 @@ function getTeamLogo($teamName) {
         $data = json_decode($response, true);
         
         // Verifica se a resposta contém os dados esperados
-        if (isset($data['response'][0]['team']['logo'])) {
-            $logoUrl = $data['response'][0]['team']['logo'];
-            
-            // Salvar a imagem no cache local
-            file_put_contents($cacheFileName, file_get_contents($logoUrl));
-            $logoUrl = APP_URL . '/' . $cacheFileName;
+        if (isset($data['response'][0]['team']['id'])) {
+            // Usa diretamente a URL padrão da API Sports com o ID do time
+            $logoUrl = "https://media.api-sports.io/football/teams/" . $data['response'][0]['team']['id'] . ".png";
         } else {
             // Caso não encontre, usa uma URL padrão
             $logoUrl = APP_URL . '/assets/img/team-placeholder.png';
@@ -327,6 +314,21 @@ include TEMPLATE_DIR . '/header.php';
                             <span><?= formatMoney($bolao['valor_participacao']) ?></span>
                         </div>
                     </div>
+
+                    <?php if (isLoggedIn() && getModeloPagamento() === 'conta_saldo'): ?>
+                    <div class="info-item">
+                        <i class="bi bi-wallet2 <?= $podeApostar ? 'text-success' : 'text-danger' ?>"></i>
+                        <div class="info-content">
+                            <label>Seu Saldo:</label>
+                            <span>
+                                <?= formatMoney($saldoInfo['saldo_atual']) ?>
+                                <?php if (!$podeApostar): ?>
+                                    <span class="badge bg-danger">Saldo Insuficiente</span>
+                                <?php endif; ?>
+                            </span>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if ($bolao['premio_total'] > 0): ?>
@@ -339,6 +341,16 @@ include TEMPLATE_DIR . '/header.php';
                     </div>
                     <?php endif; ?>
                 </div>
+
+                <?php if (isLoggedIn() && !$podeApostar && getModeloPagamento() === 'conta_saldo'): ?>
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Saldo insuficiente para participar deste bolão.
+                    <a href="<?= APP_URL ?>/minha-conta.php" class="alert-link">
+                        Clique aqui para depositar
+                    </a>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -416,11 +428,11 @@ include TEMPLATE_DIR . '/header.php';
                                         <div class="mb-3 game-datetime">
                                             <span class="date-badge">
                                                 <i class="bi bi-calendar-event me-1"></i>
-                                                <?= date('d/m/Y', strtotime($jogo['data'])) ?>
+                                                <?= date('d/m/Y', strtotime($jogo['data_formatada'] ?? $jogo['data'])) ?>
                                             </span>
                                             <span class="time-badge ms-2">
                                                 <i class="bi bi-clock me-1"></i>
-                                                <?= date('H:i', strtotime($jogo['data'])) ?>
+                                                <?= date('H:i', strtotime($jogo['data_formatada'] ?? $jogo['data'])) ?>
                                             </span>
                                         </div>
                                         <div class="d-flex align-items-center justify-content-center">
@@ -590,10 +602,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('formPalpites').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Check if user is logged in
         <?php if (!isLoggedIn()): ?>
             const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
             loginModal.show();
+        <?php elseif (!$podeApostar && getModeloPagamento() === 'conta_saldo'): ?>
+            window.location.href = '<?= APP_URL ?>/minha-conta.php';
         <?php else: ?>
             this.submit();
         <?php endif; ?>

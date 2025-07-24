@@ -56,12 +56,13 @@ $formData = [
     'data_fim' => date('Y-m-d', strtotime('+30 days')),
     'valor_participacao' => '',
     'regras' => '',
-    'status' => 1,
+    'status' => 1, // Default to active
     'max_participantes' => '',
     'premio_total' => '',
-    'publico' => 1,
+    'premio_rodada' => '', // New field for round prize
+    'publico' => 1, // Default to public
     'jogos_selecionados' => [],
-    'quantidade_jogos' => '',
+    'quantidade_jogos' => '11', // Updated to 11 games
     'data_inicio' => date('Y-m-d'),
     'data_fim' => date('Y-m-d', strtotime('+30 days'))
 ];
@@ -184,6 +185,7 @@ function processFormSubmission() {
     $formData['status'] = isset($_POST['status']) ? 1 : 0;
     $formData['max_participantes'] = $_POST['max_participantes'] ?? null;
     $formData['premio_total'] = $_POST['premio_total'] ?? '';
+    $formData['premio_rodada'] = $_POST['premio_rodada'] ?? ''; // Get premio_rodada
     $formData['publico'] = isset($_POST['publico']) ? 1 : 0;
     $formData['jogos_selecionados'] = isset($_POST['jogos_selecionados']) ? $_POST['jogos_selecionados'] : [];
     
@@ -236,6 +238,15 @@ function validateFormData() {
         // Convert to proper decimal format for DB
         $formData['premio_total'] = !empty($formData['premio_total']) ? 
                                     (float)str_replace(',', '.', $formData['premio_total']) : 0;
+    }
+    
+    // Validate premio_rodada
+    if (!empty($formData['premio_rodada']) && !is_numeric(str_replace(',', '.', $formData['premio_rodada']))) {
+        $errors['premio_rodada'] = 'O valor do prêmio da rodada deve ser um número.';
+    } else {
+        // Convert to proper decimal format for DB
+        $formData['premio_rodada'] = !empty($formData['premio_rodada']) ? 
+                                    (float)str_replace(',', '.', $formData['premio_rodada']) : 0;
     }
     
     // Validate selected games
@@ -682,114 +693,84 @@ include '../templates/admin/header.php';
                                 <div class="form-check">
                                     <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="72" id="checkB">
                                     <label class="form-check-label" for="checkB"><i class="fa-solid fa-shield-halved"></i> Brasileirão Série B</label>
-                            </div>
-                                <div class="form-check">
-                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="75" id="checkC">
-                                    <label class="form-check-label" for="checkC"><i class="fa-solid fa-shield-halved"></i> Brasileirão Série C</label>
-                                    </div>
-                                <div class="form-check">
-                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="76" id="checkD">
-                                    <label class="form-check-label" for="checkD"><i class="fa-solid fa-shield-halved"></i> Brasileirão Série D</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="73" id="checkCopa">
                                     <label class="form-check-label" for="checkCopa"><i class="fa-solid fa-trophy"></i> Copa do Brasil</label>
-                            </div>
+                                </div>
                                 <div class="form-check">
                                     <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="13" id="checkLib">
                                     <label class="form-check-label" for="checkLib"><i class="fa-solid fa-globe"></i> Libertadores</label>
-                        </div>
-                        </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
                     <!-- Card Datas -->
-                    <div class="col-lg-5 col-md-7 mb-3 mb-lg-0">
+                    <div class="col-lg-8 col-md-12 mb-3 mb-lg-0">
                         <div class="futebol-card h-100 p-3" style="background: #f9fbe7; border: 1.5px solid #c8e6c9;">
                             <div class="row g-3">
-                            <div class="col-md-6">
+                                <div class="col-md-6">
                                     <label for="quantidade-jogos" class="form-label futebol-label">Qtd. Jogos</label>
                                     <div class="input-group align-items-center">
-                                        <input type="number" class="form-control" id="quantidade-jogos" name="quantidade_jogos" min="1" max="50" value="10" required>
-                                        <div class="form-check ms-3">
-                                            <input class="form-check-input" type="checkbox" id="preselecionar-jogos" checked>
-                                            <label class="form-check-label small" for="preselecionar-jogos" style="font-size:0.85rem;">Pré-selecionar jogos automaticamente</label>
+                                        <input type="number" class="form-control" id="quantidade-jogos" name="quantidade_jogos" min="1" max="50" value="11" required>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                            <div class="col-md-6">
-                                    <label for="data-limite-palpitar" class="form-label futebol-label">Limite Palpite</label>
-                                    <div class="input-group">
-                                        <input type="date" class="form-control" id="data-limite-palpitar" name="data_limite_palpitar" value="">
-                                        <input type="time" class="form-control" id="hora-limite-palpitar" name="hora_limite_palpitar" value="23:59">
-                                </div>
-                                    <small class="text-muted">Data e hora limite para envio de palpites</small>
-                            </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label for="data-inicio" class="form-label futebol-label">Data Início</label>
                                     <input type="date" class="form-control" id="data-inicio" name="data_inicio" value="" required>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label for="data-fim" class="form-label futebol-label">Data Fim</label>
                                     <input type="date" class="form-control" id="data-fim" name="data_fim" value="" required>
-                            </div>
-                        </div>
                                 </div>
                             </div>
-                    <!-- Card Status e Visibilidade -->
-                    <div class="col-lg-3 col-md-5">
-                        <div class="futebol-card h-100 p-3 d-flex flex-column justify-content-between" style="background: #fffde7; border: 1.5px solid #ffe082;">
-                                <div class="mb-3">
-                                <label for="status-bolao" class="form-label futebol-label">Status</label>
-                                    <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="status-bolao" name="status" value="1" checked>
-                                    <label class="form-check-label" for="status-bolao">Ativo</label>
-                                    </div>
-                                </div>
-                            <div>
-                                <label for="publico-bolao" class="form-label futebol-label">Visibilidade</label>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="publico-bolao" name="publico" value="1" checked>
-                                    <label class="form-check-label ms-2" for="publico-bolao">Público</label>
-                            </div>
                         </div>
-                        </div>
-                            </div>
-                        </div>
-                <hr class="futebol-separator">
+                    </div>
+                </div>
 
                 <!-- Dados do Bolão - Adicionado antes da tabela de jogos -->
                 <div class="row g-4 mb-4">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="nome-bolao" class="form-label futebol-label">Nome do Bolão</label>
                         <input type="text" class="form-control" id="nome-bolao" name="nome" value="<?= htmlspecialchars($formData['nome'] ?? '') ?>" required>
-                        </div>
-                    <div class="col-md-3">
-                        <label for="valor-participacao" class="form-label futebol-label">Valor da Participação</label>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="valor-participacao" class="form-label futebol-label">Valor Participação</label>
                         <div class="input-group">
                             <span class="input-group-text">R$</span>
                             <input type="text" class="form-control" id="valor-participacao" name="valor_participacao" value="<?= htmlspecialchars($formData['valor_participacao'] ?? '') ?>">
-                </div>
-            </div>
+                        </div>
+                    </div>
                     <div class="col-md-3">
-                        <label for="premio-bolao" class="form-label futebol-label">Prêmio</label>
+                        <label for="premio-bolao" class="form-label futebol-label">Prêmio Total</label>
                         <div class="input-group">
                             <span class="input-group-text">R$</span>
                             <input type="text" class="form-control" id="premio-bolao" name="premio_total" value="<?= htmlspecialchars($formData['premio_total'] ?? '') ?>">
-        </div>
-                </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="premio-rodada" class="form-label futebol-label">Prêmio da Rodada</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="text" class="form-control" id="premio-rodada" name="premio_rodada" value="<?= htmlspecialchars($formData['premio_rodada'] ?? '') ?>">
+                        </div>
+                    </div>
                     <div class="col-md-12">
                         <label for="imagem-bolao" class="form-label futebol-label">Imagem (arte do bolão)</label>
                         <input type="file" class="form-control" id="imagem-bolao" name="imagem_bolao" accept="image/*">
                         <div id="preview-imagem-bolao" class="mt-2"></div>
-                        </div>
-                            </div>
+                    </div>
+                </div>
                             
-                <!-- Botão de buscar jogos -->
-                <div class="d-grid gap-2 col-md-6 mx-auto mt-2 mb-4">
-                    <button type="button" id="buscar-jogos-btn" class="btn btn-primary btn-lg">
+                <!-- Botões de ação -->
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button type="button" id="buscar-jogos-btn" class="btn futebol-btn" style="flex: 1; max-width: 400px;">
                         <i class="fa-solid fa-search"></i> Buscar Jogos Disponíveis
-                                </button>
-                            </div>
+                    </button>
+                    <button type="submit" class="btn futebol-btn" style="flex: 1; max-width: 400px;">
+                        <i class="fa-solid fa-futbol"></i> Criar Bolão com Jogos Selecionados
+                    </button>
+                </div>
 
                 <div class="table-responsive mt-4" id="jogos-table-container" style="display:none;">
                     <table class="table table-striped align-middle" id="jogos-table">
@@ -807,17 +788,108 @@ include '../templates/admin/header.php';
                                     </tbody>
                                 </table>
                             </div>
-                <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn futebol-btn">
-                        <i class="fa-solid fa-futbol"></i> Criar Bolão com Jogos Selecionados
-                    </button>
-                                </div>
             </form>
         </div>
     </div>
 </div>
 
+<!-- Scripts específicos -->
+<script>
+    const APP_URL = '<?= APP_URL ?>';
+</script>
 <script src="<?= APP_URL ?>/public/js/bolao-creator.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializa o criador de bolão
+    initBolaoCreator();
+
+    // Configuração do loader
+    const buscarJogosBtn = document.getElementById('buscar-jogos-btn');
+    const loaderOverlay = document.getElementById('loader-overlay');
+
+    if (buscarJogosBtn && loaderOverlay) {
+        const originalClick = buscarJogosBtn.onclick;
+        buscarJogosBtn.onclick = async function(e) {
+            // Mostra o loader com animação
+            loaderOverlay.style.display = 'flex';
+            loaderOverlay.classList.add('fade-in');
+
+            // Se houver um manipulador de clique original, execute-o
+            if (originalClick) {
+                try {
+                    await originalClick.call(this, e);
+                } catch (error) {
+                    console.error('Erro ao buscar jogos:', error);
+                }
+            }
+
+            // Esconde o loader após um pequeno delay para garantir que os dados foram carregados
+            setTimeout(() => {
+                loaderOverlay.classList.add('fade-out');
+                setTimeout(() => {
+                    loaderOverlay.style.display = 'none';
+                    loaderOverlay.classList.remove('fade-in', 'fade-out');
+                }, 300);
+            }, 500);
+        };
+    }
+});
+</script>
+
+<!-- Loader overlay -->
+<div id="loader-overlay" style="display: none;">
+    <div class="loader-content">
+        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+        <h4 class="mt-3 text-light">BUSCANDO INFORMAÇÕES DOS JOGOS</h4>
+    </div>
+</div>
+
+<style>
+/* Loader styles */
+#loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader-content {
+    text-align: center;
+    padding: 2rem;
+    border-radius: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Animação de fade */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+.fade-out {
+    animation: fadeOut 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+</style>
+
 <script>
 // Preview da imagem do bolão
 const inputImagem = document.getElementById('imagem-bolao');

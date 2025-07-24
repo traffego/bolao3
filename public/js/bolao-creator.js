@@ -34,6 +34,8 @@ if (preSelecionarCheckbox) {
 
 // Função para inicializar o componente
 function initBolaoCreator() {
+    console.log('Iniciando BolaoCreator...');
+    
     // Elementos do DOM
     const quantidadeInput = document.getElementById('quantidade-jogos');
     const dataInicioInput = document.getElementById('data-inicio');
@@ -42,23 +44,46 @@ function initBolaoCreator() {
     const campeonatoCheckboxes = document.querySelectorAll('.campeonato-checkbox');
     const buscarJogosBtn = document.getElementById('buscar-jogos-btn');
 
+    console.log('Elementos encontrados:', {
+        quantidadeInput: !!quantidadeInput,
+        dataInicioInput: !!dataInicioInput,
+        dataFimInput: !!dataFimInput,
+        jogosTableContainer: !!jogosTableContainer,
+        campeonatoCheckboxes: campeonatoCheckboxes.length,
+        buscarJogosBtn: !!buscarJogosBtn
+    });
+
     // Event listeners
-    quantidadeInput.addEventListener('input', handleQuantidadeChange);
-    dataInicioInput.addEventListener('change', function() {
-        state.dataInicio = dataInicioInput.value;
-    });
-    dataFimInput.addEventListener('change', function() {
-        state.dataFim = dataFimInput.value;
-    });
+    if (quantidadeInput) {
+        quantidadeInput.addEventListener('input', handleQuantidadeChange);
+    }
+    
+    if (dataInicioInput) {
+        dataInicioInput.addEventListener('change', function() {
+            console.log('Data início alterada:', dataInicioInput.value);
+            state.dataInicio = dataInicioInput.value;
+        });
+    }
+    
+    if (dataFimInput) {
+        dataFimInput.addEventListener('change', function() {
+            console.log('Data fim alterada:', dataFimInput.value);
+            state.dataFim = dataFimInput.value;
+        });
+    }
     
     // Adicionar listener para checkboxes de campeonatos
-    campeonatoCheckboxes.forEach(cb => cb.addEventListener('change', function() {
-        state.campeonatos = getCampeonatosSelecionados();
-    }));
+    campeonatoCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            state.campeonatos = getCampeonatosSelecionados();
+            console.log('Campeonatos selecionados:', state.campeonatos);
+        });
+    });
     
     // Adicionar listener para botão de buscar jogos
     if (buscarJogosBtn) {
         buscarJogosBtn.addEventListener('click', function() {
+            console.log('Botão buscar jogos clicado');
             // Validar campos obrigatórios antes de buscar jogos
             const nomeBolaoInput = document.getElementById('nome-bolao');
             
@@ -96,13 +121,17 @@ function initBolaoCreator() {
     }
 
     // Inicializar estado
-    state.maxJogos = parseInt(quantidadeInput.value) || 0;
-    state.dataInicio = dataInicioInput.value;
-    state.dataFim = dataFimInput.value;
+    state.maxJogos = parseInt(quantidadeInput?.value) || 0;
+    state.dataInicio = dataInicioInput?.value;
+    state.dataFim = dataFimInput?.value;
     state.campeonatos = getCampeonatosSelecionados();
 
+    console.log('Estado inicial:', state);
+
     // Não carregar jogos inicialmente
-    jogosTableContainer.style.display = 'none';
+    if (jogosTableContainer) {
+        jogosTableContainer.style.display = 'none';
+    }
 }
 
 function getCampeonatosSelecionados() {
@@ -111,6 +140,9 @@ function getCampeonatosSelecionados() {
 
 // Função para carregar jogos da API
 async function carregarJogos() {
+    console.log('Iniciando carregamento de jogos...');
+    console.log('Estado atual:', state);
+    
     const jogosTableContainer = document.getElementById('jogos-table-container');
     const quantidadeInput = document.getElementById('quantidade-jogos');
     const dataInicioInput = document.getElementById('data-inicio');
@@ -120,6 +152,14 @@ async function carregarJogos() {
     // Verificar se todos os campos obrigatórios estão preenchidos
     if (!state.dataInicio || !state.dataFim || !state.campeonatos.length || 
         !quantidadeInput.value || !dataInicioInput.value || !dataFimInput.value || !nomeBolaoInput.value) {
+        
+        console.log('Campos faltando:', {
+            dataInicio: !state.dataInicio,
+            dataFim: !state.dataFim,
+            campeonatos: !state.campeonatos.length,
+            quantidade: !quantidadeInput.value,
+            nome: !nomeBolaoInput.value
+        });
         
         if (!nomeBolaoInput.value) {
             alert('Preencha o nome do bolão antes de buscar jogos');
@@ -141,12 +181,19 @@ async function carregarJogos() {
     }
 
     try {
-        const response = await fetch(`api/jogos.php?inicio=${state.dataInicio}&fim=${state.dataFim}&campeonatos=${state.campeonatos.join(',')}`);
+        console.log('Fazendo requisição para a API...');
+        console.log('URL da requisição:', `${APP_URL}/admin/api/jogos.php?inicio=${state.dataInicio}&fim=${state.dataFim}&campeonatos=${state.campeonatos.join(',')}`);
+        
+        const response = await fetch(`${APP_URL}/admin/api/jogos.php?inicio=${state.dataInicio}&fim=${state.dataFim}&campeonatos=${state.campeonatos.join(',')}`);
         const data = await response.json();
+        
+        console.log('Resposta da API:', data);
 
         if (data.success) {
             // Limitar a 20 jogos
             state.todosJogos = data.jogos.slice(0, 20);
+            console.log('Jogos carregados:', state.todosJogos);
+            
             atualizarTabelaJogos();
             if (preSelecionarJogos) {
                 selecionarJogosAutomaticamente();

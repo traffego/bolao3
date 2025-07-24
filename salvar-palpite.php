@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/config/database.php';
-// database_functions.php não é mais necessário pois está incluído em database.php
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/classes/ContaManager.php';
 
 // Verificar se é um POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -45,94 +45,98 @@ if (!isLoggedIn()) {
 
 $usuarioId = getCurrentUserId();
 
-// Verificar se usuário pode apostar (pagamento confirmado)
-$usuario = dbFetchOne("SELECT pagamento_confirmado FROM jogador WHERE id = ?", [$usuarioId]);
-$podeApostar = $usuario['pagamento_confirmado'];
+// Verificar modelo de pagamento
+$modeloPagamento = getModeloPagamento();
+$contaManager = new ContaManager();
 
-// Se tem valor de participação e usuário não pagou
-if ($bolao['valor_participacao'] > 0 && !$podeApostar) {
-    $_SESSION['palpites_temp'] = $_POST;
-    setFlashMessage('warning', 'Você precisa efetuar o pagamento para participar do bolão.');
-    redirect(APP_URL . '/pagamento.php');
-}
+// Definir status inicial do palpite
+$statusPagamento = 'pendente';
 
-// Coletar palpites do formulário
-$palpites = [];
-foreach ($_POST as $key => $value) {
-    if (strpos($key, 'resultado_') === 0) {
-        $jogoId = substr($key, strlen('resultado_'));
-        $palpites[$jogoId] = $value; // "1" = casa vence, "0" = empate, "2" = visitante vence
+// Se tem valor de participação, verificar pagamento
+if ($bolao['valor_participacao'] > 0) {
+    if ($modeloPagamento === 'conta_saldo') {
+        // Verificar se tem saldo suficiente
+        $saldoInfo = verificarSaldoJogador($usuarioId);
+        if (!$saldoInfo['tem_saldo'] || $saldoInfo['saldo_atual'] < $bolao['valor_participacao']) {
+            setFlashMessage('danger', 'Saldo insuficiente para participar do bolão.');
+            redirect(APP_URL . '/minha-conta.php');
+        }
+        $contaId = $saldoInfo['conta_id'];
     }
+} else {
+    $statusPagamento = 'pago'; // Bolão gratuito
 }
 
-// Decodificar jogos do bolão
-$jogos = json_decode($bolao['jogos'], true) ?: [];
-
-// Verificar se todos os jogos foram palpitados
-if (count($palpites) !== count($jogos)) {
-    setFlashMessage('warning', 'Você precisa dar palpites para todos os jogos.');
-    redirect(APP_URL . '/bolao.php?slug=' . $bolaoSlug);
-}
+// Iniciar transação
+dbBeginTransaction();
 
 try {
-    // Iniciar transação
-    dbBeginTransaction();
-
-    // Verificar se o usuário já é participante do bolão
-    $participante = dbFetchOne(
-        "SELECT id FROM participacoes WHERE bolao_id = ? AND jogador_id = ?", 
-        [$bolaoId, $usuarioId]
-    );
-    
-    // Se não for participante, criar registro
-    if (!$participante) {
-        dbInsert('participacoes', [
-            'bolao_id' => $bolaoId,
-            'jogador_id' => $usuarioId,
-            'data_entrada' => date('Y-m-d H:i:s'),
-            'status' => 1
-        ]);
-    }
-    
-    // Verificar se já tem palpites
-    $palpiteExistente = dbFetchOne(
-        "SELECT id FROM palpites WHERE bolao_id = ? AND jogador_id = ?", 
-        [$bolaoId, $usuarioId]
-    );
-    
-    // Preparar dados para salvar
-    $palpitesData = [
-        'bolao_id' => $bolaoId,
+    // Inserir palpites
+    $palpiteId = dbInsert('palpites', [
         'jogador_id' => $usuarioId,
-        'palpites' => json_encode($palpites),
+        'bolao_id' => $bolaoId,
+        'status' => $statusPagamento,
         'data_palpite' => date('Y-m-d H:i:s')
-    ];
-    
-    if ($palpiteExistente) {
-        // Atualiza palpites existentes
-        dbUpdate('palpites', $palpitesData, 'id = ?', [$palpiteExistente['id']]);
-        $mensagem = 'Seus palpites foram atualizados com sucesso!';
-    } else {
-        // Insere novos palpites
-        dbInsert('palpites', $palpitesData);
-        $mensagem = 'Seus palpites foram registrados com sucesso!';
+    ]);
+
+    // Inserir resultados
+    $stmt = dbPrepare("INSERT INTO palpites_resultados (palpite_id, partida_id, resultado) VALUES (?, ?, ?)");
+    foreach ($_POST as $key => $value) {
+        if (strpos($key, 'resultado_') === 0) {
+            $partidaId = substr($key, strlen('resultado_'));
+            $stmt->execute([$palpiteId, $partidaId, $value]);
+        }
     }
-    
+
+    // Processar pagamento conforme modelo
+    if ($bolao['valor_participacao'] > 0) {
+        if ($modeloPagamento === 'conta_saldo') {
+            // Criar transação de débito
+            $transacao = criarTransacaoPalpite(
+                $contaId,
+                $bolao['valor_participacao'],
+                $palpiteId
+            );
+
+            if ($transacao === false) {
+                throw new Exception('Erro ao processar pagamento com saldo.');
+            }
+
+            // Atualizar status do palpite
+            dbExecute("UPDATE palpites SET status = 'pago' WHERE id = ?", [$palpiteId]);
+            $statusPagamento = 'pago';
+
+            // Registrar log
+            dbInsert('logs', [
+                'tipo' => 'pagamento',
+                'descricao' => "Pagamento automático do palpite #$palpiteId usando saldo da conta #$contaId",
+                'jogador_id' => $usuarioId,
+                'data_hora' => date('Y-m-d H:i:s')
+            ]);
+        } else {
+            // Salvar informações para pagamento
+            $_SESSION['palpite_pendente'] = [
+                'id' => $palpiteId,
+                'bolao_id' => $bolaoId,
+                'valor' => $bolao['valor_participacao']
+            ];
+        }
+    }
+
     // Commit da transação
     dbCommit();
-    
-    // Limpar palpites temporários da sessão
-    if (isset($_SESSION['palpites_temp'])) {
-        unset($_SESSION['palpites_temp']);
+
+    // Redirecionar conforme status
+    if ($statusPagamento === 'pago') {
+        setFlashMessage('success', 'Palpites registrados com sucesso!');
+        redirect(APP_URL . '/meus-palpites.php');
+    } else {
+        redirect(APP_URL . '/pagamento.php');
     }
-    
-    setFlashMessage('success', $mensagem);
-    redirect(APP_URL . '/meus-palpites.php');
 
 } catch (Exception $e) {
-    // Rollback em caso de erro
     dbRollback();
-    
-    setFlashMessage('danger', 'Erro ao salvar os palpites: ' . $e->getMessage());
+    error_log('Erro ao salvar palpite: ' . $e->getMessage());
+    setFlashMessage('danger', 'Erro ao salvar palpites: ' . $e->getMessage());
     redirect(APP_URL . '/bolao.php?slug=' . $bolaoSlug);
 } 

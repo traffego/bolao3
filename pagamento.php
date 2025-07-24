@@ -1,32 +1,42 @@
 <?php
-session_start();
-require_once 'includes/EfiPixManager.php';
+require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/EfiPixManager.php';
+require_once __DIR__ . '/includes/classes/ContaManager.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit;
+// Verificar se usuário está logado
+if (!isLoggedIn()) {
+    redirect(APP_URL . '/login.php');
 }
 
-// Verifica se já pagou
-require_once 'config/config.php';
-$stmt = $pdo->prepare("SELECT pagamento_confirmado FROM jogador WHERE id = ?");
-$stmt->execute([$_SESSION['user_id']]);
-$usuario = $stmt->fetch();
-
-if ($usuario['pagamento_confirmado']) {
-    header('Location: agradecimento.php');
-    exit;
+// Verificar se tem palpite pendente na sessão
+if (!isset($_SESSION['palpite_pendente'])) {
+    redirect(APP_URL . '/meus-palpites.php');
 }
 
-// Gera ou recupera TXID da sessão
-if (!isset($_SESSION['txid'])) {
-    // Gerar TXID que atenda aos requisitos da EFIBANK (26-35 caracteres alfanuméricos)
-    $timestamp = time();
-    $random = bin2hex(random_bytes(10)); // 20 caracteres
-    $prefix = 'BOL'; // Prefixo para identificar transações do Bolão
-    $userId = str_pad($_SESSION['user_id'], 3, '0', STR_PAD_LEFT); // 3 caracteres
-    $_SESSION['txid'] = $prefix . $userId . $timestamp . $random;
-    $_SESSION['txid'] = substr($_SESSION['txid'], 0, 35); // Garantir máximo de 35 caracteres
+$palpiteId = $_SESSION['palpite_pendente']['id'];
+$bolaoId = $_SESSION['palpite_pendente']['bolao_id'];
+
+// Buscar dados do palpite e bolão
+$sql = "
+    SELECT p.*, b.valor_participacao, b.nome as bolao_nome
+    FROM palpites p
+    JOIN dados_boloes b ON b.id = p.bolao_id
+    WHERE p.id = ? AND p.jogador_id = ?";
+
+$palpite = dbFetchOne($sql, [$palpiteId, getCurrentUserId()]);
+
+if (!$palpite) {
+    setFlashMessage('danger', 'Palpite não encontrado.');
+    redirect(APP_URL . '/meus-palpites.php');
+}
+
+// Se palpite já estiver pago, redirecionar
+if ($palpite['status'] === 'pago') {
+    unset($_SESSION['palpite_pendente']);
+    setFlashMessage('success', 'Palpite já está pago!');
+    redirect(APP_URL . '/meus-palpites.php');
 }
 
 $error = null;
@@ -36,10 +46,40 @@ $copiaCola = null;
 try {
     $efiPix = new EfiPixManager();
     
-    // Cria a cobrança
-    $charge = $efiPix->createCharge($_SESSION['txid'], $_SESSION['user_id']);
+    // Criar transação se ainda não existir
+    $transacao = dbFetchOne(
+        "SELECT * FROM transacoes WHERE palpite_id = ? AND tipo = 'aposta'",
+        [$palpiteId]
+    );
+
+    if (!$transacao) {
+        // Criar nova transação
+        $dados = [
+            'tipo' => 'aposta',
+            'valor' => $palpite['valor_participacao'],
+            'status' => 'pendente',
+            'metodo_pagamento' => 'pix',
+            'afeta_saldo' => false,
+            'palpite_id' => $palpiteId,
+            'descricao' => 'Pagamento do palpite #' . $palpiteId . ' no bolão ' . $palpite['bolao_nome']
+        ];
+
+        // Gerar TXID
+        $timestamp = time();
+        $random = bin2hex(random_bytes(10));
+        $prefix = 'BOL';
+        $userId = str_pad(getCurrentUserId(), 3, '0', STR_PAD_LEFT);
+        $dados['txid'] = substr($prefix . $userId . $timestamp . $random, 0, 35);
+
+        // Inserir transação
+        $transacaoId = dbInsert('transacoes', $dados);
+        $transacao = array_merge($dados, ['id' => $transacaoId]);
+    }
     
-    // Gera QR Code
+    // Criar cobrança PIX
+    $charge = $efiPix->createCharge($transacao['txid'], getCurrentUserId(), $palpite['valor_participacao']);
+    
+    // Gerar QR Code
     if (isset($charge['loc']['id'])) {
         $qrCodeData = $efiPix->getQrCode($charge['loc']['id']);
         $qrcode = $qrCodeData['imagemQrcode'];
@@ -49,15 +89,12 @@ try {
     $error = $e->getMessage();
 }
 
-// Verifica se o pagamento foi confirmado via AJAX
+// Verificar pagamento via AJAX
 if (isset($_GET['check'])) {
     header('Content-Type: application/json');
     try {
-        $status = $efiPix->checkPayment($_SESSION['txid']);
+        $status = $efiPix->checkPayment($transacao['txid']);
         if ($status['status'] === 'CONCLUIDA') {
-            // Atualiza status do pagamento no banco
-            $stmt = $pdo->prepare("UPDATE jogador SET pagamento_confirmado = 1 WHERE id = ?");
-            $stmt->execute([$_SESSION['user_id']]);
             echo json_encode(['status' => 'paid']);
         } else {
             echo json_encode(['status' => 'waiting']);
@@ -67,121 +104,115 @@ if (isset($_GET['check'])) {
     }
     exit;
 }
+
+// Incluir header
+require_once __DIR__ . '/templates/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagamento - Bolão</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .payment-container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .qr-code-container {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .qr-code-container img {
-            max-width: 300px;
-            margin: 20px auto;
-        }
-        .copy-button {
-            cursor: pointer;
-        }
-        .payment-status {
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        .waiting {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-    </style>
-</head>
-<body class="bg-light">
-    <div class="container">
-        <div class="payment-container">
-            <h2 class="text-center mb-4">Pagamento do Bolão</h2>
-            
-            <?php if ($error): ?>
-                <div class="alert alert-danger">
-                    <?php echo htmlspecialchars($error); ?>
-                </div>
-            <?php else: ?>
-                <div class="alert alert-info">
-                    <p class="mb-0">Valor a pagar: R$ <?php echo VALOR_BOLAO; ?></p>
-                </div>
 
-                <div class="qr-code-container">
-                    <h4>QR Code PIX</h4>
-                    <img src="<?php echo $qrcode; ?>" alt="QR Code PIX">
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Pagamento do Palpite</h2>
                     
-                    <div class="mt-3">
-                        <p class="mb-2">Ou copie o código PIX:</p>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" value="<?php echo htmlspecialchars($copiaCola); ?>" id="pixCode" readonly>
-                            <button class="btn btn-outline-secondary copy-button" type="button" onclick="copyPixCode()">Copiar</button>
+                    <?php if ($error): ?>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <?php echo htmlspecialchars($error); ?>
                         </div>
-                    </div>
-                </div>
+                    <?php else: ?>
+                        <div class="alert alert-info">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">Bolão: <?php echo htmlspecialchars($palpite['bolao_nome']); ?></h6>
+                                    <small class="text-muted">Palpite #<?php echo $palpiteId; ?></small>
+                                </div>
+                                <div class="text-end">
+                                    <strong>Valor: R$ <?php echo number_format($palpite['valor_participacao'], 2, ',', '.'); ?></strong>
+                                </div>
+                            </div>
+                        </div>
 
-                <div id="paymentStatus" class="payment-status waiting">
-                    Aguardando pagamento...
+                        <div class="text-center mb-4">
+                            <h4 class="mb-3">QR Code PIX</h4>
+                            <img src="<?php echo $qrcode; ?>" alt="QR Code PIX" class="img-fluid mb-3" style="max-width: 300px;">
+                            
+                            <div class="mt-3">
+                                <p class="mb-2">Ou copie o código PIX:</p>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="<?php echo htmlspecialchars($copiaCola); ?>" id="pixCode" readonly>
+                                    <button class="btn btn-outline-primary copy-button" type="button" onclick="copyPixCode()">
+                                        <i class="fas fa-copy me-2"></i>Copiar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="paymentStatus" class="alert alert-warning text-center">
+                            <div class="spinner-border spinner-border-sm me-2" role="status">
+                                <span class="visually-hidden">Carregando...</span>
+                            </div>
+                            Aguardando pagamento...
+                        </div>
+
+                        <div class="text-center">
+                            <a href="<?php echo APP_URL; ?>/meus-palpites.php" class="btn btn-link text-muted">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar para Meus Palpites
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
-            <?php endif; ?>
+            </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function copyPixCode() {
-            const pixCode = document.getElementById('pixCode');
-            pixCode.select();
-            document.execCommand('copy');
-            
-            const button = document.querySelector('.copy-button');
-            button.textContent = 'Copiado!';
-            setTimeout(() => {
-                button.textContent = 'Copiar';
-            }, 2000);
-        }
+<script>
+function copyPixCode() {
+    const pixCode = document.getElementById('pixCode');
+    pixCode.select();
+    document.execCommand('copy');
+    
+    const button = document.querySelector('.copy-button');
+    const originalHtml = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check me-2"></i>Copiado!';
+    button.classList.remove('btn-outline-primary');
+    button.classList.add('btn-success');
+    
+    setTimeout(() => {
+        button.innerHTML = originalHtml;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-primary');
+    }, 2000);
+}
 
-        // Verifica o status do pagamento a cada 5 segundos
-        function checkPaymentStatus() {
-            fetch('pagamento.php?check=1')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'paid') {
-                        const status = document.getElementById('paymentStatus');
-                        status.classList.remove('waiting');
-                        status.classList.add('success');
-                        status.textContent = 'Pagamento confirmado! Redirecionando...';
-                        
-                        setTimeout(() => {
-                            window.location.href = 'agradecimento.php';
-                        }, 2000);
-                    } else {
-                        setTimeout(checkPaymentStatus, 5000);
-                    }
-                })
-                .catch(error => console.error('Erro:', error));
-        }
+// Verifica o status do pagamento a cada 5 segundos
+function checkPaymentStatus() {
+    fetch('<?php echo APP_URL; ?>/pagamento.php?check=1')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'paid') {
+                const status = document.getElementById('paymentStatus');
+                status.classList.remove('alert-warning');
+                status.classList.add('alert-success');
+                status.innerHTML = '<i class="fas fa-check-circle me-2"></i>Pagamento confirmado! Redirecionando...';
+                
+                setTimeout(() => {
+                    window.location.href = '<?php echo APP_URL; ?>/meus-palpites.php';
+                }, 2000);
+            } else {
+                setTimeout(checkPaymentStatus, 5000);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            setTimeout(checkPaymentStatus, 5000);
+        });
+}
 
-        // Inicia a verificação
-        checkPaymentStatus();
-    </script>
-</body>
-</html> 
+// Inicia a verificação
+checkPaymentStatus();
+</script>
+
+<?php require_once __DIR__ . '/templates/footer.php'; ?> 

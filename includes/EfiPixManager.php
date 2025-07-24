@@ -7,14 +7,112 @@ class EfiPixManager {
     private $client;
     private $pdo;
 
+    private function validateCertificate() {
+        if (!file_exists(EFI_CERTIFICATE_PATH)) {
+            error_log("ERRO: Certificado não encontrado em: " . EFI_CERTIFICATE_PATH);
+            throw new Exception('Certificado não encontrado. Por favor, faça o upload do certificado nas configurações.');
+        }
+
+        // Tentar ler o certificado
+        $cert_content = @file_get_contents(EFI_CERTIFICATE_PATH);
+        if ($cert_content === false) {
+            error_log("ERRO: Não foi possível ler o certificado. Verifique as permissões.");
+            throw new Exception('Erro ao ler o certificado. Verifique as permissões do arquivo.');
+        }
+
+        // Verificar se é um certificado P12 válido
+        if (@openssl_pkcs12_read($cert_content, $cert_info, '') === false) {
+            error_log("ERRO: Certificado P12 inválido");
+            throw new Exception('Certificado P12 inválido. Por favor, gere um novo certificado no painel da Efí.');
+        }
+
+        error_log("Certificado validado com sucesso");
+        return true;
+    }
+
+    public function registerWebhook() {
+        // Verificar se é localhost
+        if (strpos(WEBHOOK_URL, 'localhost') !== false || strpos(WEBHOOK_URL, '127.0.0.1') !== false) {
+            error_log("Ignorando registro de webhook em ambiente local");
+            return;
+        }
+
+        $curl = curl_init();
+        
+        $data = [
+            'webhookUrl' => WEBHOOK_URL
+        ];
+
+        error_log("Registrando webhook: " . json_encode($data));
+        
+        // Endpoint correto conforme documentação da Efí
+        $url = EFI_API_URL . '/v2/webhook/' . EFI_PIX_KEY;
+        
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'PUT',
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $this->access_token,
+                'Content-Type: application/json'
+            ],
+            CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
+            CURLOPT_SSLCERTTYPE => 'P12'
+        ]);
+
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        error_log("Resposta do registro de webhook (HTTP $httpCode): " . $response);
+
+        if ($err) {
+            throw new Exception('Erro ao registrar webhook: ' . $err);
+        }
+
+        if ($httpCode !== 200 && $httpCode !== 201) {
+            throw new Exception('Erro ao registrar webhook. HTTP Code: ' . $httpCode . '. Resposta: ' . $response);
+        }
+
+        return json_decode($response, true);
+    }
+
     public function __construct() {
         global $pdo;
         $this->pdo = $pdo;
-        $this->authenticate();
+        
+        // Verificar ambiente
+        $isLocalhost = strpos(WEBHOOK_URL, 'localhost') !== false || strpos(WEBHOOK_URL, '127.0.0.1') !== false;
+        $isProduction = strpos(EFI_API_URL, 'pix.api.efipay.com.br') !== false;
+        
+        if ($isLocalhost) {
+            error_log("Ambiente local detectado - Webhook será ignorado");
+            // Em ambiente local, vamos apenas autenticar
+            $this->validateCertificate();
+            $this->authenticate();
+        } else {
+            error_log("Ambiente de produção detectado - Webhook será registrado");
+            $this->validateCertificate();
+            $this->authenticate();
+            
+            // Registrar webhook apenas em produção
+            try {
+                $this->registerWebhook();
+            } catch (Exception $e) {
+                error_log("Erro ao registrar webhook: " . $e->getMessage());
+                // Não vamos interromper o fluxo se falhar o registro do webhook
+            }
+        }
     }
 
-    private function authenticate() {
-        error_log("\n=== Iniciando autenticação EFIBANK ===");
+    private function authenticate($retryCount = 0) {
+        error_log("\n=== Iniciando autenticação EFIBANK (Tentativa " . ($retryCount + 1) . ") ===");
         error_log("API URL: " . EFI_API_URL);
         error_log("Client ID: " . (empty(EFI_CLIENT_ID) ? "Vazio" : "Configurado"));
         error_log("Client Secret: " . (empty(EFI_CLIENT_SECRET) ? "Vazio" : "Configurado"));
@@ -101,84 +199,121 @@ class EfiPixManager {
             throw new Exception('Erro na autenticação: Token não recebido');
         }
         
+        // Verificar escopos necessários
+        $required_scopes = ['cob.write', 'cob.read', 'pix.read', 'webhook.write', 'webhook.read'];
+        $received_scopes = explode(' ', $result['scope']);
+        
+        foreach ($required_scopes as $scope) {
+            if (!in_array($scope, $received_scopes)) {
+                error_log("ERRO: Escopo necessário não encontrado: " . $scope);
+                throw new Exception('Erro na autenticação: Escopo ' . $scope . ' não autorizado');
+            }
+        }
+        
         $this->access_token = $result['access_token'];
         error_log("Autenticação concluída com sucesso - Token recebido");
+        error_log("Escopos autorizados: " . $result['scope']);
         error_log("=== Fim da autenticação ===\n");
     }
 
-    public function createCharge($user_id, $bolao_id) {
-        // Buscar valor do bolão
-        $stmt = $this->pdo->prepare("SELECT valor_participacao FROM dados_boloes WHERE id = ?");
-        $stmt->execute([$bolao_id]);
-        $bolao = $stmt->fetch();
-
-        if (!$bolao) {
-            throw new Exception('Bolão não encontrado');
+    public function createCharge($user_id, $valor, $referencia = null, $descricao = null) {
+        if (!is_numeric($valor) || $valor <= 0) {
+            throw new Exception('Valor inválido');
         }
 
-        $valorBolao = $bolao['valor_participacao'];
-        if (!is_numeric($valorBolao) || $valorBolao <= 0) {
-            throw new Exception('Valor do bolão inválido');
+        // Buscar conta do usuário
+        $stmt = $this->pdo->prepare("SELECT id FROM contas WHERE jogador_id = ?");
+        $stmt->execute([$user_id]);
+        $conta = $stmt->fetch();
+
+        if (!$conta) {
+            throw new Exception('Conta do usuário não encontrada');
         }
 
-        // Gerar novo TXID
+        // Gerar novo TXID se não fornecido
         $timestamp = time();
         $random = bin2hex(random_bytes(8)); // 16 caracteres
-        $prefix = 'BOL';
+        $prefix = 'DEP';
         $userId = str_pad($user_id, 3, '0', STR_PAD_LEFT);
-        $bolaoId = str_pad($bolao_id, 3, '0', STR_PAD_LEFT);
-        $txid = $prefix . $userId . $bolaoId . $timestamp . $random;
+        $txid = $prefix . $userId . $timestamp . $random;
         $txid = substr($txid, 0, 35); // Garantir máximo de 35 caracteres
 
-        $curl = curl_init();
-        
-        $data = [
-            'calendario' => [
-                'expiracao' => 3600
-            ],
-            'valor' => [
-                'original' => number_format($valorBolao, 2, '.', '')
-            ],
-            'chave' => EFI_PIX_KEY,
-            'solicitacaoPagador' => "Pagamento Bolão #" . $bolao_id
-        ];
+        // Usar descrição fornecida ou padrão
+        $descricao = $descricao ?: "Depósito #{$referencia}";
 
-        curl_setopt_array($curl, [
-            CURLOPT_URL => EFI_API_URL . '/v2/cob/' . $txid,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'PUT',
-            CURLOPT_POSTFIELDS => json_encode($data),
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $this->access_token,
-                'Content-Type: application/json'
-            ],
-            CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
-            CURLOPT_SSLCERTTYPE => 'P12'
-        ]);
+        try {
+            $curl = curl_init();
+            
+            $data = [
+                'calendario' => [
+                    'expiracao' => 3600
+                ],
+                'valor' => [
+                    'original' => number_format($valor, 2, '.', '')
+                ],
+                'chave' => EFI_PIX_KEY,
+                'solicitacaoPagador' => $descricao
+            ];
 
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
+            error_log("Dados enviados para API: " . json_encode($data));
 
-        if ($err) {
-            throw new Exception('Erro ao criar cobrança: ' . $err);
+            curl_setopt_array($curl, [
+                CURLOPT_URL => EFI_API_URL . '/v2/cob/' . $txid,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'PUT',
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: Bearer ' . $this->access_token,
+                    'Content-Type: application/json'
+                ],
+                CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
+                CURLOPT_SSLCERTTYPE => 'P12'
+            ]);
+
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $err = curl_error($curl);
+            curl_close($curl);
+
+            error_log("Resposta da API (HTTP $httpCode): " . $response);
+
+            if ($err) {
+                throw new Exception('Erro ao criar cobrança: ' . $err);
+            }
+
+            if ($httpCode !== 200 && $httpCode !== 201) {
+                throw new Exception('Erro ao criar cobrança. HTTP Code: ' . $httpCode . '. Resposta: ' . $response);
+            }
+
+            $responseData = json_decode($response, true);
+            if (isset($responseData['nome']) && $responseData['nome'] === 'txid_duplicado') {
+                // Se o TXID estiver duplicado, tentar novamente
+                return $this->createCharge($user_id, $valor, $referencia, $descricao);
+            }
+
+            // Gerar QR Code
+            $locationId = $responseData['loc']['id'];
+            $qrCode = $this->getQrCode($locationId);
+            
+            error_log("QR Code gerado: " . json_encode($qrCode));
+            
+            return [
+                'txid' => $txid,
+                'status' => $responseData['status'],
+                'valor' => $responseData['valor']['original'],
+                'qrcode' => $qrCode['imagemQrcode'],
+                'qrcode_texto' => $qrCode['qrcode'],
+                'calendario' => $responseData['calendario']
+            ];
+
+        } catch (Exception $e) {
+            error_log("Erro ao criar cobrança: " . $e->getMessage());
+            throw $e;
         }
-
-        $responseData = json_decode($response, true);
-        if (isset($responseData['nome']) && $responseData['nome'] === 'txid_duplicado') {
-            // Se o TXID estiver duplicado, tentar novamente com um novo TXID
-            return $this->createCharge($user_id, $bolao_id);
-        }
-
-        // Salvar TXID para o usuário
-        $stmt = $this->pdo->prepare("UPDATE jogador SET txid_pagamento = ? WHERE id = ?");
-        $stmt->execute([$txid, $user_id]);
-
-        return $responseData;
     }
 
     public function getQrCode($location_id) {
@@ -200,14 +335,26 @@ class EfiPixManager {
         ]);
 
         $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $err = curl_error($curl);
         curl_close($curl);
+
+        error_log("Resposta getQrCode (HTTP $httpCode): " . $response);
 
         if ($err) {
             throw new Exception('Erro ao gerar QR Code: ' . $err);
         }
 
-        return json_decode($response, true);
+        if ($httpCode !== 200) {
+            throw new Exception('Erro ao gerar QR Code. HTTP Code: ' . $httpCode . '. Resposta: ' . $response);
+        }
+
+        $qrCodeData = json_decode($response, true);
+        if (!isset($qrCodeData['qrcode'])) {
+            throw new Exception('Resposta inválida ao gerar QR Code');
+        }
+
+        return $qrCodeData;
     }
 
     public function checkPayment($txid) {
@@ -231,6 +378,20 @@ class EfiPixManager {
         if (empty($this->access_token)) {
             error_log("Token de acesso não disponível. Tentando reautenticar...");
             $this->authenticate();
+        }
+
+        // Buscar transação
+        $stmt = $this->pdo->prepare("
+            SELECT t.*, c.jogador_id 
+            FROM transacoes t 
+            INNER JOIN contas c ON t.conta_id = c.id 
+            WHERE t.txid = ?
+        ");
+        $stmt->execute([$txid]);
+        $transacao = $stmt->fetch();
+
+        if (!$transacao) {
+            throw new Exception('Transação não encontrada');
         }
 
         $curl = curl_init();
@@ -323,27 +484,90 @@ class EfiPixManager {
         $valorCobrado = floatval($responseData['valor']['original']);
         $status = $responseData['status'];
 
-        // Determinar o status final
-        if ($status === 'CONCLUIDA' && $valorPago >= $valorCobrado) {
-            $statusFinal = 'CONCLUIDA';
-        } else if ($status === 'REMOVIDA_PELO_PSP') {
-            $statusFinal = 'REMOVIDA';
-        } else {
-            $statusFinal = 'PENDENTE';
+        try {
+            // Iniciar transação no banco
+            $this->pdo->beginTransaction();
+
+            // Determinar o status final e atualizar a transação
+            if ($status === 'CONCLUIDA' && $valorPago >= $valorCobrado) {
+                $novoStatus = 'aprovado';
+                
+                error_log("Transação será aprovada. Dados da transação: " . print_r($transacao, true));
+                
+                // Buscar saldo atual (soma de todas as transações aprovadas que afetam saldo)
+                $stmt = $this->pdo->prepare("
+                    SELECT COALESCE(SUM(CASE 
+                        WHEN tipo IN ('deposito', 'premio', 'bonus') THEN valor 
+                        WHEN tipo IN ('saque', 'aposta') THEN -valor 
+                    END), 0) as saldo_atual
+                    FROM transacoes 
+                    WHERE conta_id = ? 
+                    AND status = 'aprovado' 
+                    AND afeta_saldo = TRUE
+                ");
+                $stmt->execute([$transacao['conta_id']]);
+                $result = $stmt->fetch();
+                $saldoAtual = $result['saldo_atual'];
+                error_log("Saldo atual calculado: " . $saldoAtual);
+
+                // Atualizar saldos na transação
+                $stmt = $this->pdo->prepare("
+                    UPDATE transacoes 
+                    SET status = ?, 
+                        saldo_anterior = ?,
+                        saldo_posterior = ?,
+                        data_processamento = NOW(),
+                        afeta_saldo = 1
+                    WHERE txid = ?
+                ");
+                error_log("Executando update com parâmetros: " . json_encode([
+                    'status' => $novoStatus,
+                    'saldo_anterior' => $saldoAtual,
+                    'saldo_posterior' => $saldoAtual + $valorPago,
+                    'txid' => $txid,
+                    'afeta_saldo' => 1
+                ]));
+                $stmt->execute([
+                    $novoStatus,
+                    $saldoAtual,
+                    $saldoAtual + $valorPago,
+                    $txid
+                ]);
+                error_log("Update executado com sucesso");
+            } else if ($status === 'REMOVIDA_PELO_PSP') {
+                $stmt = $this->pdo->prepare("
+                    UPDATE transacoes 
+                    SET status = 'cancelado',
+                        data_processamento = NOW()
+                    WHERE txid = ?
+                ");
+                $stmt->execute([$txid]);
+                $novoStatus = 'cancelado';
+            } else {
+                $novoStatus = 'pendente';
+            }
+
+            // Commit da transação no banco
+            $this->pdo->commit();
+
+            error_log("Status final determinado: " . $novoStatus);
+            error_log("Valor cobrado: " . $valorCobrado);
+            error_log("Valor pago: " . $valorPago);
+            error_log("=== Fim checkPayment ===\n");
+
+            return [
+                'status' => $novoStatus,
+                'valor' => [
+                    'cobrado' => $valorCobrado,
+                    'pago' => $valorPago
+                ],
+                'pix' => $pixPagamentos,
+                'jogador_id' => $transacao['jogador_id']
+            ];
+
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
         }
-
-        error_log("Status final determinado: " . $statusFinal);
-        error_log("Valor cobrado: " . $valorCobrado);
-        error_log("Valor pago: " . $valorPago);
-        error_log("=== Fim checkPayment ===\n");
-
-        return [
-            'status' => $statusFinal,
-            'valor' => [
-                'cobrado' => $valorCobrado,
-                'pago' => $valorPago
-            ],
-            'pix' => $pixPagamentos
-        ];
     }
 } 

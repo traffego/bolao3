@@ -3,14 +3,18 @@ require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/config/database.php';
 // database_functions.php não é mais necessário pois está incluído em database.php
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/classes/ContaManager.php';
 
 // Verificar se é um POST ou se tem um palpite pendente na sessão
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !isset($_SESSION['palpite_pendente'])) {
     redirect(APP_URL . '/boloes.php');
 }
 
+// Verificar se usuário está logado
+$usuarioLogado = isLoggedIn();
+$jogadorId = $usuarioLogado ? getCurrentUserId() : null;
+
 // Obter IDs importantes
-$jogadorId = getCurrentUserId(); // ID do jogador logado
 $bolaoId = 0;
 $palpiteId = 0;
 $palpites = [];
@@ -125,29 +129,25 @@ if (!isset($_SESSION['palpite_pendente'])) {
     }
 }
 
-// Helper function para obter o texto do resultado
-function getResultadoTexto($tipo) {
-    switch ($tipo) {
-        case "1": return "Casa Vence";
-        case "0": return "Empate";
-        case "2": return "Visitante Vence";
-        default: return "Desconhecido";
-    }
+// Se usuário está logado, buscar informações da conta
+$contaManager = null;
+$conta = null;
+if ($usuarioLogado) {
+    $contaManager = new ContaManager();
+    $conta = $contaManager->buscarContaPorJogador($jogadorId);
 }
 
-// Helper function para obter a classe CSS do resultado
-function getResultadoClasse($tipo) {
-    switch ($tipo) {
-        case "1": return "text-success";
-        case "0": return "text-warning";
-        case "2": return "text-danger";
-        default: return "text-muted";
-    }
-}
+// Verificar modelo de pagamento
+$modeloPagamento = getModeloPagamento();
+$podeApostar = false;
 
-// Verificar status do usuário logado
-$usuarioLogado = isLoggedIn();
-$usuarioInfo = null;
+if ($modeloPagamento === 'conta_saldo') {
+    // Verificar se tem saldo suficiente
+    $podeApostar = $conta && $conta['saldo'] >= $bolao['valor_participacao'];
+} else {
+    // No modelo por_aposta, pode apostar se estiver logado
+    $podeApostar = $usuarioLogado;
+}
 
 if ($usuarioLogado) {
     $usuarioInfo = dbFetchOne("SELECT nome, email, telefone FROM jogador WHERE id = ?", [getCurrentUserId()]);
@@ -170,88 +170,33 @@ include TEMPLATE_DIR . '/header.php';
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-6 text-center mb-4 mb-md-0">
-                                <?php
-                                try {
-                                    require_once __DIR__ . '/includes/EfiPixManager.php';
-                                    
-                                    // Inicializar variáveis
-                                    $qrcode = '';
-                                    $copiaCola = '';
-                                    
-                                    $efiPix = new EfiPixManager();
-                                    
-                                    // Cria a cobrança
-                                    $charge = $efiPix->createCharge($jogadorId, $bolaoId);
-                                    
-                                    // Gera QR Code
-                                    if (isset($charge['loc']['id'])) {
-                                        $qrCodeData = $efiPix->getQrCode($charge['loc']['id']);
-                                        $qrcode = $qrCodeData['imagemQrcode'];
-                                        $copiaCola = $qrCodeData['qrcode'];
-                                    }
-
-                                    if (empty($qrcode) || empty($copiaCola)) {
-                                        throw new Exception('QR Code ou código PIX não foram gerados corretamente.');
-                                    }
-                                ?>
-                                <div class="bg-light p-3 rounded mb-2" style="display: inline-block;">
-                                    <img src="<?= $qrcode ?>" 
-                                         alt="QR Code Pagamento" 
-                                         class="img-fluid"
-                                         style="max-width: 200px;">
+                        <?php if ($modeloPagamento === 'conta_saldo'): ?>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h6 class="mb-1">Saldo Disponível</h6>
+                                    <h4 class="mb-0 text-success">R$ <?= number_format($conta['saldo'], 2, ',', '.') ?></h4>
                                 </div>
-                                <div class="mt-3">
-                                    <p class="mb-2">Ou copie o código PIX:</p>
-                                    <div class="input-group mb-3">
-                                        <input type="text" class="form-control" value="<?= htmlspecialchars($copiaCola) ?>" id="pixCode" readonly>
-                                        <button class="btn btn-outline-secondary copy-button" type="button" onclick="copyPixCode()">
-                                            <i class="bi bi-clipboard"></i> Copiar
-                                        </button>
-                                    </div>
-                                </div>
-                                <?php
-                                } catch (Exception $e) {
-                                    echo '<div class="alert alert-danger">';
-                                    echo 'Erro ao gerar QR Code: ' . htmlspecialchars($e->getMessage());
-                                    echo '</div>';
-                                }
-                                ?>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="payment-details">
-                                    <h6 class="mb-3">Detalhes do Pagamento</h6>
-                                    <dl class="row mb-0">
-                                        <dt class="col-sm-6">Valor:</dt>
-                                        <dd class="col-sm-6"><?= formatMoney($bolao['valor_participacao']) ?></dd>
-                                        
-                                        <dt class="col-sm-6">Bolão:</dt>
-                                        <dd class="col-sm-6"><?= htmlspecialchars($bolao['nome']) ?></dd>
-                                        
-                                        <dt class="col-sm-6">Participante:</dt>
-                                        <dd class="col-sm-6"><?= htmlspecialchars($usuarioInfo['nome']) ?></dd>
-                                        
-                                        <dt class="col-sm-6">Status:</dt>
-                                        <dd class="col-sm-6">
-                                            <span class="badge bg-warning">Aguardando Pagamento</span>
-                                        </dd>
-                                    </dl>
-
-                                    <div class="payment-status p-3 rounded mb-3 bg-warning text-dark">
-                                        <i class="bi bi-clock"></i> Aguardando confirmação do pagamento...
-                                    </div>
-
-                                    <div class="alert alert-info mt-3 mb-0">
-                                        <small>
-                                            <i class="bi bi-info-circle"></i>
-                                            Após o pagamento, seus palpites serão automaticamente confirmados.
-                                            O processamento pode levar até 1 minuto.
-                                        </small>
-                                    </div>
+                                <div>
+                                    <h6 class="mb-1">Valor do Bolão</h6>
+                                    <h4 class="mb-0">R$ <?= number_format($bolao['valor_participacao'], 2, ',', '.') ?></h4>
                                 </div>
                             </div>
-                        </div>
+                            <?php if (!$podeApostar): ?>
+                                <div class="alert alert-warning mb-0">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    Saldo insuficiente. <a href="<?= APP_URL ?>/minha-conta.php" class="alert-link">Faça um depósito</a> para participar.
+                                </div>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <div class="text-center mb-3">
+                                <h4 class="mb-0">R$ <?= number_format($bolao['valor_participacao'], 2, ',', '.') ?></h4>
+                                <small class="text-muted">Valor para participar do bolão</small>
+                            </div>
+                            <div class="alert alert-info mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                O pagamento será solicitado após a confirmação dos palpites.
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endif; ?>
@@ -306,7 +251,7 @@ include TEMPLATE_DIR . '/header.php';
                                             <small>vs</small> 
                                             <?= htmlspecialchars($jogo['time_visitante']) ?>
                                         </td>
-                                        <td><?= formatDateTime($jogo['data']) ?></td>
+                                        <td><?= formatDateTime($jogo['data_formatada'] ?? $jogo['data']) ?></td>
                                         <td>
                                             <input type="hidden" name="resultado_<?= $jogo['id'] ?>" value="<?= $palpites[$jogo['id']] ?? '' ?>">
                                             <div class="btn-group" role="group">
@@ -341,9 +286,16 @@ include TEMPLATE_DIR . '/header.php';
                                 <i class="bi bi-arrow-left"></i> Voltar e Revisar
                             </a>
                             
-                            <button type="<?= $usuarioLogado ? 'submit' : 'button' ?>" class="btn btn-success btn-lg" <?= $usuarioLogado ? '' : 'onclick="showLoginModal()"' ?>>
+                            <button type="<?= $usuarioLogado ? 'submit' : 'button' ?>" 
+                                    class="btn btn-success btn-lg" 
+                                    <?= ($usuarioLogado && $podeApostar) ? '' : 'disabled' ?> 
+                                    <?= $usuarioLogado ? '' : 'onclick="showLoginModal()"' ?>>
                                 <?php if ($bolao['valor_participacao'] > 0): ?>
-                                    <i class="bi bi-credit-card"></i> Pagar e Confirmar Palpites
+                                    <?php if ($modeloPagamento === 'conta_saldo'): ?>
+                                        <i class="bi bi-check-circle"></i> Confirmar e Debitar Saldo
+                                    <?php else: ?>
+                                        <i class="bi bi-credit-card"></i> Confirmar e Pagar
+                                    <?php endif; ?>
                                 <?php else: ?>
                                     <i class="bi bi-check-circle"></i> Confirmar Palpites
                                 <?php endif; ?>

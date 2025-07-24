@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: text/html; charset=utf-8');
 /**
  * Admin Configurações - Bolão Vitimba
  */
@@ -195,7 +196,35 @@ $configCategories = [
     'pagamentos' => 'Configurações de Pagamentos',
     'pontuacao' => 'Sistema de Pontuação',
     'emails' => 'Configurações de E-mails',
-    'api_football' => 'API Football'
+    'api' => 'API Football'
+];
+
+// Mapeamento de nomes técnicos para labels amigáveis
+$configLabels = [
+    'geral' => [
+        'site_name' => 'Nome do Site',
+        'site_description' => 'Descrição do Site',
+        'contact_email' => 'E-mail de Contato',
+        'max_boloes' => 'Número Máximo de Bolões',
+        'max_palpites' => 'Número Máximo de Palpites',
+        'maintenance_mode' => 'Modo de Manutenção',
+    ],
+    'pontuacao' => [
+        'points_exact' => 'Pontos por Placar Exato',
+        'points_winner' => 'Pontos por Vencedor Correto',
+        'points_goal_difference' => 'Pontos por Diferença de Gols',
+        'points_goals_home' => 'Pontos por Gols do Time da Casa',
+        'points_goals_away' => 'Pontos por Gols do Time Visitante',
+    ],
+    'emails' => [
+        'smtp_host' => 'Servidor SMTP',
+        'smtp_port' => 'Porta SMTP',
+        'smtp_user' => 'Usuário SMTP',
+        'smtp_pass' => 'Senha SMTP',
+        'smtp_secure' => 'Segurança SMTP',
+        'from_email' => 'E-mail de Envio',
+        'from_name' => 'Nome de Envio',
+    ]
 ];
 
 $currentCategory = $_GET['categoria'] ?? 'geral';
@@ -377,155 +406,136 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($currentCategory === 'pagamentos') {
-            // Validar dados do formulário
-            $requiredFields = ['ambiente', 'client_id', 'client_secret', 'pix_key'];
-            $missingFields = [];
-            
+            // Validar campos obrigatórios
+            $requiredFields = ['ambiente', 'client_id', 'client_secret', 'pix_key', 'modelo_pagamento'];
             foreach ($requiredFields as $field) {
                 if (empty($_POST[$field])) {
-                    $missingFields[] = $field;
+                    throw new Exception("O campo " . ucfirst(str_replace('_', ' ', $field)) . " é obrigatório.");
                 }
-            }
-            
-            if (!empty($missingFields)) {
-                throw new Exception('Os seguintes campos são obrigatórios: ' . implode(', ', $missingFields));
             }
 
             // Validar ambiente
             if (!in_array($_POST['ambiente'], ['producao', 'homologacao'])) {
-                throw new Exception('Ambiente inválido');
+                throw new Exception('Ambiente inválido.');
             }
 
-            // Validar chave Pix
-            if (!validarChavePix($_POST['pix_key'])) {
-                throw new Exception('Formato de chave Pix inválido');
+            // Validar modelo de pagamento
+            if (!in_array($_POST['modelo_pagamento'], ['por_aposta', 'conta_saldo'])) {
+                throw new Exception('Modelo de pagamento inválido.');
             }
 
-            // Validar Client ID (alfanumérico)
-            if (!preg_match('/^[a-zA-Z0-9_-]+$/', $_POST['client_id'])) {
-                throw new Exception('Client ID inválido');
-            }
+            // Iniciar transação
+            dbBeginTransaction();
 
-            // Validar Client Secret (mínimo 8 caracteres) apenas se fornecido
-            if (!empty($_POST['client_secret']) && strlen($_POST['client_secret']) < 8) {
-                throw new Exception('Client Secret deve ter no mínimo 8 caracteres');
-            }
-
-            // Preparar dados do Pix
-            $pixConfig = [
-                'ambiente' => $_POST['ambiente'],
-                'client_id' => $_POST['client_id'],
-                'client_secret' => !empty($_POST['client_secret']) ? $_POST['client_secret'] : ($pixConfig['client_secret'] ?? ''),
-                'pix_key' => $_POST['pix_key']
-            ];
-
-            // Salvar configurações do Pix
             try {
-                // Debug - Registrar os dados antes da inserção
-                error_log("Tentando salvar configurações PIX: " . print_r($pixConfig, true));
-                error_log("POST data recebida: " . print_r($_POST, true));
-                
-                // Verificar se a tabela existe
-                $tableCheck = $pdo->query("SHOW TABLES LIKE 'configuracoes'");
-                if ($tableCheck->rowCount() === 0) {
-                    // Criar a tabela se não existir
-                    $sql = file_get_contents(__DIR__ . '/../sql/create_configuracoes_table.sql');
-                    $pdo->exec($sql);
-                    error_log("Tabela configuracoes criada");
-                }
-                
-                $stmt = $pdo->prepare("
-                    INSERT INTO configuracoes 
-                        (nome_configuracao, valor, categoria, descricao) 
-                    VALUES 
-                        (?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE 
-                        valor = ?,
-                        data_atualizacao = CURRENT_TIMESTAMP
-                ");
+                // Salvar configurações
+                $configs = [
+                    'ambiente' => [
+                        'valor' => $_POST['ambiente'],
+                        'categoria' => 'pagamento',
+                        'descricao' => 'Ambiente de processamento: produção (real) ou homologação (teste)'
+                    ],
+                    'client_id' => [
+                        'valor' => $_POST['client_id'],
+                        'categoria' => 'pagamento',
+                        'descricao' => 'ID do cliente fornecido pela Efí'
+                    ],
+                    'client_secret' => [
+                        'valor' => $_POST['client_secret'],
+                        'categoria' => 'pagamento',
+                        'descricao' => 'Chave secreta fornecida pela Efí'
+                    ],
+                    'pix_key' => [
+                        'valor' => $_POST['pix_key'],
+                        'categoria' => 'pagamento',
+                        'descricao' => 'Chave PIX cadastrada na Efí'
+                    ],
+                    'modelo_pagamento' => [
+                        'valor' => $_POST['modelo_pagamento'],
+                        'categoria' => 'pagamento',
+                        'descricao' => 'Define como os pagamentos são processados: por_aposta (individual) ou conta_saldo (débito em conta)'
+                    ]
+                ];
 
-                $pixConfigJson = json_encode($pixConfig, JSON_PRETTY_PRINT);
-                if ($pixConfigJson === false) {
-                    error_log("Erro ao codificar JSON: " . json_last_error_msg());
-                    throw new Exception('Erro ao codificar as configurações do Pix: ' . json_last_error_msg());
-                }
+                foreach ($configs as $nome => $config) {
+                    $stmt = dbPrepare("
+                        INSERT INTO configuracoes (nome_configuracao, valor, categoria, descricao)
+                        VALUES (?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE
+                        valor = VALUES(valor),
+                        categoria = VALUES(categoria),
+                        descricao = VALUES(descricao)
+                    ");
 
-                error_log("JSON a ser salvo: " . $pixConfigJson);
-
-                $stmt->execute([
-                    'efi_pix_config',
-                    $pixConfigJson,
-                    'pagamentos',
-                    'Configurações da API Pix da Efí',
-                    $pixConfigJson
-                ]);
-                
-                // Debug - Registrar o resultado da operação
-                error_log("Configurações PIX salvas com sucesso. Rows afetadas: " . $stmt->rowCount());
-
-                // Verificar se a configuração foi realmente salva
-                $checkStmt = $pdo->prepare("
-                    SELECT valor 
-                    FROM configuracoes 
-                    WHERE nome_configuracao = 'efi_pix_config' 
-                    AND categoria = 'pagamentos'
-                ");
-                $checkStmt->execute();
-                $savedConfig = $checkStmt->fetch(PDO::FETCH_ASSOC);
-
-                if (!$savedConfig) {
-                    error_log("Configuração não encontrada após salvamento");
-                    throw new Exception('Configuração não encontrada após salvamento');
+                    $stmt->execute([
+                        $nome,
+                        $config['valor'],
+                        $config['categoria'],
+                        $config['descricao']
+                    ]);
                 }
 
-                error_log("Configuração recuperada do banco: " . print_r($savedConfig, true));
-
-                // Registrar log da alteração
-                $logStmt = $pdo->prepare("
-                    INSERT INTO logs 
-                        (tipo, descricao, usuario_id, data_hora, ip_address) 
-                    VALUES 
-                        (?, ?, ?, NOW(), ?)
-                ");
+                // Registrar log
+                $admin_id = $_SESSION['admin_id'];
+                $log = "Configurações de pagamento atualizadas por admin #$admin_id";
+                $log .= "\nAmbiente: " . $_POST['ambiente'];
+                $log .= "\nModelo: " . $_POST['modelo_pagamento'];
                 
-                $logStmt->execute([
-                    'configuracao',
-                    'Alteração nas configurações do Pix',
-                    $_SESSION['admin_id'],
-                    $_SERVER['REMOTE_ADDR']
-                ]);
+                dbExecute(
+                    "INSERT INTO logs (tipo, descricao, admin_id) VALUES (?, ?, ?)",
+                    ['config', $log, $admin_id]
+                );
 
-                setFlashMessage('success', 'Configurações do Pix atualizadas com sucesso!');
-                
-                // Debug - Registrar redirecionamento
-                error_log("Redirecionando após salvar configurações");
+                dbCommit();
+                setFlashMessage('success', 'Configurações atualizadas com sucesso!');
                 redirect(APP_URL . '/admin/configuracoes.php?categoria=pagamentos');
-                
-            } catch (PDOException $e) {
-                error_log("Erro PDO ao salvar configurações: " . $e->getMessage());
-                error_log("Stack trace: " . $e->getTraceAsString());
-                throw new Exception('Erro ao salvar no banco de dados: ' . $e->getMessage());
+
             } catch (Exception $e) {
-                error_log("Erro geral ao salvar configurações: " . $e->getMessage());
-                error_log("Stack trace: " . $e->getTraceAsString());
+                dbRollback();
                 throw $e;
             }
-        } elseif ($currentCategory === 'api_football') {
-            // Processar configurações da API Football
-            if (isset($_POST['config']['api_football'])) {
-                $apiConfig = [
-                    'api_key' => trim($_POST['config']['api_football']['api_key']),
-                    'base_url' => 'https://v3.football.api-sports.io'
-                ];
-                
-                if (empty($apiConfig['api_key'])) {
-                    throw new Exception('A chave da API é obrigatória');
-                }
-
-                saveConfig('api_football', $apiConfig, 'Configurações da API Football');
-                setFlashMessage('success', 'Configurações da API Football atualizadas com sucesso!');
-                redirect(APP_URL . '/admin/configuracoes.php?categoria=api_football');
+        } elseif ($currentCategory === 'api') {
+            // Validar dados do formulário
+            if (empty($_POST['api_football_key'])) {
+                throw new Exception('A chave da API Football é obrigatória');
             }
+
+            // Salvar configuração da API Football
+            $stmt = $pdo->prepare("
+                INSERT INTO configuracoes 
+                    (nome_configuracao, valor, categoria, descricao) 
+                VALUES 
+                    (?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE 
+                    valor = ?,
+                    data_atualizacao = CURRENT_TIMESTAMP
+            ");
+
+            $stmt->execute([
+                'api_football_key',
+                $_POST['api_football_key'],
+                'api',
+                'Chave da API Football',
+                $_POST['api_football_key']
+            ]);
+
+            // Registrar log da alteração
+            $logStmt = $pdo->prepare("
+                INSERT INTO logs 
+                    (tipo, descricao, usuario_id, data_hora, ip_address) 
+                VALUES 
+                    (?, ?, ?, NOW(), ?)
+            ");
+            
+            $logStmt->execute([
+                'configuracao',
+                'Alteração na chave da API Football',
+                $_SESSION['admin_id'],
+                $_SERVER['REMOTE_ADDR']
+            ]);
+
+            setFlashMessage('success', 'Chave da API Football atualizada com sucesso!');
+            redirect(APP_URL . '/admin/configuracoes.php?categoria=api');
         } else {
             // Processar configurações gerais
             if (isset($_POST['config'])) {
@@ -594,7 +604,7 @@ $configQuery = "SELECT * FROM configuracoes WHERE categoria = ? ORDER BY id ASC"
 $configurations = dbFetchAll($configQuery, [$currentCategory]);
 
 // Add default API configuration if it doesn't exist and category is api_football
-if ($currentCategory === 'api_football' && empty($configurations)) {
+if ($currentCategory === 'api' && empty($configurations)) {
     $apiConfig = getConfig('api_football');
     if (!$apiConfig) {
         saveConfig('api_football', [
@@ -607,6 +617,24 @@ if ($currentCategory === 'api_football' && empty($configurations)) {
     }
 }
 
+// Buscar configurações atuais
+$currentConfig = [];
+
+try {
+    $stmt = $pdo->prepare("
+        SELECT nome_configuracao, valor 
+        FROM configuracoes 
+        WHERE categoria = ?
+    ");
+    $stmt->execute([$currentCategory]);
+    
+    while ($row = $stmt->fetch()) {
+        $currentConfig[$row['nome_configuracao']] = $row['valor'];
+    }
+} catch (Exception $e) {
+    setFlashMessage('warning', 'Erro ao carregar configurações: ' . $e->getMessage());
+}
+
 // Include header
 $pageTitle = "Configurações do Sistema";
 $currentPage = "configuracoes";
@@ -614,12 +642,7 @@ include '../templates/admin/header.php';
 ?>
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4">Configurações do Sistema</h1>
-    
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-        <li class="breadcrumb-item active">Configurações</li>
-    </ol>
+    <h1 class="mt-4"><?= $pageTitle ?></h1>
     
     <?php displayFlashMessages(); ?>
     
@@ -643,6 +666,8 @@ include '../templates/admin/header.php';
         </div>
         
         <div class="col-md-9">
+            
+
             <?php if ($currentCategory === 'pagamentos'): ?>
                 <div class="card mb-4">
                     <div class="card-header">
@@ -667,6 +692,30 @@ include '../templates/admin/header.php';
                                         <label class="form-check-label" for="ambiente_hml">
                                             Homologação
                                         </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Modelo de Pagamento</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="modelo_pagamento" value="por_aposta" id="modelo_por_aposta" 
+                                            <?= getModeloPagamento() === 'por_aposta' ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="modelo_por_aposta">
+                                            <strong>Pagamento por Palpite</strong>
+                                            <div class="small text-muted">Cada palpite requer um pagamento individual via PIX</div>
+                                        </label>
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="radio" name="modelo_pagamento" value="conta_saldo" id="modelo_conta_saldo"
+                                            <?= getModeloPagamento() === 'conta_saldo' ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="modelo_conta_saldo">
+                                            <strong>Pagamento por Saldo em Conta</strong>
+                                            <div class="small text-muted">Usuários depositam saldo e os palpites são debitados automaticamente</div>
+                                        </label>
+                                    </div>
+                                    <div class="alert alert-info mt-2 mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Esta configuração afeta apenas novos palpites. Palpites existentes não serão alterados.
                                     </div>
                                 </div>
                             </div>
@@ -790,69 +839,88 @@ include '../templates/admin/header.php';
                         <?= $configCategories[$currentCategory] ?? 'Configurações' ?>
                     </div>
                     <div class="card-body">
-                        <form method="post" action="">
-                            <?php if ($currentCategory === 'api_football'): ?>
-                                <!-- Configurações especiais para API Football -->
+                        <form method="post" action="" enctype="multipart/form-data" class="needs-validation" novalidate>
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                            
+                            <?php if ($currentCategory === 'api'): ?>
+                                <!-- Configurações da API Football -->
                                 <div class="mb-3">
-                                    <label class="form-label">Chave da API Football</label>
-                                    <input type="text" class="form-control" 
-                                           name="config[api_football][api_key]" 
-                                           value="<?= htmlspecialchars(getConfig('api_football')['api_key'] ?? '') ?>">
+                                    <label for="api_football_key" class="form-label">Chave da API Football *</label>
+                                    <div class="input-group">
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="api_football_key" 
+                                               name="api_football_key"
+                                               value="<?= htmlspecialchars($currentConfig['api_football_key'] ?? '') ?>"
+                                               required>
+                                        <button class="btn btn-outline-secondary" 
+                                                type="button" 
+                                                onclick="toggleApiKey('api_football_key')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
                                     <div class="form-text">
-                                        <p>Entre com sua chave da API Football para buscar jogos de campeonatos ao redor do mundo.</p>
-                                        <p>Você pode obter uma chave gratuita em <a href="https://www.api-football.com/" target="_blank">https://www.api-football.com/</a></p>
+                                        Insira sua chave da API Football. Você pode obter uma em 
+                                        <a href="https://www.api-football.com/" target="_blank">api-football.com</a>
                                     </div>
                                 </div>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">URL Base</label>
-                                    <input type="text" class="form-control" 
-                                           value="<?= htmlspecialchars(getConfig('api_football')['base_url'] ?? 'https://v3.football.api-sports.io') ?>" 
-                                           readonly>
-                                    <div class="form-text">URL base da API Football (não pode ser alterada)</div>
+
+                                <div class="alert alert-info">
+                                    <h5><i class="fas fa-info-circle"></i> Informações Importantes</h5>
+                                    <ul class="mb-0">
+                                        <li>A API Football é usada para obter resultados de jogos em tempo real.</li>
+                                        <li>Você precisa de uma chave válida para que o sistema possa atualizar os resultados automaticamente.</li>
+                                        <li>Certifique-se de que sua chave tem permissões suficientes para acessar os dados necessários.</li>
+                                    </ul>
                                 </div>
-                                
-                                <?php if (!empty(getConfig('api_football')['api_key'])): ?>
-                                    <div class="alert alert-info">
-                                        <h5><i class="fas fa-info-circle"></i> Informações da API</h5>
-                                        <p>A API Football permite buscar dados de jogos, times e campeonatos de todo o mundo.</p>
-                                        <p>Com a API configurada, você poderá facilmente:</p>
-                                        <ul>
-                                            <li>Buscar jogos por país, campeonato e rodada</li>
-                                            <li>Criar bolões com jogos de qualquer campeonato</li>
-                                            <li>Automatizar a atualização de resultados</li>
-                                        </ul>
-                                    </div>
-                                    
-                                    <div class="d-grid gap-2 mb-3">
-                                        <a href="<?= APP_URL ?>/admin/teste-api.php" class="btn btn-primary">
-                                            <i class="fas fa-vial"></i> Testar Conexão com API
-                                        </a>
-                                    </div>
-                                <?php endif; ?>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>
+                                        Salvar Configurações
+                                    </button>
+                                    <a href="<?= APP_URL ?>/admin/teste-api.php" class="btn btn-secondary">
+                                        <i class="fas fa-vial me-1"></i>
+                                        Testar API
+                                    </a>
+                                </div>
+
                             <?php else: ?>
                                 <!-- Configurações gerais, de pontuação, etc. -->
                                 <?php foreach ($configurations as $config): ?>
                                     <?php 
+                                    $configKey = $config['nome_configuracao'];
                                     $valor = $config['valor'] ?? '';
                                     if (is_array($config) && isset($config['valor']) && is_string($config['valor']) && isValidJson($config['valor'])) {
                                         $jsonData = json_decode($config['valor'], true);
                                     } else {
                                         $jsonData = null;
                                     }
+
+                                    // Obter o label amigável para o título
+                                    $friendlyTitle = $configLabels[$currentCategory][$configKey] ?? ucfirst(str_replace('_', ' ', $configKey));
                                     ?>
                                     
                                     <div class="mb-4 pb-3 border-bottom">
-                                        <h5><?= htmlspecialchars($config['nome_configuracao']) ?></h5>
-                                        <p class="text-muted"><?= htmlspecialchars($config['descricao']) ?></p>
+                                        <h5><?= htmlspecialchars($friendlyTitle) ?></h5>
+                                        <?php if (!empty($config['descricao'])): ?>
+                                            <p class="text-muted"><?= htmlspecialchars($config['descricao']) ?></p>
+                                        <?php endif; ?>
                                         
                                         <?php if (is_array($jsonData) && !empty($jsonData)): ?>
                                             <!-- JSON object editing -->
                                             <?php foreach ($jsonData as $key => $value): ?>
+                                                <?php 
+                                                // Buscar o label amigável do campo
+                                                $fieldLabel = $configLabels[$currentCategory][$key] ?? ucfirst(str_replace('_', ' ', $key));
+                                                ?>
                                                 <div class="mb-3">
-                                                    <label class="form-label"><?= htmlspecialchars(ucfirst(str_replace('_', ' ', $key))) ?></label>
+                                                    <label class="form-label" for="<?= htmlspecialchars($key) ?>">
+                                                        <?= htmlspecialchars($fieldLabel) ?>
+                                                    </label>
                                                     <input type="text" class="form-control" 
-                                                           name="config[<?= htmlspecialchars($config['nome_configuracao']) ?>][<?= htmlspecialchars($key) ?>]" 
+                                                           id="<?= htmlspecialchars($key) ?>"
+                                                           name="config[<?= htmlspecialchars($configKey) ?>][<?= htmlspecialchars($key) ?>]" 
                                                            value="<?= htmlspecialchars($value) ?>">
                                                 </div>
                                             <?php endforeach; ?>
@@ -860,15 +928,16 @@ include '../templates/admin/header.php';
                                             <!-- Simple value editing (string, number, boolean) -->
                                             <div class="mb-3">
                                                 <input type="text" class="form-control" 
-                                                       name="config[<?= htmlspecialchars($config['nome_configuracao']) ?>]" 
+                                                       id="<?= htmlspecialchars($configKey) ?>"
+                                                       name="config[<?= htmlspecialchars($configKey) ?>]" 
                                                        value="<?= htmlspecialchars($jsonData) ?>">
                                             </div>
                                         <?php else: ?>
                                             <!-- Fallback for non-JSON data or empty JSON -->
                                             <div class="mb-3">
-                                                <label class="form-label">Valor</label>
                                                 <input type="text" class="form-control" 
-                                                       name="config[<?= htmlspecialchars($config['nome_configuracao']) ?>]" 
+                                                       id="<?= htmlspecialchars($configKey) ?>"
+                                                       name="config[<?= htmlspecialchars($configKey) ?>]" 
                                                        value="<?= htmlspecialchars($valor) ?>">
                                             </div>
                                         <?php endif; ?>
@@ -914,6 +983,29 @@ function copyWebhookUrl(button) {
         button.innerHTML = '<i class="fas fa-copy"></i> Copiar URL';
     }, 2000);
 }
+
+function toggleApiKey(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        button.classList.remove('fa-eye');
+        button.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        button.classList.remove('fa-eye-slash');
+        button.classList.add('fa-eye');
+    }
+}
+
+// Inicializar todos os campos de chave como password
+document.addEventListener('DOMContentLoaded', function() {
+    const apiKeyInput = document.getElementById('api_football_key');
+    if (apiKeyInput) {
+        apiKeyInput.type = 'password';
+    }
+});
 </script>
 
 <?php include '../templates/admin/footer.php'; ?> 

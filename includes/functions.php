@@ -70,19 +70,77 @@ function generateRandomString($length = 10) {
 /**
  * Format a date according to the default format
  * 
- * @param string $date Date to format
+ * @param string|null $date Date to format
  * @param string $format Format to use (default: DATE_FORMAT)
  * @return string Formatted date
  */
 function formatDate($date, $format = DATE_FORMAT) {
-    $dateObj = new DateTime($date);
-    return $dateObj->format($format);
+    if (empty($date)) {
+        return 'N/A';
+    }
+    
+    try {
+        if (preg_match('/^\d{4}-\d{2}-\d{2}/', $date)) {
+            $dateObj = new DateTime($date);
+        } else {
+            // Try to parse Brazilian format (dd/mm/yyyy)
+            $dateObj = DateTime::createFromFormat('d/m/Y', $date);
+            
+            // If that fails, try MySQL format
+            if (!$dateObj) {
+                $dateObj = new DateTime($date);
+            }
+        }
+        
+        if (!$dateObj) {
+            return 'Data inválida';
+        }
+        
+        return $dateObj->format($format);
+    } catch (Exception $e) {
+        return 'Data inválida';
+    }
+}
+
+/**
+ * Format a time according to the default format
+ * 
+ * @param string|null $datetime Datetime to format
+ * @param string $format Format to use (default: 'H:i')
+ * @return string Formatted time
+ */
+function formatTime($datetime, $format = 'H:i') {
+    if (empty($datetime)) {
+        return 'N/A';
+    }
+    
+    try {
+        if (preg_match('/^\d{4}-\d{2}-\d{2}/', $datetime)) {
+            $dateObj = new DateTime($datetime);
+        } else {
+            // Try to parse Brazilian format first
+            $dateObj = DateTime::createFromFormat('d/m/Y H:i', $datetime);
+            
+            // If that fails, try MySQL format
+            if (!$dateObj) {
+                $dateObj = new DateTime($datetime);
+            }
+        }
+        
+        if (!$dateObj) {
+            return 'N/A';
+        }
+        
+        return $dateObj->format($format);
+    } catch (Exception $e) {
+        return 'N/A';
+    }
 }
 
 /**
  * Format a datetime according to the default format
  * 
- * @param string $datetime Datetime to format
+ * @param string|null $datetime Datetime to format
  * @param string $format Format to use (default: DATETIME_FORMAT)
  * @return string Formatted datetime
  */
@@ -91,29 +149,32 @@ function formatDateTime($datetime, $format = DATETIME_FORMAT) {
         return 'N/A';
     }
     
-    // If the date is already in the correct format, create DateTime object directly
-    if (preg_match('/^\d{4}-\d{2}-\d{2}/', $datetime)) {
-        $dateObj = new DateTime($datetime);
-    } else {
-        // Try to parse Brazilian format (dd/mm/yyyy HH:ii)
-        $dateObj = DateTime::createFromFormat('d/m/Y H:i', $datetime);
-        
-        // If that fails, try without time
-        if (!$dateObj) {
-            $dateObj = DateTime::createFromFormat('d/m/Y', $datetime);
-        }
-        
-        // If that still fails, try MySQL format
-        if (!$dateObj) {
+    try {
+        if (preg_match('/^\d{4}-\d{2}-\d{2}/', $datetime)) {
             $dateObj = new DateTime($datetime);
+        } else {
+            // Try to parse Brazilian format (dd/mm/yyyy HH:ii)
+            $dateObj = DateTime::createFromFormat('d/m/Y H:i', $datetime);
+            
+            // If that fails, try without time
+            if (!$dateObj) {
+                $dateObj = DateTime::createFromFormat('d/m/Y', $datetime);
+            }
+            
+            // If that still fails, try MySQL format
+            if (!$dateObj) {
+                $dateObj = new DateTime($datetime);
+            }
         }
-    }
-    
-    if (!$dateObj) {
+        
+        if (!$dateObj) {
+            return 'Data inválida';
+        }
+        
+        return $dateObj->format($format);
+    } catch (Exception $e) {
         return 'Data inválida';
     }
-    
-    return $dateObj->format($format);
 }
 
 /**
@@ -420,19 +481,26 @@ function updateRanking($bolaoId) {
             }
         }
         
-        // Update positions
-        $sql = "SET @pos := 0;
-                UPDATE ranking r
+        // Update positions using a single UPDATE query
+        $sql = "UPDATE ranking r1
                 JOIN (
-                    SELECT id, @pos := @pos + 1 AS pos
-                    FROM ranking
-                    WHERE bolao_id = ?
-                    ORDER BY pontos_totais DESC, id ASC
-                ) AS t ON r.id = t.id
-                SET r.posicao = t.pos
-                WHERE r.bolao_id = ?";
+                    SELECT id,
+                           @pos := @pos + 1 AS new_position
+                    FROM (SELECT id, pontos_totais 
+                          FROM ranking 
+                          WHERE bolao_id = ?
+                          ORDER BY pontos_totais DESC, id ASC) r2,
+                    (SELECT @pos := 0) p
+                ) r3 ON r1.id = r3.id
+                SET r1.posicao = r3.new_position
+                WHERE r1.bolao_id = ?";
         
-        dbQuery($sql, [$bolaoId, $bolaoId]);
+        // Execute the position update query
+        $success = dbExecute($sql, [$bolaoId, $bolaoId]);
+        
+        if (!$success) {
+            throw new Exception('Failed to update positions');
+        }
         
         // Commit transaction
         dbCommit();
@@ -499,4 +567,294 @@ function fetchApiFootballData($endpoint, $params = []) {
         return $response['response'];
     }
     return null;
+}
+
+/**
+ * Retorna o modelo de pagamento atual
+ * @return string 'por_aposta' ou 'conta_saldo'
+ */
+function getModeloPagamento() {
+    $config = dbFetchOne("SELECT valor FROM configuracoes WHERE nome_configuracao = 'modelo_pagamento' AND categoria = 'pagamento'");
+    return $config ? $config['valor'] : 'por_aposta';
+}
+
+/**
+ * Verifica se um jogador tem saldo suficiente para uma aposta
+ * @param int $jogador_id ID do jogador
+ * @param float $valor Valor necessário
+ * @return array ['tem_saldo' => bool, 'saldo_atual' => float]
+ */
+function verificarSaldoJogador($jogador_id) {
+    // Buscar conta do jogador
+    $conta = dbFetchOne("SELECT id FROM contas WHERE jogador_id = ?", [$jogador_id]);
+    
+    if (!$conta) {
+        return ['tem_saldo' => false, 'saldo_atual' => 0];
+    }
+
+    // Calcular saldo atual
+    $sql = "
+        SELECT COALESCE(SUM(CASE 
+            WHEN tipo IN ('deposito', 'premio', 'bonus') THEN valor 
+            WHEN tipo IN ('saque', 'aposta') THEN -valor 
+        END), 0) as saldo_atual
+        FROM transacoes 
+        WHERE conta_id = ? 
+        AND status = 'aprovado' 
+        AND afeta_saldo = TRUE";
+
+    $result = dbFetchOne($sql, [$conta['id']]);
+    $saldoAtual = $result ? floatval($result['saldo_atual']) : 0;
+
+    return [
+        'tem_saldo' => true,
+        'saldo_atual' => $saldoAtual,
+        'conta_id' => $conta['id']
+    ];
+}
+
+/**
+ * Cria uma transação de débito para um palpite
+ * @param int $conta_id ID da conta
+ * @param float $valor Valor a ser debitado
+ * @param int $palpite_id ID do palpite
+ * @return bool|array false em caso de erro ou array com dados da transação
+ */
+function criarTransacaoPalpite($conta_id, $valor, $palpite_id) {
+    try {
+        global $pdo;
+        
+        // Iniciar transação
+        $pdo->beginTransaction();
+
+        // Verificar saldo atual
+        $sql = "
+            SELECT COALESCE(SUM(CASE 
+                WHEN tipo IN ('deposito', 'premio', 'bonus') THEN valor 
+                WHEN tipo IN ('saque', 'aposta') THEN -valor 
+            END), 0) as saldo_atual
+            FROM transacoes 
+            WHERE conta_id = ? 
+            AND status = 'aprovado' 
+            AND afeta_saldo = TRUE";
+
+        $result = dbFetchOne($sql, [$conta_id]);
+        $saldoAtual = $result ? floatval($result['saldo_atual']) : 0;
+
+        // Verificar se tem saldo suficiente
+        if ($saldoAtual < $valor) {
+            throw new Exception('Saldo insuficiente');
+        }
+
+        // Criar transação de débito
+        $dados = [
+            'conta_id' => $conta_id,
+            'tipo' => 'aposta',
+            'valor' => $valor,
+            'saldo_anterior' => $saldoAtual,
+            'saldo_posterior' => $saldoAtual - $valor,
+            'status' => 'aprovado',
+            'metodo_pagamento' => null,
+            'afeta_saldo' => true,
+            'palpite_id' => $palpite_id,
+            'descricao' => 'Débito automático para palpite #' . $palpite_id,
+            'data_processamento' => date('Y-m-d H:i:s')
+        ];
+
+        $transacao_id = dbInsert('transacoes', $dados);
+
+        if (!$transacao_id) {
+            throw new Exception('Erro ao criar transação');
+        }
+
+        // Atualizar status do palpite
+        $stmt = $pdo->prepare("UPDATE palpites SET status = 'pago' WHERE id = ?");
+        $stmt->execute([$palpite_id]);
+
+        // Commit da transação
+        $pdo->commit();
+
+        return array_merge($dados, ['id' => $transacao_id]);
+
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        error_log('Erro ao criar transação de palpite: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Verifica o status da API Football
+ * @return array Array com status e informações detalhadas
+ */
+function checkApiFootballStatus() {
+    try {
+        // Buscar configuração da API
+        $config = getConfig('api_football');
+        
+        if (!$config || empty($config['api_key'])) {
+            return [
+                'status' => 'not_configured',
+                'message' => 'API não configurada',
+                'details' => []
+            ];
+        }
+        
+        // Usar o endpoint de status da API
+        $url = "https://v3.football.api-sports.io/status";
+        
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 5,
+            CURLOPT_HTTPHEADER => [
+                'x-rapidapi-key: ' . $config['api_key'],
+                'x-rapidapi-host: v3.football.api-sports.io'
+            ]
+        ]);
+        
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+        
+        if ($httpCode === 200) {
+            $data = json_decode($response, true);
+            
+            if ($data && isset($data['response'])) {
+                $apiInfo = $data['response'];
+                return [
+                    'status' => 'online',
+                    'message' => 'API Football funcionando',
+                    'details' => [
+                        'requests' => [
+                            'current' => $apiInfo['requests']['current'] ?? 0,
+                            'limit_day' => $apiInfo['requests']['limit_day'] ?? 0
+                        ],
+                        'subscription' => [
+                            'started' => $apiInfo['subscription']['started'] ?? '',
+                            'ends' => $apiInfo['subscription']['ends'] ?? '',
+                            'plan' => $apiInfo['subscription']['plan'] ?? ''
+                        ]
+                    ]
+                ];
+            }
+        }
+        
+        return [
+            'status' => 'error',
+            'message' => 'Erro na API (HTTP ' . $httpCode . ')',
+            'details' => []
+        ];
+        
+    } catch (Exception $e) {
+        return [
+            'status' => 'offline',
+            'message' => 'Erro: ' . $e->getMessage(),
+            'details' => []
+        ];
+    }
+}
+
+/**
+ * Verifica o status detalhado do banco de dados
+ * @return array Array com status e informações detalhadas
+ */
+function checkDatabaseStatus() {
+    try {
+        global $pdo;
+        
+        // Teste de conexão
+        $pdo->query("SELECT 1");
+        
+        // Verificar tabelas principais
+        $tables = [
+            'jogador' => 'Jogadores',
+            'dados_boloes' => 'Bolões',
+            'palpites' => 'Palpites',
+            'resultados_jogos' => 'Resultados',
+            'configuracoes' => 'Configurações',
+            'logs' => 'Logs',
+            'administrador' => 'Administradores',
+            'afiliados' => 'Afiliados',
+            'afiliados_comissoes' => 'Comissões',
+            'afiliados_indicacoes' => 'Indicações',
+            'config_pagamentos' => 'Config. Pagamentos',
+            'contas' => 'Contas',
+            'metodos_pagamento' => 'Métodos Pagamento',
+            'pagamentos' => 'Pagamentos',
+            'transacoes' => 'Transações'
+        ];
+        
+        $tableStatus = [];
+        $totalTables = 0;
+        
+        foreach ($tables as $table => $label) {
+            $stmt = $pdo->query("SHOW TABLES LIKE '$table'");
+            if ($stmt->fetch()) {
+                $totalTables++;
+                // Verificar quantidade de registros
+                $count = $pdo->query("SELECT COUNT(*) as total FROM $table")->fetch()['total'];
+                $tableStatus[$table] = [
+                    'exists' => true,
+                    'label' => $label,
+                    'records' => $count
+                ];
+            } else {
+                $tableStatus[$table] = [
+                    'exists' => false,
+                    'label' => $label,
+                    'records' => 0
+                ];
+            }
+        }
+        
+        // Verificar espaço usado pelo banco
+        $dbName = DB_NAME;
+        $sizeQuery = $pdo->query("
+            SELECT 
+                SUM(data_length + index_length) as size,
+                SUM(data_free) as free_space
+            FROM information_schema.TABLES 
+            WHERE table_schema = '$dbName'
+        ");
+        $sizeInfo = $sizeQuery->fetch();
+        
+        return [
+            'status' => 'online',
+            'message' => 'Banco de dados conectado',
+            'details' => [
+                'name' => DB_NAME,
+                'host' => DB_HOST,
+                'tables' => [
+                    'total' => $totalTables,
+                    'expected' => count($tables),
+                    'status' => $tableStatus
+                ],
+                'size' => [
+                    'total' => $sizeInfo['size'] ?? 0,
+                    'free' => $sizeInfo['free_space'] ?? 0
+                ],
+                'version' => $pdo->getAttribute(PDO::ATTR_SERVER_VERSION)
+            ]
+        ];
+        
+    } catch (Exception $e) {
+        return [
+            'status' => 'offline',
+            'message' => 'Erro de conexão: ' . $e->getMessage(),
+            'details' => []
+        ];
+    }
+} 
+
+/**
+ * Wrapper function for getConfig to maintain compatibility
+ * 
+ * @param string $name Configuration name
+ * @param mixed $default Default value if configuration not found
+ * @return mixed Configuration value or default
+ */
+function getConfiguracao($name, $default = null) {
+    return getConfig($name, $default);
 } 

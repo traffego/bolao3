@@ -124,7 +124,7 @@ include 'templates/header.php';
                                     <?= htmlspecialchars($jogo['time_casa']) ?> x 
                                     <?= htmlspecialchars($jogo['time_visitante']) ?>
                                 </td>
-                                <td><?= formatDateTime($jogo['data']) ?></td>
+                                <td><?= formatDateTime($jogo['data_formatada'] ?? $jogo['data']) ?></td>
                                 <td class="text-center">
                                     <?php if ($palpiteJogo): ?>
                                         <?php if ($palpiteJogo === '1'): ?>

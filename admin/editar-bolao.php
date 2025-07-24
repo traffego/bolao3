@@ -52,9 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'status' => isset($_POST['status']) ? 1 : 0,
         'valor_participacao' => $_POST['valor_participacao'] ?? 0,
         'premio_total' => $_POST['premio_total'] ?? 0,
+        'premio_rodada' => $_POST['premio_rodada'] ?? 0,
         'max_participantes' => empty($_POST['max_participantes']) ? null : (int)$_POST['max_participantes'],
-        'publico' => isset($_POST['publico']) ? 1 : 0,
-        'data_limite_palpitar' => $_POST['data_limite_palpitar'] ?? null
+        'publico' => isset($_POST['publico']) ? 1 : 0
     ];
     
     // Handle image upload
@@ -115,6 +115,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (!is_numeric($formData['premio_total']) || $formData['premio_total'] < 0) {
         $errors[] = 'O prêmio total deve ser um número positivo.';
+    }
+
+    if (!is_numeric($formData['premio_rodada']) || $formData['premio_rodada'] < 0) {
+        $errors[] = 'O prêmio por rodada deve ser um número positivo.';
     }
     
     if ($formData['max_participantes'] !== null && $formData['max_participantes'] <= 0) {
@@ -189,10 +193,19 @@ include '../templates/admin/header.php';
                     </div>
 
                     <div class="mb-3">
-                        <label for="status" class="form-label">Status</label>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="status" name="status" <?= $formData['status'] == 1 ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="status">Ativo</label>
+                        <div class="d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="status" name="status" <?= $formData['status'] == 1 ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="status">
+                                    Bolão Ativo
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="publico" name="publico" <?= $formData['publico'] ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="publico">
+                                    Bolão Público
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -222,12 +235,6 @@ include '../templates/admin/header.php';
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="data_limite_palpitar" class="form-label">Data Limite para Palpites</label>
-                        <input type="datetime-local" class="form-control" id="data_limite_palpitar" name="data_limite_palpitar" value="<?= $formData['data_limite_palpitar'] ? date('Y-m-d\TH:i', strtotime($formData['data_limite_palpitar'])) : '' ?>">
-                        <small class="text-muted">Se não definido, será possível palpitar até o início do primeiro jogo</small>
-                    </div>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="valor_participacao" class="form-label">Valor de Participação (R$)</label>
@@ -235,8 +242,8 @@ include '../templates/admin/header.php';
                         </div>
                         
                         <div class="col-md-6 mb-3">
-                            <label for="premio_total" class="form-label">Prêmio Total (R$)</label>
-                            <input type="number" step="0.01" min="0" class="form-control" id="premio_total" name="premio_total" value="<?= $formData['premio_total'] ?>">
+                            <label for="premio_rodada" class="form-label">Prêmio por Rodada (R$)</label>
+                            <input type="number" step="0.01" min="0" class="form-control" id="premio_rodada" name="premio_rodada" value="<?= $formData['premio_rodada'] ?>">
                         </div>
                     </div>
 
@@ -247,12 +254,8 @@ include '../templates/admin/header.php';
                         </div>
                         
                         <div class="col-md-6 mb-3">
-                            <div class="form-check mt-4">
-                                <input class="form-check-input" type="checkbox" id="publico" name="publico" <?= $formData['publico'] ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="publico">
-                                    Bolão público (visível para todos)
-                                </label>
-                            </div>
+                            <label for="premio_total" class="form-label">Prêmio Total (R$)</label>
+                            <input type="number" step="0.01" min="0" class="form-control" id="premio_total" name="premio_total" value="<?= $formData['premio_total'] ?>">
                         </div>
                     </div>
 
@@ -295,7 +298,7 @@ include '../templates/admin/header.php';
                             <tbody>
                                 <?php foreach ($jogos as $jogo): ?>
                                     <tr>
-                                        <td><?= $jogo['data'] ?></td>
+                                        <td><?= $jogo['data_formatada'] ?? $jogo['data'] ?></td>
                                         <td><?= htmlspecialchars($jogo['campeonato']) ?></td>
                                         <td>
                                             <strong><?= htmlspecialchars($jogo['time_casa']) ?></strong>
@@ -313,7 +316,7 @@ include '../templates/admin/header.php';
                                         </td>
                                         <td>
                                             <?php
-                                            $dataJogo = strtotime($jogo['data_iso'] ?? $jogo['data']);
+                                            $dataJogo = strtotime($jogo['data_formatada'] ?? $jogo['data']);
                                             $agora = time();
                                             if ($jogo['resultado_casa'] !== null):
                                                 echo '<span class="badge bg-success">Finalizado</span>';
