@@ -17,7 +17,9 @@ DirectoryIndex index.php index.html
   Order Allow,Deny
   Deny from all
 </FilesMatch>
-
+<IfModule mime_module>
+  AddHandler application/x-httpd-php74 .php
+</IfModule>
 # Impedir listagem de diretórios
 Options -Indexes
 
