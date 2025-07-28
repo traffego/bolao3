@@ -14,7 +14,7 @@ ADD UNIQUE INDEX IF NOT EXISTS uk_nome_categoria (nome_configuracao, categoria);
 -- Inserir/Atualizar configuração da EFIBANK
 INSERT INTO configuracoes (nome_configuracao, valor, categoria, descricao) VALUES 
 ('efi_pix_config', 
-'{"ambiente":"producao","client_id":"Client_Id_3e9ce7b7f569d0a4aa8f9ec8b172c3ed7dd9d948","client_secret":"Client_Secret_31e8f33edba74286002f4c91a2df6896f2764fd1","pix_key":"60409292-a359-4992-9f5f-5886bace6fe6","webhook_url":"http://localhost/bolao3/api/webhook_pix.php"}',
+'{"ambiente":"producao","client_id":"Client_Id_3e9ce7b7f569d0a4aa8f9ec8b172c3ed7dd9d948","client_secret":"Client_Secret_31e8f33edba74286002f4c91a2df6896f2764fd1","pix_key":"60409292-a359-4992-9f5f-5886bace6fe6","webhook_url":"http://bolao.traffego.agency/api/webhook_pix.php"}',
 'pagamentos',
 'Configurações da API Pix da Efí')
 ON DUPLICATE KEY UPDATE 
