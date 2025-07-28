@@ -4,10 +4,9 @@
  * Contains all system configuration, database connection settings and constants
  */
 
-// Determinar ambiente de forma mais robusta
+// Determinar ambiente
 $isLocalhost = in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1']) || 
-               strpos($_SERVER['HTTP_HOST'], 'localhost:') === 0 ||
-               strpos($_SERVER['HTTP_HOST'], '.local') !== false;
+               strpos($_SERVER['HTTP_HOST'], 'localhost:') === 0;
 
 // Definir modo de debug baseado no ambiente
 if (!defined('DEBUG_MODE')) {
@@ -19,20 +18,11 @@ require_once __DIR__ . '/database.php';
 
 // Application Configuration
 define('APP_NAME', 'Bolão Vitimba');
+define('APP_URL', $isLocalhost ? 'http://bolao.traffego.agency' : 'https://bolao.traffego.agency');
 define('APP_VERSION', '1.0.0');
 
-// URL Configuration - mais flexível
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-$host = $_SERVER['HTTP_HOST'];
-$scriptName = $_SERVER['SCRIPT_NAME'];
-$pathInfo = pathinfo($scriptName);
-$basePath = $pathInfo['dirname'];
-if ($basePath === '/') $basePath = '';
-
-define('APP_URL', $protocol . '://' . $host . $basePath);
-
 // Webhook Configuration
-define('WEBHOOK_URL', APP_URL . '/api/webhook_pix.php');
+define('WEBHOOK_URL', $isLocalhost ? 'http://bolao.traffego.agency/api/webhook_pix.php' : 'https://bolao.traffego.agency/bolao3/api/webhook_pix.php');
 
 // Directory Configuration
 define('ROOT_DIR', dirname(__DIR__));
@@ -45,7 +35,7 @@ define('SESSION_NAME', 'bolao_session');
 define('SESSION_LIFETIME', 86400); // 24 hours
 define('SESSION_PATH', '/');
 define('SESSION_DOMAIN', ''); // Deixar vazio para usar o domínio atual
-define('SESSION_SECURE', $protocol === 'https'); // Seguro apenas se HTTPS
+define('SESSION_SECURE', false); // Temporariamente false para debug
 define('SESSION_HTTPONLY', true);
 define('SESSION_SAMESITE', 'Lax');
 
@@ -70,8 +60,8 @@ date_default_timezone_set(DEFAULT_TIMEZONE);
 
 // Configuração de erros - ativado para debug
 error_reporting(E_ALL);
-ini_set('display_errors', DEBUG_MODE ? 1 : 0);
-ini_set('display_startup_errors', DEBUG_MODE ? 1 : 0);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 
 // Log de erros - habilitado
 ini_set('log_errors', 1);
