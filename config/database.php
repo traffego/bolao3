@@ -6,9 +6,9 @@
 
 // Database Configuration - Fixed settings
     if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
-    if (!defined('DB_NAME')) define('DB_NAME', 'bolao_football');
-    if (!defined('DB_USER')) define('DB_USER', 'root');
-if (!defined('DB_PASS')) define('DB_PASS', '');
+    if (!defined('DB_NAME')) define('DB_NAME', 'platafo5_bolao3');
+    if (!defined('DB_USER')) define('DB_USER', 'platafo5_bolao3');
+if (!defined('DB_PASS')) define('DB_PASS', 'Traffego444#');
 
 /**
  * Get PDO database connection
