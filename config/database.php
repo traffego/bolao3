@@ -4,24 +4,11 @@
  * Contains all database settings, connection handling, and helper functions
  */
 
-// Determine environment and set database credentials
-$isLocalhost = in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1']) || 
-               strpos($_SERVER['HTTP_HOST'], 'localhost:') === 0;
-
-// Database Configuration based on environment
-if ($isLocalhost) {
-    // Local environment settings
+// Database Configuration - Fixed settings
     if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
     if (!defined('DB_NAME')) define('DB_NAME', 'bolao_football');
     if (!defined('DB_USER')) define('DB_USER', 'root');
-    if (!defined('DB_PASS')) define('DB_PASS', ''); // Empty password for default XAMPP
-} else {
-    // Production environment settings
-    if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
-    if (!defined('DB_NAME')) define('DB_NAME', 'platafo5_bolao3');
-    if (!defined('DB_USER')) define('DB_USER', 'platafo5_bolao3');
-    if (!defined('DB_PASS')) define('DB_PASS', 'Traffego444#');
-}
+if (!defined('DB_PASS')) define('DB_PASS', '');
 
 /**
  * Get PDO database connection

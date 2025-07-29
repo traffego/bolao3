@@ -4,13 +4,9 @@
  * Contains all system configuration, database connection settings and constants
  */
 
-// Determinar ambiente
-$isLocalhost = in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1']) || 
-               strpos($_SERVER['HTTP_HOST'], 'localhost:') === 0;
-
-// Definir modo de debug baseado no ambiente
+// Definir modo de debug
 if (!defined('DEBUG_MODE')) {
-    define('DEBUG_MODE', $isLocalhost);
+    define('DEBUG_MODE', true);
 }
 
 // Carregar configurações do banco de dados
@@ -18,11 +14,11 @@ require_once __DIR__ . '/database.php';
 
 // Application Configuration
 define('APP_NAME', 'Bolão Vitimba');
-define('APP_URL', $isLocalhost ? 'http://localhost/bolao3' : 'https://bolao.traffego.agency');
+define('APP_URL', 'http://localhost/bolao3');
 define('APP_VERSION', '1.0.0');
 
 // Webhook Configuration
-define('WEBHOOK_URL', $isLocalhost ? 'http://localhost/bolao3/api/webhook_pix.php' : 'https://bolao.traffego.agency/api/webhook_pix.php');
+define('WEBHOOK_URL', 'http://localhost/bolao3/api/webhook_pix.php');
 
 // Directory Configuration
 define('ROOT_DIR', dirname(__DIR__));
