@@ -241,3 +241,20 @@ function dbLastInsertId() {
     global $pdo;
     return $pdo->lastInsertId();
 } 
+
+/**
+ * Prepare a SQL statement
+ * 
+ * @param string $query SQL query with placeholders
+ * @return PDOStatement|false PDOStatement object or false on failure
+ */
+function dbPrepare($query) {
+    global $pdo;
+    try {
+        return $pdo->prepare($query);
+    } catch (PDOException $e) {
+        error_log("Database Error (dbPrepare): " . $e->getMessage());
+        error_log("Query: " . $query);
+        return false;
+    }
+}
