@@ -64,7 +64,7 @@ if (!empty($jogosSelecionados)) {
             error_log("Buscando jogo ID: $jogoId");
             
             // API URL para obter detalhes de um jogo específico
-            $apiUrl = "https://v3.football.api-sports.io/fixtures?id=" . $jogoId;
+            $apiUrl = api_football_url('fixtures?id=' . $jogoId);
             $headers = [
                 "x-rapidapi-key: {$apiConfig['api_key']}",
                 "x-rapidapi-host: v3.football.api-sports.io"

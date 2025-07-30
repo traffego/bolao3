@@ -75,7 +75,7 @@ function getTeamLogo($teamName) {
     }
     
     // URL para a API Football de busca por nome do time
-    $url = "https://v3.football.api-sports.io/teams?name=" . urlencode($teamName);
+    $url = api_football_url('teams?name=' . urlencode($teamName));
     
     // Configuração da requisição
     $curl = curl_init();

@@ -701,7 +701,7 @@ function checkApiFootballStatus() {
         }
         
         // Usar o endpoint de status da API
-        $url = "https://v3.football.api-sports.io/status";
+        $url = api_football_url('status');
         
         $curl = curl_init();
         curl_setopt_array($curl, [

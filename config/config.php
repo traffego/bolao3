@@ -17,8 +17,8 @@ define('APP_NAME', 'Bolão Vitimba');
 define('APP_URL', 'https://bolao.traffego.agency');
 define('APP_VERSION', '1.0.0');
 
-// Webhook Configuration
-define('WEBHOOK_URL', 'https://bolao.traffego.agency/api/webhook_pix.php');
+// Webhook Configuration - Dynamic based on APP_URL
+define('WEBHOOK_URL', APP_URL . '/api/webhook_pix.php');
 
 // Directory Configuration
 define('ROOT_DIR', dirname(__DIR__));
@@ -87,6 +87,50 @@ if (session_status() === PHP_SESSION_NONE) {
     if (isset($_SESSION['created']) && (time() - $_SESSION['created'] > SESSION_LIFETIME / 2)) {
         session_regenerate_id(true);
         $_SESSION['created'] = time();
+    }
+}
+
+// URL Helper Functions
+if (!function_exists('app_url')) {
+    /**
+     * Generate application URL with optional path
+     * @param string $path Optional path to append
+     * @return string Complete URL
+     */
+    function app_url($path = '') {
+        $url = rtrim(APP_URL, '/');
+        if (!empty($path)) {
+            $path = ltrim($path, '/');
+            $url .= '/' . $path;
+        }
+        return $url;
+    }
+}
+
+if (!function_exists('api_football_url')) {
+    /**
+     * Generate API Football URL with endpoint
+     * @param string $endpoint API endpoint
+     * @return string Complete API URL
+     */
+    function api_football_url($endpoint = '') {
+        $url = rtrim(API_FOOTBALL_URL, '/');
+        if (!empty($endpoint)) {
+            $endpoint = ltrim($endpoint, '/');
+            $url .= '/' . $endpoint;
+        }
+        return $url;
+    }
+}
+
+if (!function_exists('is_localhost')) {
+    /**
+     * Check if the application is running on localhost
+     * @return bool True if localhost, false otherwise
+     */
+    function is_localhost() {
+        return in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1']) || 
+               strpos($_SERVER['HTTP_HOST'] ?? '', 'localhost:') === 0;
     }
 }
 

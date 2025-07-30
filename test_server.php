@@ -25,7 +25,7 @@ if (!defined('DEBUG_MODE')) {
 }
 
 // Testar APP_URL
-$appUrl = $isLocalhost ? 'https://bolao.traffego.agency' : 'https://bolao.traffego.agency';
+$appUrl = APP_URL;
 echo "<p>APP_URL seria: " . $appUrl . "</p>";
 
 // Testar carregamento de arquivos

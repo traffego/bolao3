@@ -42,7 +42,7 @@ logMessage("Encontrados " . count($boloes) . " bolões ativos para verificar");
 
 // Função para fazer requisição à API Football
 function requestApiFootball($jogoId, $apiConfig) {
-    $apiUrl = "https://v3.football.api-sports.io/fixtures?id=" . $jogoId;
+    $apiUrl = api_football_url('fixtures?id=' . $jogoId);
     $headers = [
         "x-rapidapi-key: {$apiConfig['api_key']}",
         "x-rapidapi-host: v3.football.api-sports.io"

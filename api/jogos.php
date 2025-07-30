@@ -33,7 +33,7 @@ $jogos = [];
 
 // Buscar jogos para cada campeonato selecionado
 foreach ($campeonatosIds as $campeonatoId) {
-    $apiUrl = "https://v3.football.api-sports.io/fixtures";
+    $apiUrl = api_football_url('fixtures');
     $parametros = [
         'league' => $campeonatoId,
         'season' => date('Y'),
