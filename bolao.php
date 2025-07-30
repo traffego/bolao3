@@ -77,13 +77,13 @@ function getTeamLogo($teamName) {
     // URL para a API Football de busca por nome do time
     $url = api_football_url('teams?name=' . urlencode($teamName));
     
-    // Configuração da requisição
+    // Configuração da requisição com timeout mais curto
     $curl = curl_init();
     curl_setopt_array($curl, [
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 3, // Timeout reduzido para 3 segundos
-        CURLOPT_CONNECTTIMEOUT => 2, // Timeout de conexão para 2 segundos
+        CURLOPT_TIMEOUT => 1, // Timeout reduzido para 1 segundo
+        CURLOPT_CONNECTTIMEOUT => 1, // Timeout de conexão para 1 segundo
         CURLOPT_HTTPHEADER => [
             'X-RapidAPI-Key: ' . $apiConfig['api_key'],
             'X-RapidAPI-Host: v3.football.api-sports.io'
@@ -95,7 +95,7 @@ function getTeamLogo($teamName) {
     curl_close($curl);
     
     if ($err) {
-        // Em caso de erro, usa uma URL padrão
+        // Em caso de erro ou timeout, usa uma URL padrão
         $logoUrl = APP_URL . '/assets/img/team-placeholder.png';
     } else {
         // Decode da resposta JSON

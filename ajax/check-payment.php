@@ -77,6 +77,12 @@ try {
     require_once __DIR__ . '/../includes/functions.php';
     require_once __DIR__ . '/../includes/EfiPixManager.php';
 
+    // Adicionar logs adicionais para debug
+    error_log("=== Debug da Busca do Usuário ===");
+    error_log("bolaoId: " . $bolaoId);
+    error_log("userId: " . $userId);
+    error_log("Session user_id: " . ($_SESSION['user_id'] ?? 'não definido'));
+
     // Buscar dados do usuário
     $user = dbFetchOne("
         SELECT j.id, j.txid_pagamento, j.pagamento_confirmado, p.id as palpite_id, p.status as palpite_status
@@ -88,6 +94,8 @@ try {
         ORDER BY p.data_palpite DESC
         LIMIT 1
     ", [$bolaoId, $userId]);
+
+    error_log("Resultado da query do usuário: " . print_r($user, true));
 
     $bolao = dbFetchOne("SELECT valor_participacao FROM dados_boloes WHERE id = ?", [$bolaoId]);
 
