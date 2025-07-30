@@ -81,10 +81,19 @@ try {
 
     // Inserir resultados
     $stmt = dbPrepare("INSERT INTO palpites_resultados (palpite_id, partida_id, resultado) VALUES (?, ?, ?)");
+    
+    // Verificar se a preparação da query foi bem-sucedida
+    if ($stmt === false) {
+        throw new Exception('Erro ao preparar query para inserção de resultados.');
+    }
+    
     foreach ($_POST as $key => $value) {
         if (strpos($key, 'resultado_') === 0) {
             $partidaId = substr($key, strlen('resultado_'));
-            $stmt->execute([$palpiteId, $partidaId, $value]);
+            // Verificar se execute foi bem-sucedido
+            if (!$stmt->execute([$palpiteId, $partidaId, $value])) {
+                throw new Exception('Erro ao inserir resultado para a partida ' . $partidaId);
+            }
         }
     }
 
