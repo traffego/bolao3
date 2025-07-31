@@ -328,7 +328,7 @@ include TEMPLATE_DIR . '/header.php';
             } */
             ?>
             
-            <form method="post" action="<?= APP_URL ?>/confirmar-palpite.php" id="formPalpites">
+            <form method="post" action="<?= APP_URL ?>/salvar-palpite.php" id="formPalpites">
                 <input type="hidden" name="bolao_id" value="<?= $bolao['id'] ?>">
                 
                 <!-- Card de palpites aleatórios -->
