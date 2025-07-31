@@ -313,7 +313,7 @@ include TEMPLATE_DIR . '/header.php';
         <?php if (!empty($jogos)): ?>
             <?php
             // Verificar se o usuário já tem palpites para este bolão
-            if ($usuarioId) {
+            /* if ($usuarioId) {
                 $palpiteExistente = dbFetchOne(
                     "SELECT COUNT(*) as total FROM palpites WHERE bolao_id = ? AND jogador_id = ?",
                     [$bolao['id'], $usuarioId]
@@ -325,7 +325,7 @@ include TEMPLATE_DIR . '/header.php';
                         Você já fez palpites para este bolão. Novos palpites irão substituir os anteriores.
                     </div>';
                 }
-            }
+            } */
             ?>
             
             <form method="post" action="<?= APP_URL ?>/confirmar-palpite.php" id="formPalpites">
