@@ -28,9 +28,9 @@ CREATE TABLE IF NOT EXISTS `administrador` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Copiando dados para a tabela bolao_football.administrador: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela bolao_football.administrador: ~0 rows (aproximadamente)
 REPLACE INTO `administrador` (`id`, `nome`, `email`, `senha`, `status`, `data_cadastro`, `ultimo_acesso`, `ultimo_login`) VALUES
-	(1, 'Administrador', 'admin@bolao.com', '$2y$10$BOxWWRWkbsrwrV.GSN6/SOSmjSj/8ad98mYask3Bazjup6DnIVMiq', 'ativo', '2025-05-20 18:08:25', NULL, '2025-07-22 16:06:02');
+	(1, 'Administrador', 'admin@bolao.com', '$2y$10$BOxWWRWkbsrwrV.GSN6/SOSmjSj/8ad98mYask3Bazjup6DnIVMiq', 'ativo', '2025-05-20 18:08:25', NULL, '2025-07-24 16:38:06');
 
 -- Copiando estrutura para tabela bolao_football.afiliados
 CREATE TABLE IF NOT EXISTS `afiliados` (
@@ -96,25 +96,24 @@ CREATE TABLE IF NOT EXISTS `configuracoes` (
   `descricao` text DEFAULT NULL,
   `data_criacao` timestamp NOT NULL DEFAULT current_timestamp(),
   `data_atualizacao` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `modelo_pagamento` enum('por_aposta','conta_saldo') NOT NULL DEFAULT 'por_aposta',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_config` (`nome_configuracao`,`categoria`),
   UNIQUE KEY `uk_nome_categoria` (`nome_configuracao`,`categoria`),
   CONSTRAINT `chk_modelo_pagamento` CHECK (`nome_configuracao` <> 'modelo_pagamento' or `valor` in ('por_aposta','conta_saldo'))
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Copiando dados para a tabela bolao_football.configuracoes: ~10 rows (aproximadamente)
-REPLACE INTO `configuracoes` (`id`, `nome_configuracao`, `valor`, `categoria`, `descricao`, `data_criacao`, `data_atualizacao`, `modelo_pagamento`) VALUES
-	(1, 'site_name', '"Bolão de Futebol"', 'geral', 'Nome do site', '2025-05-30 19:38:41', '2025-07-22 15:44:16', 'por_aposta'),
-	(2, 'site_description', '"O melhor sistema de bolões de futebol!"', 'geral', 'Descrição do site', '2025-05-30 19:38:41', '2025-07-22 15:44:16', 'por_aposta'),
-	(3, 'moeda', '"BRL"', 'geral', 'Moeda padrão do sistema', '2025-05-30 19:38:41', '2025-07-22 15:44:16', 'por_aposta'),
-	(13, 'api_football', '{"api_key":"ad0b29bd4984b69fd16d9680c6d017c1","base_url":"https:\\/\\/v3.football.api-sports.io","last_request":"2025-07-22 23:16:24"}', 'api', 'Configurações da API Football', '2025-05-30 19:38:41', '2025-07-22 23:16:24', 'por_aposta'),
-	(19, 'pagamento', '{"pix_key":"EMAIL@EXAMPLE.COM"}', 'pagamento', 'Configurações de pagamento', '2025-05-30 19:38:41', '2025-05-24 22:01:08', 'por_aposta'),
-	(21, 'efi_pix_config', '{\n    "ambiente": "producao",\n    "client_id": "Client_Id_3e9ce7b7f569d0a4aa8f9ec8b172c3ed7dd9d948",\n    "client_secret": "Client_Secret_31e8f33edba74286002f4c91a2df6896f2764fd1",\n    "pix_key": "60409292-a359-4992-9f5f-5886bace6fe6",\n    "webhook_url": "https://localhofgfdgdfgdfgst/bolao3/api/webhook_pix.php"\n}', 'pagamentos', 'Configurações da API Pix da Efí', '2025-05-30 19:38:41', '2025-07-22 15:44:16', 'por_aposta'),
-	(24, 'tipos_logs', '["configuracao","pagamento","palpite","bolao","usuario","sistema"]', 'sistema', 'Tipos de logs permitidos no sistema', '2025-05-30 21:34:58', '2025-05-30 18:34:58', 'por_aposta'),
-	(29, 'api_football_key', 'ad0b29bd4984b69fd16d9680c6d017c1', 'api', 'Chave da API Football', '2025-07-04 16:31:29', '2025-07-16 17:22:09', 'por_aposta'),
-	(31, 'deposito_minimo', '10.00', 'pagamento', 'Valor mínimo para depósito', '2025-07-04 19:26:04', '2025-07-04 16:26:04', 'por_aposta'),
-	(43, 'modelo_pagamento', 'por_aposta', 'pagamento', 'Define como os pagamentos são processados: por_aposta (individual) ou conta_saldo (débito em conta)', '2025-07-22 20:51:58', '2025-07-22 17:51:58', 'por_aposta');
+REPLACE INTO `configuracoes` (`id`, `nome_configuracao`, `valor`, `categoria`, `descricao`, `data_criacao`, `data_atualizacao`) VALUES
+	(1, 'site_name', '"Bolão de Futebol"', 'geral', 'Nome do site', '2025-05-30 19:38:41', '2025-07-22 15:44:16'),
+	(2, 'site_description', '"O melhor sistema de bolões de futebol!"', 'geral', 'Descrição do site', '2025-05-30 19:38:41', '2025-07-22 15:44:16'),
+	(3, 'moeda', '"BRL"', 'geral', 'Moeda padrão do sistema', '2025-05-30 19:38:41', '2025-07-22 15:44:16'),
+	(13, 'api_football', '{"api_key":"ad0b29bd4984b69fd16d9680c6d017c1","base_url":"https:\\/\\/v3.football.api-sports.io","last_request":"2025-07-22 23:16:24"}', 'api', 'Configurações da API Football', '2025-05-30 19:38:41', '2025-07-22 23:16:24'),
+	(19, 'pagamento', '{"pix_key":"EMAIL@EXAMPLE.COM"}', 'pagamento', 'Configurações de pagamento', '2025-05-30 19:38:41', '2025-05-24 22:01:08'),
+	(21, 'efi_pix_config', '{\n    "ambiente": "producao",\n    "client_id": "Client_Id_3e9ce7b7f569d0a4aa8f9ec8b172c3ed7dd9d948",\n    "client_secret": "Client_Secret_31e8f33edba74286002f4c91a2df6896f2764fd1",\n    "pix_key": "60409292-a359-4992-9f5f-5886bace6fe6",\n    "webhook_url": "https://localhost/bolao3/api/webhook_pix.php"\n}', 'pagamentos', 'Configurações da API Pix da Efí', '2025-05-30 19:38:41', '2025-07-23 16:41:52'),
+	(24, 'tipos_logs', '["configuracao","pagamento","palpite","bolao","usuario","sistema"]', 'sistema', 'Tipos de logs permitidos no sistema', '2025-05-30 21:34:58', '2025-05-30 18:34:58'),
+	(29, 'api_football_key', 'ad0b29bd4984b69fd16d9680c6d017c1', 'api', 'Chave da API Football', '2025-07-04 16:31:29', '2025-07-16 17:22:09'),
+	(31, 'deposito_minimo', '1.00', 'pagamento', 'Valor mínimo para depósito', '2025-07-04 19:26:04', '2025-07-23 15:38:10'),
+	(44, 'deposito_maximo', '5000.00', 'pagamento', 'Valor máximo para depósito', '2025-07-24 20:52:54', '2025-07-24 17:52:54');
 
 -- Copiando estrutura para tabela bolao_football.config_pagamentos
 CREATE TABLE IF NOT EXISTS `config_pagamentos` (
@@ -147,9 +146,12 @@ CREATE TABLE IF NOT EXISTS `contas` (
   PRIMARY KEY (`id`),
   KEY `jogador_id` (`jogador_id`),
   CONSTRAINT `contas_ibfk_1` FOREIGN KEY (`jogador_id`) REFERENCES `jogador` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela bolao_football.contas: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela bolao_football.contas: ~2 rows (aproximadamente)
+REPLACE INTO `contas` (`id`, `jogador_id`, `status`, `data_criacao`, `data_atualizacao`) VALUES
+	(1, 1, 'ativo', '2025-07-23 00:36:24', '2025-07-23 00:36:24'),
+	(2, 4, 'ativo', '2025-07-23 15:58:45', '2025-07-23 15:58:45');
 
 -- Copiando estrutura para tabela bolao_football.dados_boloes
 CREATE TABLE IF NOT EXISTS `dados_boloes` (
@@ -177,7 +179,7 @@ CREATE TABLE IF NOT EXISTS `dados_boloes` (
   KEY `idx_admin` (`admin_id`),
   KEY `idx_status` (`status`),
   KEY `idx_data` (`data_inicio`,`data_fim`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Copiando dados para a tabela bolao_football.dados_boloes: ~3 rows (aproximadamente)
 REPLACE INTO `dados_boloes` (`id`, `nome`, `slug`, `descricao`, `data_inicio`, `data_fim`, `data_limite_palpitar`, `valor_participacao`, `premio_rodada`, `premio_total`, `status`, `publico`, `max_participantes`, `quantidade_jogos`, `imagem_bolao_url`, `admin_id`, `jogos`, `campeonatos`, `data_criacao`) VALUES
@@ -208,7 +210,7 @@ REPLACE INTO `jogador` (`id`, `nome`, `email`, `senha`, `telefone`, `cpf`, `stat
 	(1, 'JONATHAS QUINTANILHA', 'jogador@bolao.com', '$2y$12$5Q4bPMNugRrydUWBjvl5uu7tX83y1NW.PUa.j34zl/fF/p3YG7Joy', '(21) 96738-0813', NULL, 'ativo', '2025-05-24 16:26:20', NULL, NULL, NULL),
 	(2, 'JONATHAS QUINTANILHA', 'traffego.mkt@gmail.com', '$2y$12$NkS/7fN1zjHYg3vMLrHiF.x1KuqkE3R3Je8VkQrnfF3VySxt35WHu', '(21) 96738-0813', NULL, 'ativo', '2025-05-29 14:46:06', NULL, NULL, NULL),
 	(3, 'JONATHAS QUINTANILHA', 'milton@bolaoforte.com', '$2y$12$ga29B/T/9Y/gs.EaXyC.ROLgHyVgGT317ee9kJurhoTBbuU4/DOM6', '(21) 96738-0813', '12255175754', 'ativo', '2025-05-30 14:27:34', NULL, NULL, NULL),
-	(4, 'Milton Cunha', 'miltoncunha@bolaodomeuvo.com', '$2y$12$TAf0aC9nmSdK8m5grY1ogOnTf2NpxIopItle.aYiuOMvSj7gNWIyK', '(77) 98765-4321', '12221212121', 'ativo', '2025-05-30 14:28:40', NULL, NULL, NULL),
+	(4, 'Milton Cunha', 'miltoncunha@bolao.com', '$2y$10$W9/VykpLj1SPVIJx.O6bhOAHMuNRRsZjxaXlDsDmXp.I9HWYpoKaa', '(77) 98765-4321', '12221212121', 'ativo', '2025-05-30 14:28:40', NULL, NULL, NULL),
 	(5, 'Central Do Script', 'central_jogador@bolao.com', '$2y$10$/dOaRFI9bBjZjLyD.Pv8FO/bD0863j.jIb40MxCzGAxdBTrNAbqyW', '(21) 9673-80813', '46143888000', 'ativo', '2025-06-05 19:34:54', NULL, NULL, NULL);
 
 -- Copiando estrutura para tabela bolao_football.logs
@@ -225,9 +227,9 @@ CREATE TABLE IF NOT EXISTS `logs` (
   KEY `idx_usuario` (`usuario_id`),
   KEY `idx_data` (`data_hora`),
   CONSTRAINT `logs_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `jogador` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Copiando dados para a tabela bolao_football.logs: ~16 rows (aproximadamente)
+-- Copiando dados para a tabela bolao_football.logs: ~19 rows (aproximadamente)
 REPLACE INTO `logs` (`id`, `tipo`, `descricao`, `usuario_id`, `data_hora`, `dados_adicionais`, `ip_address`) VALUES
 	(1, 'configuracao', 'Alteração nas configurações do Pix', 1, '2025-05-30 21:35:23', NULL, NULL),
 	(2, 'configuracao', 'Alteração nas configurações do Pix', 1, '2025-05-30 21:41:28', NULL, NULL),
@@ -244,24 +246,32 @@ REPLACE INTO `logs` (`id`, `tipo`, `descricao`, `usuario_id`, `data_hora`, `dado
 	(13, 'configuracao', 'Alteração na chave da API Football', 1, '2025-07-04 16:31:29', NULL, '::1'),
 	(14, 'teste_api', 'Teste da API Football realizado', 1, '2025-07-16 20:21:32', '{"resultados":[{"nome":"Status da API","sucesso":true,"mensagem":"27 de 100 requisi\\u00e7\\u00f5es hoje"},{"nome":"Lista de Pa\\u00edses","sucesso":true,"mensagem":"Retornou 171 pa\\u00edses"},{"nome":"Ligas do Brasil","sucesso":true,"mensagem":"Retornou 103 ligas"}]}', '::1'),
 	(15, 'configuracao', 'Alteração na chave da API Football', 1, '2025-07-16 20:22:09', NULL, '::1'),
-	(16, 'teste_api', 'Teste da API Football realizado', 1, '2025-07-16 20:22:18', '{"resultados":[{"nome":"Status da API","sucesso":true,"mensagem":"27 de 100 requisi\\u00e7\\u00f5es hoje"},{"nome":"Lista de Pa\\u00edses","sucesso":true,"mensagem":"Retornou 171 pa\\u00edses"},{"nome":"Ligas do Brasil","sucesso":true,"mensagem":"Retornou 103 ligas"}]}', '::1');
+	(16, 'teste_api', 'Teste da API Football realizado', 1, '2025-07-16 20:22:18', '{"resultados":[{"nome":"Status da API","sucesso":true,"mensagem":"27 de 100 requisi\\u00e7\\u00f5es hoje"},{"nome":"Lista de Pa\\u00edses","sucesso":true,"mensagem":"Retornou 171 pa\\u00edses"},{"nome":"Ligas do Brasil","sucesso":true,"mensagem":"Retornou 103 ligas"}]}', '::1'),
+	(17, 'login_sucesso', 'Login realizado com sucesso', 1, '2025-07-23 19:32:00', NULL, '::1'),
+	(18, 'login_sucesso', 'Login realizado com sucesso', 4, '2025-07-23 19:32:57', NULL, '::1'),
+	(19, 'login_sucesso', 'Login realizado com sucesso', 1, '2025-07-24 11:53:43', NULL, '::1'),
+	(20, 'login_sucesso', 'Login realizado com sucesso', 1, '2025-07-24 19:28:18', NULL, '::1'),
+	(21, 'jogador', 'Editou dados do jogador Milton Cunha', 1, '2025-07-24 19:51:17', '{"jogador_id":4,"dados_alterados":{"nome":"Milton Cunha","email":"miltoncunha@bolao.com","telefone":"(77) 98765-4321","cpf":"12221212121","status":"ativo"}}', '::1'),
+	(22, 'login_sucesso', 'Login realizado com sucesso', 4, '2025-07-24 19:52:56', NULL, '::1');
 
--- Copiando estrutura para tabela bolao_football.metodos_pagamento
-CREATE TABLE IF NOT EXISTS `metodos_pagamento` (
+-- Copiando estrutura para tabela bolao_football.notificacoes
+CREATE TABLE IF NOT EXISTS `notificacoes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `jogador_id` int(11) NOT NULL,
-  `tipo` enum('pix','transferencia_bancaria','cartao_credito') NOT NULL,
-  `dados` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`dados`)),
-  `principal` tinyint(1) DEFAULT 0,
-  `ativo` tinyint(1) DEFAULT 1,
+  `tipo` enum('saque_aprovado','saque_rejeitado','deposito_confirmado','sistema') NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `mensagem` text NOT NULL,
+  `lida` tinyint(1) DEFAULT 0,
   `data_criacao` datetime DEFAULT current_timestamp(),
-  `data_atualizacao` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `data_leitura` datetime DEFAULT NULL,
+  `dados_adicionais` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`dados_adicionais`)),
   PRIMARY KEY (`id`),
-  KEY `jogador_id` (`jogador_id`),
-  CONSTRAINT `metodos_pagamento_ibfk_1` FOREIGN KEY (`jogador_id`) REFERENCES `jogador` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `idx_jogador_lida` (`jogador_id`,`lida`),
+  KEY `idx_data` (`data_criacao`),
+  CONSTRAINT `notificacoes_ibfk_1` FOREIGN KEY (`jogador_id`) REFERENCES `jogador` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Copiando dados para a tabela bolao_football.metodos_pagamento: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela bolao_football.notificacoes: ~0 rows (aproximadamente)
 
 -- Copiando estrutura para tabela bolao_football.pagamentos
 CREATE TABLE IF NOT EXISTS `pagamentos` (
@@ -300,11 +310,14 @@ CREATE TABLE IF NOT EXISTS `palpites` (
   CONSTRAINT `palpites_ibfk_2` FOREIGN KEY (`bolao_id`) REFERENCES `dados_boloes` (`id`) ON DELETE CASCADE,
   CONSTRAINT `palpites_ibfk_3` FOREIGN KEY (`afiliado_id`) REFERENCES `afiliados` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `check_json_palpites` CHECK (json_valid(`palpites`))
-) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Copiando dados para a tabela bolao_football.palpites: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela bolao_football.palpites: ~4 rows (aproximadamente)
 REPLACE INTO `palpites` (`id`, `jogador_id`, `bolao_id`, `palpites`, `data_palpite`, `status`, `afiliado_id`) VALUES
-	(64, 1, 15, '{"jogos":{"1351199":"2","1351194":"0","1351198":"1","1351193":"1","1351201":"2","1351195":"1","1351196":"2","1351200":"1","1351197":"1","1351202":"2","1351204":"0"}}', '2025-07-23 00:10:55', 'pendente', NULL);
+	(64, 1, 15, '{"jogos":{"1351199":"2","1351194":"0","1351198":"1","1351193":"1","1351201":"2","1351195":"1","1351196":"2","1351200":"1","1351197":"1","1351202":"2","1351204":"0"}}', '2025-07-23 00:10:55', 'pendente', NULL),
+	(65, 1, 15, '{"jogos":{"1351199":"2","1351194":"0","1351198":"1","1351193":"1","1351201":"2","1351195":"1","1351196":"2","1351200":"1","1351197":"1","1351202":"2","1351204":"0"}}', '2025-07-23 00:20:28', 'pendente', NULL),
+	(66, 1, 15, '{"jogos":{"resultado_1351199":"2","resultado_1351194":"0","resultado_1351198":"1","resultado_1351193":"1","resultado_1351201":"2","resultado_1351195":"1","resultado_1351196":"2","resultado_1351200":"1","resultado_1351197":"1","resultado_1351202":"2","resultado_1351204":"0"}}', '2025-07-23 00:22:15', 'pendente', NULL),
+	(67, 1, 15, '{"jogos":{"resultado_1351199":"2","resultado_1351194":"2","resultado_1351198":"2","resultado_1351193":"1","resultado_1351201":"1","resultado_1351195":"2","resultado_1351196":"1","resultado_1351200":"2","resultado_1351197":"0","resultado_1351202":"0","resultado_1351204":"0"}}', '2025-07-23 00:26:57', 'pendente', NULL);
 
 -- Copiando estrutura para tabela bolao_football.transacoes
 CREATE TABLE IF NOT EXISTS `transacoes` (
@@ -322,19 +335,91 @@ CREATE TABLE IF NOT EXISTS `transacoes` (
   `processado_por` int(11) DEFAULT NULL,
   `txid` varchar(100) DEFAULT NULL,
   `palpite_id` int(11) DEFAULT NULL,
-  `metodo_pagamento` enum('pix','transferencia_bancaria','cartao_credito') DEFAULT NULL,
+  `metodo_pagamento` enum('pix') DEFAULT 'pix',
   `afeta_saldo` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_txid` (`txid`),
-  KEY `conta_id` (`conta_id`),
   KEY `processado_por` (`processado_por`),
   KEY `fk_transacao_palpite` (`palpite_id`),
+  KEY `idx_conta_status` (`conta_id`,`status`),
+  KEY `idx_data_conta` (`data_solicitacao`,`conta_id`),
+  KEY `idx_tipo_status` (`tipo`,`status`),
   CONSTRAINT `fk_transacao_palpite` FOREIGN KEY (`palpite_id`) REFERENCES `palpites` (`id`),
   CONSTRAINT `transacoes_ibfk_1` FOREIGN KEY (`conta_id`) REFERENCES `contas` (`id`),
-  CONSTRAINT `transacoes_ibfk_2` FOREIGN KEY (`processado_por`) REFERENCES `jogador` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  CONSTRAINT `transacoes_ibfk_2` FOREIGN KEY (`processado_por`) REFERENCES `jogador` (`id`),
+  CONSTRAINT `chk_afeta_saldo_aprovado` CHECK (`status` <> 'aprovado' or `afeta_saldo` = 1)
+) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Copiando dados para a tabela bolao_football.transacoes: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela bolao_football.transacoes: ~19 rows (aproximadamente)
+REPLACE INTO `transacoes` (`id`, `conta_id`, `tipo`, `valor`, `saldo_anterior`, `saldo_posterior`, `status`, `descricao`, `referencia`, `data_solicitacao`, `data_processamento`, `processado_por`, `txid`, `palpite_id`, `metodo_pagamento`, `afeta_saldo`) VALUES
+	(105, 1, 'deposito', 10.00, 0.00, 10.00, 'pendente', NULL, 'DEP17532418149986', '2025-07-23 00:36:54', NULL, NULL, NULL, NULL, 'pix', 0),
+	(106, 1, 'deposito', 1.00, 0.00, 0.00, 'pendente', 'Depósito via PIX', 'DEP17532961169413', '2025-07-23 15:41:56', NULL, NULL, NULL, NULL, 'pix', 1),
+	(107, 1, 'deposito', 1.00, 0.00, 0.00, 'pendente', 'Depósito via PIX', 'DEP17532961295213', '2025-07-23 15:42:10', NULL, NULL, NULL, NULL, 'pix', 1),
+	(116, 2, 'deposito', 2.00, 0.00, 0.00, 'pendente', 'Depósito via PIX', 'DEP17533014136593', '2025-07-23 17:10:13', NULL, NULL, NULL, NULL, 'pix', 0),
+	(117, 2, 'deposito', 1.00, 0.00, 0.00, 'pendente', 'Depósito via PIX', 'DEP17533019553889', '2025-07-23 17:19:16', NULL, NULL, NULL, NULL, 'pix', 0),
+	(118, 2, 'deposito', 1.50, 0.00, 0.00, 'pendente', 'Depósito via PIX', 'DEP17533022789218', '2025-07-23 17:24:38', NULL, NULL, NULL, NULL, 'pix', 0),
+	(119, 2, 'deposito', 1.23, 0.00, 0.00, 'pendente', 'Depósito via PIX', 'DEP17533025427922', '2025-07-23 17:29:02', NULL, NULL, NULL, NULL, 'pix', 0),
+	(120, 2, 'deposito', 1.21, 0.00, 0.00, 'pendente', 'Depósito via PIX', 'DEP17533027793983', '2025-07-23 17:32:59', NULL, NULL, NULL, NULL, 'pix', 0),
+	(121, 2, 'deposito', 1.43, 0.00, 0.00, 'pendente', 'Depósito via PIX', 'DEP17533032011709', '2025-07-23 17:40:01', NULL, NULL, NULL, NULL, 'pix', 0),
+	(122, 2, 'deposito', 1.00, 0.00, 0.00, 'pendente', NULL, 'DEP17533905964280935', '2025-07-24 17:56:39', '2025-07-24 17:56:39', NULL, 'DEP00417533905965c952bc4b3cd78e9', NULL, 'pix', 0),
+	(123, 2, 'deposito', 1.00, 0.00, 1.00, 'pendente', NULL, 'DEP17533911516907728', '2025-07-24 18:05:54', '2025-07-24 18:05:54', NULL, 'DEP0041753391151ba12269d708d7cce', NULL, 'pix', 1),
+	(124, 2, 'deposito', 1.00, 0.00, 1.00, 'pendente', NULL, 'DEP17533911572944087', '2025-07-24 18:05:59', '2025-07-24 18:05:59', NULL, 'DEP0041753391157a94c82cc541d0fb9', NULL, 'pix', 1),
+	(125, 2, 'deposito', 1.00, 0.00, 1.00, 'pendente', NULL, 'DEP17533911639934790', '2025-07-24 18:06:06', '2025-07-24 18:06:06', NULL, 'DEP0041753391163cd4371986a6b6409', NULL, 'pix', 1),
+	(126, 2, 'deposito', 1.00, 0.00, 1.00, 'pendente', NULL, 'DEP17533911694807088', '2025-07-24 18:06:11', '2025-07-24 18:06:11', NULL, 'DEP0041753391169e49c318987b69f12', NULL, 'pix', 1),
+	(127, 2, 'deposito', 1.00, 0.00, 1.00, 'pendente', NULL, 'DEP17533911741645373', '2025-07-24 18:06:17', '2025-07-24 18:06:17', NULL, 'DEP004175339117445593570e584f5c4', NULL, 'pix', 1),
+	(128, 2, 'deposito', 1.00, 0.00, 1.00, 'pendente', NULL, 'DEP17533911807724121', '2025-07-24 18:06:23', '2025-07-24 18:06:23', NULL, 'DEP0041753391180407bd3f3c001af0f', NULL, 'pix', 1),
+	(129, 2, 'deposito', 1.00, 0.00, 1.00, 'pendente', NULL, 'DEP17533911855188412', '2025-07-24 18:06:28', '2025-07-24 18:06:28', NULL, 'DEP0041753391185b81fb6011cca0d43', NULL, 'pix', 1),
+	(130, 2, 'deposito', 1.00, 0.00, 1.00, 'pendente', NULL, 'DEP17533911919654148', '2025-07-24 18:06:34', '2025-07-24 18:06:34', NULL, 'DEP0041753391191decfb83b3c18aac2', NULL, 'pix', 1),
+	(131, 2, 'deposito', 1.00, 0.00, 1.00, 'pendente', NULL, 'DEP17533911972397484', '2025-07-24 18:06:40', '2025-07-24 18:06:40', NULL, 'DEP0041753391197a8e5ec1a4b22365a', NULL, 'pix', 1),
+	(132, 2, 'deposito', 1.00, 0.00, 1.00, 'pendente', NULL, 'DEP17533915658726550', '2025-07-24 18:12:48', '2025-07-24 18:12:48', NULL, 'DEP00417533915653a0acb21561237c2', NULL, 'pix', 1);
+
+-- Copiando estrutura para trigger bolao_football.after_transaction_approved
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER after_transaction_approved
+AFTER UPDATE ON transacoes
+FOR EACH ROW
+BEGIN
+    IF NEW.status = 'aprovado' AND OLD.status != 'aprovado' AND NEW.afeta_saldo = 1 THEN
+        IF NEW.tipo IN ('deposito', 'premio', 'bonus') THEN
+            UPDATE contas 
+            SET saldo = saldo + NEW.valor 
+            WHERE id = NEW.conta_id;
+        ELSEIF NEW.tipo IN ('saque', 'aposta') THEN
+            UPDATE contas 
+            SET saldo = saldo - NEW.valor 
+            WHERE id = NEW.conta_id;
+        END IF;
+    END IF;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
+
+-- Copiando estrutura para trigger bolao_football.before_transaction_approved
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER before_transaction_approved
+BEFORE UPDATE ON transacoes
+FOR EACH ROW
+BEGIN
+    DECLARE saldo_atual DECIMAL(10,2);
+    
+    IF NEW.status = 'aprovado' AND OLD.status != 'aprovado' 
+       AND NEW.afeta_saldo = 1 
+       AND NEW.tipo IN ('saque', 'aposta') THEN
+        
+        SELECT saldo INTO saldo_atual
+        FROM contas
+        WHERE id = NEW.conta_id;
+        
+        IF saldo_atual < NEW.valor THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Saldo insuficiente para esta operação';
+        END IF;
+    END IF;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

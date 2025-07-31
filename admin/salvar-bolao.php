@@ -97,12 +97,24 @@ if (!empty($jogosIds) && $apiConfig && !empty($apiConfig['api_key'])) {
                     $dataPadrao = date('Y-m-d H:i:s', $timestamp);
                     $dataFormatadaPadrao = date('d/m/Y H:i', $timestamp);
                 }
+                // Obter IDs dos times
+                $timeCasaId = $jogo['teams']['home']['id'] ?? null;
+                $timeVisitanteId = $jogo['teams']['away']['id'] ?? null;
+                
+                // Construir URLs das logos usando os IDs dos times
+                $logoTimeCasa = $timeCasaId ? 'https://media.api-sports.io/football/teams/' . $timeCasaId . '.png' : '';
+                $logoTimeVisitante = $timeVisitanteId ? 'https://media.api-sports.io/football/teams/' . $timeVisitanteId . '.png' : '';
+                
                 $jogosFull[] = [
                     'id' => $jogo['fixture']['id'],
                     'campeonato' => $jogo['league']['name'],
                     'campeonato_id' => $jogo['league']['id'],
                     'time_casa' => $jogo['teams']['home']['name'],
                     'time_visitante' => $jogo['teams']['away']['name'],
+                    'nome_time_casa' => $jogo['teams']['home']['name'],
+                    'nome_time_visitante' => $jogo['teams']['away']['name'],
+                    'logo_time_casa' => $logoTimeCasa,
+                    'logo_time_visitante' => $logoTimeVisitante,
                     'data' => $dataPadrao,
                     'data_formatada' => $dataFormatadaPadrao,
                     'status' => $jogo['fixture']['status']['short'],

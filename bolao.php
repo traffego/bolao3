@@ -53,68 +53,11 @@ if ($usuarioId) {
 $jogos = json_decode($bolao['jogos'], true) ?: [];
 $campeonatos = json_decode($bolao['campeonatos'], true) ?: [];
 
-// Implementar um cache em memória para armazenar os IDs dos times
-$timeLogosCache = [];
+// Os logos agora são carregados diretamente do JSON do bolão
+// Não é mais necessário buscar os logos da API Football
 
-// Função para obter o logo de um time da API Football
-function getTeamLogo($teamName) {
-    global $timeLogosCache;
-    
-    // Se o logo já estiver no cache de memória, retorna
-    if (isset($timeLogosCache[$teamName])) {
-        return $timeLogosCache[$teamName];
-    }
-    
-    // Configuração da API
-    $apiConfig = getConfig('api_football');
-    if (!$apiConfig || empty($apiConfig['api_key'])) {
-        // Se não tiver configuração, use uma URL padrão
-        $logoUrl = APP_URL . '/assets/img/team-placeholder.png';
-        $timeLogosCache[$teamName] = $logoUrl;
-        return $logoUrl;
-    }
-    
-    // URL para a API Football de busca por nome do time
-    $url = api_football_url('teams?name=' . urlencode($teamName));
-    
-    // Configuração da requisição com timeout mais curto
-    $curl = curl_init();
-    curl_setopt_array($curl, [
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 1, // Timeout reduzido para 1 segundo
-        CURLOPT_CONNECTTIMEOUT => 1, // Timeout de conexão para 1 segundo
-        CURLOPT_HTTPHEADER => [
-            'X-RapidAPI-Key: ' . $apiConfig['api_key'],
-            'X-RapidAPI-Host: v3.football.api-sports.io'
-        ]
-    ]);
-    
-    $response = curl_exec($curl);
-    $err = curl_error($curl);
-    curl_close($curl);
-    
-    if ($err) {
-        // Em caso de erro ou timeout, usa uma URL padrão
-        $logoUrl = APP_URL . '/assets/img/team-placeholder.png';
-    } else {
-        // Decode da resposta JSON
-        $data = json_decode($response, true);
-        
-        // Verifica se a resposta contém os dados esperados
-        if (isset($data['response'][0]['team']['id'])) {
-            // Usa diretamente a URL padrão da API Sports com o ID do time
-            $logoUrl = "https://media.api-sports.io/football/teams/" . $data['response'][0]['team']['id'] . ".png";
-        } else {
-            // Caso não encontre, usa uma URL padrão
-            $logoUrl = APP_URL . '/assets/img/team-placeholder.png';
-        }
-    }
-    
-    // Guarda o logo no cache em memória
-    $timeLogosCache[$teamName] = $logoUrl;
-    return $logoUrl;
-}
+// Verificar se o usuário já tem palpites salvos
+$palpites = [];
 
 // Ordenar jogos por data
 usort($jogos, function($a, $b) {
@@ -446,8 +389,8 @@ include TEMPLATE_DIR . '/header.php';
                                                        <?= $disabled ?>>
                                                 <label class="btn btn-outline-success btn-palpite btn-time <?= ($palpiteJogo === '1') ? 'active' : '' ?>" 
                                                        for="casa_<?= $jogo['id'] ?>">
-                                                    <img src="<?= getTeamLogo($jogo['time_casa']) ?>" alt="<?= $jogo['time_casa'] ?>" class="team-logo-btn">
-                                                    <span class="team-name-btn"><?= $jogo['time_casa'] ?></span>
+                                                    <img src="<?= $jogo['logo_time_casa'] ?>" alt="<?= $jogo['nome_time_casa'] ?>" class="team-logo-btn">
+                                                    <span class="team-name-btn"><?= $jogo['nome_time_casa'] ?></span>
                                                 </label>
 
                                                 <input type="radio" 
@@ -471,8 +414,8 @@ include TEMPLATE_DIR . '/header.php';
                                                        <?= $disabled ?>>
                                                 <label class="btn btn-outline-danger btn-palpite btn-time <?= ($palpiteJogo === '2') ? 'active' : '' ?>" 
                                                        for="fora_<?= $jogo['id'] ?>">
-                                                    <img src="<?= getTeamLogo($jogo['time_visitante']) ?>" alt="<?= $jogo['time_visitante'] ?>" class="team-logo-btn">
-                                                    <span class="team-name-btn"><?= $jogo['time_visitante'] ?></span>
+                                                    <img src="<?= $jogo['logo_time_visitante'] ?>" alt="<?= $jogo['nome_time_visitante'] ?>" class="team-logo-btn">
+                                                    <span class="team-name-btn"><?= $jogo['nome_time_visitante'] ?></span>
                                                 </label>
                                             </div>
                                         </div>

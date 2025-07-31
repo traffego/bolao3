@@ -88,6 +88,47 @@ if (!isset($_SESSION['palpite_pendente'])) {
     // Preparar o JSON de palpites
     $palpitesJson = json_encode(['jogos' => $palpites]);
 
+    // Verificar se o usuário já tem palpites pagos idênticos para este bolão
+    if ($jogadorId) {
+        // Buscar palpites pagos existentes do usuário para este bolão
+        $palpitesExistentes = dbFetchAll(
+            "SELECT palpites FROM palpites WHERE bolao_id = ? AND jogador_id = ? AND status = 'pago'",
+            [$bolaoId, $jogadorId]
+        );
+        
+        // Verificar se algum dos palpites existentes é idêntico ao que está sendo enviado
+        $palpitesSemPrefixo = [];
+        foreach ($palpites as $jogoId => $resultado) {
+            // Remover prefixo 'resultado_' se existir
+            $jogoIdSemPrefixo = preg_replace('/^resultado_/', '', $jogoId);
+            $palpitesSemPrefixo[$jogoIdSemPrefixo] = $resultado;
+        }
+        
+        $palpiteIdentico = false;
+        foreach ($palpitesExistentes as $palpiteExistente) {
+            $palpitesJsonExistente = json_decode($palpiteExistente['palpites'], true);
+            $palpitesJogosExistente = $palpitesJsonExistente['jogos'] ?? [];
+            
+            // Remover prefixo 'resultado_' dos IDs dos palpites existentes
+            $palpitesExistentesSemPrefixo = [];
+            foreach ($palpitesJogosExistente as $jogoId => $resultado) {
+                $jogoIdSemPrefixo = preg_replace('/^resultado_/', '', $jogoId);
+                $palpitesExistentesSemPrefixo[$jogoIdSemPrefixo] = $resultado;
+            }
+            
+            // Comparar os palpites (considerando apenas os jogos do bolão atual)
+            if ($palpitesSemPrefixo == $palpitesExistentesSemPrefixo) {
+                $palpiteIdentico = true;
+                break;
+            }
+        }
+        
+        if ($palpiteIdentico) {
+            setFlashMessage('danger', 'Você já tem palpites idênticos registrados para este bolão.');
+            redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
+        }
+    }
+
     try {
         // Sempre inserir como pendente inicialmente
         $stmt = $pdo->prepare("

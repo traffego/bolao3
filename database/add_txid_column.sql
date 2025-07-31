@@ -1,1 +1,0 @@
-ALTER TABLE jogador ADD COLUMN txid_pagamento VARCHAR(100); 
