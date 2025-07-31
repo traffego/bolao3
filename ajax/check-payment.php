@@ -55,12 +55,27 @@ try {
 
     // Verificar se a sessão está ativa e tem usuário
     if (!isset($_SESSION['user_id'])) {
-        throw new Exception('Sessão não encontrada. Session ID: ' . session_id());
+        // Tentar regenerar a sessão
+        session_regenerate_id(true);
+        if (!isset($_SESSION['user_id'])) {
+            throw new Exception('Sessão não encontrada. Session ID: ' . session_id());
+        }
     }
 
     // Validar dados necessários
     if (!isset($jsonData['bolao_id']) || !isset($jsonData['user_id'])) {
         throw new Exception('Dados obrigatórios não fornecidos (bolao_id e user_id)');
+    }
+
+    // Validar session_id se fornecido
+    if (isset($jsonData['session_id']) && !empty($jsonData['session_id'])) {
+        if ($jsonData['session_id'] !== session_id()) {
+            error_log("Session ID mismatch. Expected: " . session_id() . ", Received: " . $jsonData['session_id']);
+            // Tentar usar o session_id fornecido
+            session_write_close();
+            session_id($jsonData['session_id']);
+            session_start();
+        }
     }
 
     $bolaoId = (int)$jsonData['bolao_id'];
@@ -100,7 +115,23 @@ try {
     $bolao = dbFetchOne("SELECT valor_participacao FROM dados_boloes WHERE id = ?", [$bolaoId]);
 
     if (!$user) {
-        throw new Exception('Usuário não encontrado');
+        // Tentar buscar apenas os dados do jogador
+        $jogador = dbFetchOne("SELECT id, txid_pagamento, pagamento_confirmado FROM jogador WHERE id = ?", [$userId]);
+        if (!$jogador) {
+            throw new Exception('Usuário não encontrado');
+        }
+        
+        // Buscar palpite pendente separadamente
+        $palpite = dbFetchOne("
+            SELECT id, status 
+            FROM palpites 
+            WHERE jogador_id = ? AND bolao_id = ? AND status = 'pendente'
+            ORDER BY data_palpite DESC
+            LIMIT 1
+        ", [$userId, $bolaoId]);
+        
+        // Combinar os dados
+        $user = array_merge($jogador, $palpite ?: ['palpite_id' => null, 'palpite_status' => null]);
     }
     if (!$bolao) {
         throw new Exception('Bolão não encontrado');
