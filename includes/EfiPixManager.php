@@ -227,20 +227,48 @@ class EfiPixManager {
         $conta = $stmt->fetch();
 
         if (!$conta) {
+            // Verificar se o usuário existe antes de criar a conta
+            $stmt = $this->pdo->prepare("SELECT id FROM jogador WHERE id = ?");
+            $stmt->execute([$user_id]);
+            $usuario = $stmt->fetch();
+            
+            if (!$usuario) {
+                error_log("Tentativa de criar conta para usuário inexistente ID: $user_id");
+                throw new Exception('Usuário não encontrado');
+            }
+            
             // Criar conta automaticamente se não existir
             try {
+                error_log("Criando conta para usuário ID: $user_id");
+                
                 $stmt = $this->pdo->prepare(
-                    "INSERT INTO contas (jogador_id, status, data_criacao, data_atualizacao) VALUES (?, 'ativo', NOW(), NOW())"
+                    "INSERT INTO contas (jogador_id, status) VALUES (?, 'ativo')"
                 );
-                $stmt->execute([$user_id]);
+                $result = $stmt->execute([$user_id]);
+                
+                if (!$result) {
+                    $errorInfo = $stmt->errorInfo();
+                    error_log("Erro SQL ao criar conta: " . json_encode($errorInfo));
+                    throw new Exception('Falha na execução do SQL');
+                }
                 
                 $contaId = $this->pdo->lastInsertId();
+                
+                if (!$contaId) {
+                    error_log("LastInsertId retornou 0 para usuário ID: $user_id");
+                    throw new Exception('Falha ao obter ID da conta criada');
+                }
+                
                 $conta = ['id' => $contaId];
                 
-                error_log("Conta criada automaticamente para usuário ID: $user_id, Conta ID: $contaId");
+                error_log("Conta criada com sucesso - Usuário ID: $user_id, Conta ID: $contaId");
+            } catch (PDOException $e) {
+                error_log("Erro PDO ao criar conta para usuário ID $user_id: " . $e->getMessage());
+                error_log("Código do erro: " . $e->getCode());
+                throw new Exception('Erro na base de dados ao criar conta');
             } catch (Exception $e) {
-                error_log("Erro ao criar conta automaticamente para usuário ID $user_id: " . $e->getMessage());
-                throw new Exception('Erro ao criar conta do usuário');
+                error_log("Erro geral ao criar conta para usuário ID $user_id: " . $e->getMessage());
+                throw new Exception('Erro ao criar conta do usuário: ' . $e->getMessage());
             }
         }
 

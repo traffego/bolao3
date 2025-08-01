@@ -84,9 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $contaData = [
                     'jogador_id' => $userId,
-                    'status' => 'ativo',
-                    'data_criacao' => date('Y-m-d H:i:s'),
-                    'data_atualizacao' => date('Y-m-d H:i:s')
+                    'status' => 'ativo'
                 ];
                 
                 $contaId = dbInsert('contas', $contaData);
