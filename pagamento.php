@@ -88,7 +88,7 @@ try {
     }
     
     // Criar cobrança PIX
-    $charge = $efiPix->createCharge($transacao['txid'], getCurrentUserId(), $palpite['valor_participacao']);
+    $charge = $efiPix->createCharge(getCurrentUserId(), $palpite['valor_participacao'], $transacao['txid'], 'Pagamento de Palpite - ' . $palpite['bolao_nome']);
     
     // Gerar QR Code
     if (isset($charge['loc']['id'])) {
