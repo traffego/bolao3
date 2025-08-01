@@ -4,16 +4,21 @@ require_once __DIR__ . '/config/database.php';
 // database_functions.php não é mais necessário pois está incluído em database.php
 require_once __DIR__ . '/includes/functions.php';
 
-// Obter o ID do bolão da URL
+// Obter o ID ou slug do bolão da URL
 $bolaoId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$bolaoSlug = isset($_GET['slug']) ? $_GET['slug'] : '';
 
-// Se não tiver ID, redireciona para a lista de bolões públicos
-if ($bolaoId <= 0) {
+// Se não tiver ID nem slug, redireciona para a lista de bolões públicos
+if ($bolaoId <= 0 && empty($bolaoSlug)) {
     redirect(APP_URL . '/boloes.php');
 }
 
-// Buscar dados do bolão
-$bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE id = ? AND status = 1", [$bolaoId]);
+// Buscar dados do bolão (pelo ID ou slug)
+if ($bolaoId > 0) {
+    $bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE id = ? AND status = 1", [$bolaoId]);
+} else {
+    $bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE slug = ? AND status = 1", [$bolaoSlug]);
+}
 
 // DEBUG: Mostrar ID do bolão
 // echo "ID do Bolão: " . ($bolao['id'] ?? 'não encontrado') . "<br>";
@@ -128,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'bolao_id' => $bolao['id'],
                     'palpites' => $palpitesForm
                 ];
-                $_SESSION['login_redirect'] = APP_URL . '/bolao.php?id=' . $bolao['id'];
+                $_SESSION['login_redirect'] = APP_URL . '/bolao.php?slug=' . $bolao['slug'];
                 setFlashMessage('info', 'Por favor, faça login para salvar seus palpites.');
                 redirect(APP_URL . '/login.php');
             } 
@@ -330,6 +335,7 @@ include TEMPLATE_DIR . '/header.php';
             
             <form method="post" action="<?= APP_URL ?>/salvar-palpite.php" id="formPalpites">
                 <input type="hidden" name="bolao_id" value="<?= $bolao['id'] ?>">
+                <input type="hidden" name="bolao_slug" value="<?= $bolao['slug'] ?>">
                 
                 <!-- Card de palpites aleatórios -->
                 <?php if (!$prazoEncerrado): ?>

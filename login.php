@@ -41,10 +41,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'ip_address' => $_SERVER['REMOTE_ADDR']
             ]);
             
-            // Redirecionar
-            $redirect = $_SESSION['login_redirect'] ?? APP_URL;
-            unset($_SESSION['login_redirect']);
-            redirect($redirect);
+            // Processar palpites temporários se existirem
+            if (isset($_SESSION['palpites_temp'])) {
+                // Se houver redirecionamento definido, usar ele
+                if (isset($_SESSION['login_redirect'])) {
+                    $redirect = $_SESSION['login_redirect'];
+                    unset($_SESSION['login_redirect']);
+                } else {
+                    // Se não houver redirecionamento definido, redirecionar para salvar-palpite.php
+                    $redirect = APP_URL . '/salvar-palpite.php';
+                }
+                
+                // Redirecionar para processar os palpites
+                redirect($redirect);
+            } else {
+                // Redirecionar normalmente
+                $redirect = $_SESSION['login_redirect'] ?? APP_URL;
+                unset($_SESSION['login_redirect']);
+                redirect($redirect);
+            }
             
         } else {
             // Registrar falha

@@ -17,6 +17,8 @@ $bolaoSlug = $_POST['bolao_slug'] ?? '';
 $bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE id = ? AND status = 1", [$bolaoId]);
 
 // Se bolão não existe ou não está ativo
+error_log("Debug: Bolao ID - " . $bolaoId);
+error_log("Debug: Bolao data - " . print_r($bolao, true));
 if (!$bolao) {
     setFlashMessage('danger', 'Bolão não encontrado ou não está ativo.');
     redirect(APP_URL . '/boloes.php');
@@ -41,6 +43,22 @@ if (!isLoggedIn()) {
     $_SESSION['login_redirect'] = APP_URL . '/bolao.php?slug=' . $bolaoSlug;
     setFlashMessage('info', 'Por favor, faça login para salvar seus palpites.');
     redirect(APP_URL . '/login.php');
+}
+
+// Se o usuário está logado e tem palpites temporários na sessão, usar eles
+if (isset($_SESSION['palpites_temp']) && is_array($_SESSION['palpites_temp'])) {
+    // Mesclar os dados temporários com o POST atual
+    $_POST = array_merge($_POST, $_SESSION['palpites_temp']);
+    
+    // Atualizar os dados do bolão se necessário
+    if (isset($_SESSION['palpites_temp']['bolao_id'])) {
+        $bolaoId = (int)$_SESSION['palpites_temp']['bolao_id'];
+        $bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE id = ? AND status = 1", [$bolaoId]);
+        $bolaoSlug = $bolao['slug'] ?? $bolaoSlug;
+    }
+    
+    // Limpar os palpites temporários da sessão
+    unset($_SESSION['palpites_temp']);
 }
 
 $usuarioId = getCurrentUserId();
@@ -80,10 +98,12 @@ try {
     ]);
 
     // Inserir resultados
+    error_log("Debug: POST data - " . print_r($_POST, true));
     $stmt = dbPrepare("INSERT INTO palpites_resultados (palpite_id, partida_id, resultado) VALUES (?, ?, ?)");
     
     // Verificar se a preparação da query foi bem-sucedida
     if ($stmt === false) {
+        error_log("Debug: Falha ao preparar query - " . print_r($pdo->errorInfo(), true));
         throw new Exception('Erro ao preparar query para inserção de resultados.');
     }
     
