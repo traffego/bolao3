@@ -80,6 +80,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $userId = dbInsert('jogador', $userData);
         
         if ($userId) {
+            // Create account in contas table
+            try {
+                $contaData = [
+                    'jogador_id' => $userId,
+                    'status' => 'ativo',
+                    'data_criacao' => date('Y-m-d H:i:s'),
+                    'data_atualizacao' => date('Y-m-d H:i:s')
+                ];
+                
+                $contaId = dbInsert('contas', $contaData);
+                
+                if (!$contaId) {
+                    error_log("Erro ao criar conta para usuário ID: $userId");
+                }
+            } catch (Exception $e) {
+                error_log("Erro ao criar conta para usuário ID $userId: " . $e->getMessage());
+            }
+            
             // Log the user in
             $_SESSION['user_id'] = $userId;
             $_SESSION['user_nome'] = $formData['nome'];

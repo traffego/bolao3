@@ -227,7 +227,21 @@ class EfiPixManager {
         $conta = $stmt->fetch();
 
         if (!$conta) {
-            throw new Exception('Conta do usuário não encontrada');
+            // Criar conta automaticamente se não existir
+            try {
+                $stmt = $this->pdo->prepare(
+                    "INSERT INTO contas (jogador_id, status, data_criacao, data_atualizacao) VALUES (?, 'ativo', NOW(), NOW())"
+                );
+                $stmt->execute([$user_id]);
+                
+                $contaId = $this->pdo->lastInsertId();
+                $conta = ['id' => $contaId];
+                
+                error_log("Conta criada automaticamente para usuário ID: $user_id, Conta ID: $contaId");
+            } catch (Exception $e) {
+                error_log("Erro ao criar conta automaticamente para usuário ID $user_id: " . $e->getMessage());
+                throw new Exception('Erro ao criar conta do usuário');
+            }
         }
 
         // Gerar novo TXID se não fornecido
