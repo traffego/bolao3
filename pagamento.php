@@ -88,16 +88,26 @@ try {
     }
     
     // Criar cobrança PIX
+    error_log("PAGAMENTO DEBUG - Iniciando criação de cobrança PIX");
     $charge = $efiPix->createCharge(getCurrentUserId(), $palpite['valor_participacao'], $transacao['txid'], 'Pagamento de Palpite - ' . $palpite['bolao_nome']);
+    error_log("PAGAMENTO DEBUG - Charge criado: " . json_encode($charge));
     
     // Gerar QR Code
     if (isset($charge['loc']['id'])) {
+        error_log("PAGAMENTO DEBUG - Gerando QR Code para loc_id: " . $charge['loc']['id']);
         $qrCodeData = $efiPix->getQrCode($charge['loc']['id']);
-        $qrcode = $qrCodeData['imagemQrcode'];
-        $copiaCola = $qrCodeData['qrcode'];
+        error_log("PAGAMENTO DEBUG - QR Code data: " . json_encode($qrCodeData));
+        $qrcode = $qrCodeData['imagemQrcode'] ?? null;
+        $copiaCola = $qrCodeData['qrcode'] ?? null;
+        error_log("PAGAMENTO DEBUG - QR Code definido: " . ($qrcode ? 'SIM' : 'NÃO'));
+        error_log("PAGAMENTO DEBUG - Copia e cola definido: " . ($copiaCola ? 'SIM' : 'NÃO'));
+    } else {
+        error_log("PAGAMENTO ERROR - Charge não contém loc.id: " . json_encode($charge));
     }
 } catch (Exception $e) {
     $error = $e->getMessage();
+    error_log("PAGAMENTO ERROR - Exceção capturada: " . $error);
+    error_log("PAGAMENTO ERROR - Stack trace: " . $e->getTraceAsString());
 }
 
 // Verificar pagamento via AJAX

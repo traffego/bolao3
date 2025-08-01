@@ -217,6 +217,8 @@ class EfiPixManager {
     }
 
     public function createCharge($user_id, $valor, $referencia = null, $descricao = null) {
+        error_log("EFIPIX DEBUG - Iniciando createCharge para user_id: $user_id, valor: $valor");
+        
         // Validar user_id
         if (!$user_id || !is_numeric($user_id) || $user_id <= 0) {
             error_log("EFIPIX ERROR - user_id inválido: " . ($user_id ?? 'NULL'));
@@ -224,13 +226,16 @@ class EfiPixManager {
         }
         
         if (!is_numeric($valor) || $valor <= 0) {
+            error_log("EFIPIX ERROR - valor inválido: $valor");
             throw new Exception('Valor inválido');
         }
 
         // Buscar conta do usuário
+        error_log("EFIPIX DEBUG - Buscando conta para user_id: $user_id");
         $stmt = $this->pdo->prepare("SELECT id FROM contas WHERE jogador_id = ?");
         $stmt->execute([$user_id]);
         $conta = $stmt->fetch();
+        error_log("EFIPIX DEBUG - Conta encontrada: " . json_encode($conta));
 
         if (!$conta) {
             // Verificar se o usuário existe antes de criar a conta
@@ -245,7 +250,7 @@ class EfiPixManager {
             
             // Criar conta automaticamente se não existir
             try {
-                error_log("Criando conta para usuário ID: $user_id");
+                error_log("EFIPIX DEBUG - Criando conta para usuário ID: $user_id");
                 
                 $stmt = $this->pdo->prepare(
                     "INSERT INTO contas (jogador_id, status) VALUES (?, 'ativo')"
@@ -254,26 +259,26 @@ class EfiPixManager {
                 
                 if (!$result) {
                     $errorInfo = $stmt->errorInfo();
-                    error_log("Erro SQL ao criar conta: " . json_encode($errorInfo));
+                    error_log("EFIPIX ERROR - Erro SQL ao criar conta: " . json_encode($errorInfo));
                     throw new Exception('Falha na execução do SQL');
                 }
                 
                 $contaId = $this->pdo->lastInsertId();
                 
                 if (!$contaId) {
-                    error_log("LastInsertId retornou 0 para usuário ID: $user_id");
+                    error_log("EFIPIX ERROR - LastInsertId retornou 0 para usuário ID: $user_id");
                     throw new Exception('Falha ao obter ID da conta criada');
                 }
                 
                 $conta = ['id' => $contaId];
                 
-                error_log("Conta criada com sucesso - Usuário ID: $user_id, Conta ID: $contaId");
+                error_log("EFIPIX DEBUG - Conta criada com sucesso - Usuário ID: $user_id, Conta ID: $contaId");
             } catch (PDOException $e) {
-                error_log("Erro PDO ao criar conta para usuário ID $user_id: " . $e->getMessage());
-                error_log("Código do erro: " . $e->getCode());
+                error_log("EFIPIX ERROR - Erro PDO ao criar conta para usuário ID $user_id: " . $e->getMessage());
+                error_log("EFIPIX ERROR - Código do erro: " . $e->getCode());
                 throw new Exception('Erro na base de dados ao criar conta');
             } catch (Exception $e) {
-                error_log("Erro geral ao criar conta para usuário ID $user_id: " . $e->getMessage());
+                error_log("EFIPIX ERROR - Erro geral ao criar conta para usuário ID $user_id: " . $e->getMessage());
                 throw new Exception('Erro ao criar conta do usuário: ' . $e->getMessage());
             }
         }
@@ -286,9 +291,13 @@ class EfiPixManager {
         $txid = $prefix . $userId . $timestamp . $random;
         $txid = substr($txid, 0, 35); // Garantir máximo de 35 caracteres
 
+        error_log("EFIPIX DEBUG - Gerando TXID: $txid para user_id: $user_id");
+        
         // Usar descrição fornecida ou padrão
         $descricao = $descricao ?: "Depósito #{$referencia}";
 
+        error_log("EFIPIX DEBUG - Criando cobrança para TXID: $txid, valor: $valor");
+        
         try {
             $curl = curl_init();
             
@@ -303,7 +312,11 @@ class EfiPixManager {
                 'solicitacaoPagador' => $descricao
             ];
 
-            error_log("Dados enviados para API: " . json_encode($data));
+            error_log("EFIPIX DEBUG - Dados enviados para API: " . json_encode($data));
+            error_log("EFIPIX DEBUG - URL da API: " . EFI_API_URL . '/v2/cob/' . $txid);
+            error_log("EFIPIX DEBUG - Access Token: " . (empty($this->access_token) ? 'VAZIO' : 'CONFIGURADO'));
+            error_log("EFIPIX DEBUG - Certificado Path: " . EFI_CERTIFICATE_PATH);
+            error_log("EFIPIX DEBUG - Certificado existe: " . (file_exists(EFI_CERTIFICATE_PATH) ? 'SIM' : 'NÃO'));
 
             curl_setopt_array($curl, [
                 CURLOPT_URL => EFI_API_URL . '/v2/cob/' . $txid,
@@ -327,34 +340,47 @@ class EfiPixManager {
             $err = curl_error($curl);
             curl_close($curl);
 
-            error_log("Resposta da API (HTTP $httpCode): " . $response);
+            error_log("EFIPIX DEBUG - Resposta da API (HTTP $httpCode): " . $response);
+            error_log("EFIPIX DEBUG - Erro cURL: " . ($err ? $err : 'NENHUM'));
 
             if ($err) {
+                error_log("EFIPIX ERROR - Erro cURL ao criar cobrança: $err");
                 throw new Exception('Erro ao criar cobrança: ' . $err);
             }
 
             if ($httpCode !== 200 && $httpCode !== 201) {
+                error_log("EFIPIX ERROR - HTTP Code inválido ao criar cobrança: $httpCode");
                 throw new Exception('Erro ao criar cobrança. HTTP Code: ' . $httpCode . '. Resposta: ' . $response);
             }
 
             $responseData = json_decode($response, true);
+            error_log("EFIPIX DEBUG - Response data: " . json_encode($responseData));
+            
             if (isset($responseData['nome']) && $responseData['nome'] === 'txid_duplicado') {
+                error_log("EFIPIX DEBUG - TXID duplicado, tentando novamente");
                 // Se o TXID estiver duplicado, tentar novamente
                 return $this->createCharge($user_id, $valor, $referencia, $descricao);
             }
 
+            // Verificar se a resposta contém os dados necessários
+            if (!isset($responseData['loc']['id'])) {
+                error_log("EFIPIX ERROR - Resposta inválida da API - loc.id não encontrado");
+                throw new Exception('Resposta inválida da API ao criar cobrança');
+            }
+
             // Gerar QR Code
             $locationId = $responseData['loc']['id'];
+            error_log("EFIPIX DEBUG - Gerando QR Code para locationId: $locationId");
             $qrCode = $this->getQrCode($locationId);
             
-            error_log("QR Code gerado: " . json_encode($qrCode));
+            error_log("EFIPIX DEBUG - QR Code gerado: " . json_encode($qrCode));
             
             return [
                 'txid' => $txid,
                 'status' => $responseData['status'],
                 'valor' => $responseData['valor']['original'],
-                'qrcode' => $qrCode['imagemQrcode'],
-                'qrcode_texto' => $qrCode['qrcode'],
+                'qrcode' => $qrCode['imagemQrcode'] ?? null,
+                'qrcode_texto' => $qrCode['qrcode'] ?? null,
                 'calendario' => $responseData['calendario']
             ];
 
@@ -365,6 +391,12 @@ class EfiPixManager {
     }
 
     public function getQrCode($location_id) {
+        error_log("EFIPIX DEBUG - Iniciando getQrCode para location_id: $location_id");
+        error_log("EFIPIX DEBUG - URL da API: " . EFI_API_URL . '/v2/loc/' . $location_id . '/qrcode');
+        error_log("EFIPIX DEBUG - Access Token: " . (empty($this->access_token) ? 'VAZIO' : 'CONFIGURADO'));
+        error_log("EFIPIX DEBUG - Certificado Path: " . EFI_CERTIFICATE_PATH);
+        error_log("EFIPIX DEBUG - Certificado existe: " . (file_exists(EFI_CERTIFICATE_PATH) ? 'SIM' : 'NÃO'));
+        
         $curl = curl_init();
         
         curl_setopt_array($curl, [
@@ -387,18 +419,24 @@ class EfiPixManager {
         $err = curl_error($curl);
         curl_close($curl);
 
-        error_log("Resposta getQrCode (HTTP $httpCode): " . $response);
+        error_log("EFIPIX DEBUG - Resposta getQrCode (HTTP $httpCode): " . $response);
+        error_log("EFIPIX DEBUG - Erro cURL getQrCode: " . ($err ? $err : 'NENHUM'));
 
         if ($err) {
+            error_log("EFIPIX ERROR - Erro cURL ao gerar QR Code: $err");
             throw new Exception('Erro ao gerar QR Code: ' . $err);
         }
 
         if ($httpCode !== 200) {
+            error_log("EFIPIX ERROR - HTTP Code inválido ao gerar QR Code: $httpCode");
             throw new Exception('Erro ao gerar QR Code. HTTP Code: ' . $httpCode . '. Resposta: ' . $response);
         }
 
         $qrCodeData = json_decode($response, true);
+        error_log("EFIPIX DEBUG - QR Code data decodificado: " . json_encode($qrCodeData));
+        
         if (!isset($qrCodeData['qrcode'])) {
+            error_log("EFIPIX ERROR - Resposta inválida ao gerar QR Code - campo qrcode não encontrado");
             throw new Exception('Resposta inválida ao gerar QR Code');
         }
 
