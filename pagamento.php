@@ -10,6 +10,17 @@ if (!isLoggedIn()) {
     redirect(APP_URL . '/login.php');
 }
 
+// Debug: verificar dados da sessão
+$currentUserId = getCurrentUserId();
+error_log("PAGAMENTO DEBUG - User ID: " . ($currentUserId ?? 'NULL'));
+error_log("PAGAMENTO DEBUG - Session data: " . json_encode($_SESSION));
+
+if (!$currentUserId) {
+    error_log("PAGAMENTO ERROR - getCurrentUserId() retornou null ou vazio");
+    setFlashMessage('danger', 'Erro na sessão do usuário. Por favor, faça login novamente.');
+    redirect(APP_URL . '/login.php');
+}
+
 // Verificar se tem palpite pendente na sessão
 if (!isset($_SESSION['palpite_pendente'])) {
     redirect(APP_URL . '/meus-palpites.php');

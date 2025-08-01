@@ -217,6 +217,12 @@ class EfiPixManager {
     }
 
     public function createCharge($user_id, $valor, $referencia = null, $descricao = null) {
+        // Validar user_id
+        if (!$user_id || !is_numeric($user_id) || $user_id <= 0) {
+            error_log("EFIPIX ERROR - user_id inválido: " . ($user_id ?? 'NULL'));
+            throw new Exception('ID do usuário inválido');
+        }
+        
         if (!is_numeric($valor) || $valor <= 0) {
             throw new Exception('Valor inválido');
         }
