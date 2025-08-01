@@ -152,7 +152,7 @@ require_once __DIR__ . '/templates/header.php';
                             <div class="mt-3">
                                 <p class="mb-2">Ou copie o código PIX:</p>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" value="<?php echo htmlspecialchars($copiaCola); ?>" id="pixCode" readonly>
+                                    <input type="text" class="form-control" value="<?php echo htmlspecialchars($copiaCola ?? ''); ?>" id="pixCode" readonly>
                                     <button class="btn btn-outline-primary copy-button" type="button" onclick="copyPixCode()">
                                         <i class="fas fa-copy me-2"></i>Copiar
                                     </button>
