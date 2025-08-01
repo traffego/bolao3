@@ -37,17 +37,26 @@ if (!$bolao) {
     redirect(APP_URL . '/admin/boloes.php');
 }
 
-// Get jogos do bolão
-$jogos = dbFetchAll(
-    "SELECT j.*, 
-            r.gols_casa, r.gols_visitante, r.status as resultado_status,
-            (SELECT COUNT(*) FROM palpites WHERE jogo_id = j.id) as total_palpites
-     FROM jogos j
-     LEFT JOIN resultados r ON r.jogo_id = j.id
-     WHERE j.bolao_id = ?
-     ORDER BY j.data_hora ASC", 
-    [$bolaoId]
-);
+// Get jogos do bolão from JSON
+$jogos = json_decode($bolao['jogos'], true) ?? [];
+
+// Sort jogos by date
+usort($jogos, function($a, $b) {
+    return strtotime($a['data_hora']) - strtotime($b['data_hora']);
+});
+
+// Add palpites count for each jogo
+foreach ($jogos as &$jogo) {
+    // Count palpites for this specific game in all palpites JSON
+    $palpitesCount = dbFetchOne(
+        "SELECT COUNT(*) as total FROM palpites 
+         WHERE bolao_id = ? AND status = 'pago' 
+         AND (JSON_EXTRACT(palpites, CONCAT('$.', ?)) IS NOT NULL 
+              OR JSON_EXTRACT(palpites, CONCAT('$.resultado_', ?)) IS NOT NULL)",
+        [$bolaoId, $jogo['id'], $jogo['id']]
+    );
+    $jogo['total_palpites'] = $palpitesCount['total'] ?? 0;
+}
 
 // Get jogadores participantes
 $jogadores = dbFetchAll(

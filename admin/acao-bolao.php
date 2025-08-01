@@ -119,21 +119,12 @@ switch ($action) {
         dbBeginTransaction();
         
         try {
-            // Delete jogos and resultados
-            $jogos = dbFetchAll("SELECT id FROM jogos WHERE bolao_id = ?", [$bolaoId]);
-            
-            foreach ($jogos as $jogo) {
-                dbDelete('resultados', 'jogo_id = ?', [$jogo['id']]);
-            }
-            
-            dbDelete('jogos', 'bolao_id = ?', [$bolaoId]);
-            
-            // Delete participacoes and rankings
+            // Delete participacoes and rankings (jogos are stored as JSON, no need to delete separately)
             dbDelete('participacoes', 'bolao_id = ?', [$bolaoId]);
             dbDelete('rankings', 'bolao_id = ?', [$bolaoId]);
             
-            // Delete bolão
-            $bolaoDeleted = dbDelete('boloes', 'id = ?', [$bolaoId]);
+            // Delete bolão from dados_boloes
+            $bolaoDeleted = dbDelete('dados_boloes', 'id = ?', [$bolaoId]);
             
             // Commit transaction
             dbCommit();
@@ -152,41 +143,65 @@ switch ($action) {
         break;
         
     case 'calculate_points':
-        // Calculate points for all palpites in the bolão
-        $jogos = dbFetchAll(
-            "SELECT j.id, r.gols_casa, r.gols_visitante 
-             FROM jogos j
-             JOIN resultados r ON r.jogo_id = j.id
-             WHERE j.bolao_id = ? AND j.status = 'finalizado'", 
-            [$bolaoId]
-        );
+        // Calculate points for all palpites in the bolão using JSON data
+        $jogosJson = json_decode($bolao['jogos'], true) ?? [];
+        
+        // Filter only finalized games with results
+        $jogosFinalizados = array_filter($jogosJson, function($jogo) {
+            return $jogo['status'] === 'FT' && 
+                   isset($jogo['resultado_casa']) && 
+                   isset($jogo['resultado_visitante']) &&
+                   $jogo['resultado_casa'] !== null &&
+                   $jogo['resultado_visitante'] !== null;
+        });
         
         $updated = 0;
         
-        foreach ($jogos as $jogo) {
-            // Get all palpites for this game
+        foreach ($jogosFinalizados as $jogo) {
+            // Get all palpites for this bolão
             $palpites = dbFetchAll(
-                "SELECT id, gols_casa, gols_visitante 
-                 FROM palpites 
-                 WHERE jogo_id = ?", 
-                [$jogo['id']]
+                "SELECT id, palpites FROM palpites WHERE bolao_id = ? AND status = 'pago'", 
+                [$bolaoId]
             );
             
-            foreach ($palpites as $palpite) {
-                // Calculate points
-                $points = calculatePoints(
-                    $palpite['gols_casa'], 
-                    $palpite['gols_visitante'], 
-                    $jogo['gols_casa'], 
-                    $jogo['gols_visitante']
-                );
+            foreach ($palpites as $palpiteRow) {
+                $palpitesData = json_decode($palpiteRow['palpites'], true) ?? [];
+                $pontosTotais = 0;
+                $palpitesAtualizados = [];
                 
-                // Update palpite
+                // Process each palpite in the JSON
+                foreach ($palpitesData as $palpiteKey => $palpiteValue) {
+                    // Remove 'resultado_' prefix if present
+                    $jogoId = str_replace('resultado_', '', $palpiteKey);
+                    
+                    // Check if this palpite is for the current game
+                    if ($jogoId == $jogo['id']) {
+                        // Parse palpite (format: "2x1")
+                        if (preg_match('/^(\d+)x(\d+)$/', $palpiteValue, $matches)) {
+                            $palpiteCasa = (int)$matches[1];
+                            $palpiteVisitante = (int)$matches[2];
+                            
+                            // Calculate points (you'll need to implement this function)
+                            $pontos = calculateMatchPoints(
+                                $palpiteCasa,
+                                $palpiteVisitante,
+                                (int)$jogo['resultado_casa'],
+                                (int)$jogo['resultado_visitante']
+                            );
+                            
+                            $pontosTotais += $pontos;
+                            $palpitesAtualizados[$palpiteKey] = $palpiteValue;
+                        }
+                    } else {
+                        $palpitesAtualizados[$palpiteKey] = $palpiteValue;
+                    }
+                }
+                
+                // Update palpite with calculated points
                 $result = dbUpdate(
-                    'palpites', 
-                    ['pontos' => $points], 
-                    'id = ?', 
-                    [$palpite['id']]
+                    'palpites',
+                    ['palpites' => json_encode($palpitesAtualizados, JSON_UNESCAPED_UNICODE)],
+                    ['id' => $palpiteRow['id']]
                 );
                 
                 if ($result) {
@@ -194,9 +209,6 @@ switch ($action) {
                 }
             }
         }
-        
-        // Update rankings
-        updateRanking($bolaoId);
         
         setFlashMessage('success', "Pontuação calculada com sucesso! $updated palpites atualizados.");
         break;

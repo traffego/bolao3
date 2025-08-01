@@ -46,31 +46,57 @@ if (!$participacao) {
     redirect(APP_URL . '/admin/bolao.php?id=' . $bolaoId);
 }
 
-// Get jogador's palpites with game and result information
-$palpites = dbFetchAll(
-    "SELECT p.*, 
-            j.time_casa, j.time_visitante, j.data_hora, j.local, j.status as jogo_status,
-            r.gols_casa as resultado_casa, r.gols_visitante as resultado_visitante, r.status as resultado_status
-     FROM palpites p
-     JOIN jogos j ON j.id = p.jogo_id
-     LEFT JOIN resultados r ON r.jogo_id = j.id
-     WHERE p.jogador_id = ? AND p.bolao_id = ?
-     ORDER BY j.data_hora ASC", 
+// Get jogador's palpites
+$palpitesRow = dbFetchOne(
+    "SELECT palpites FROM palpites WHERE jogador_id = ? AND bolao_id = ? AND status = 'pago'", 
     [$jogadorId, $bolaoId]
 );
 
-// Get total points for this jogador in this bolão
-$totalPoints = dbFetchOne(
-    "SELECT SUM(pontos) as total FROM palpites WHERE jogador_id = ? AND bolao_id = ?",
-    [$jogadorId, $bolaoId]
-);
-$pontuacaoTotal = $totalPoints ? $totalPoints['total'] : 0;
+$palpitesData = [];
+if ($palpitesRow) {
+    $palpitesJson = json_decode($palpitesRow['palpites'], true) ?? [];
+    
+    // Get jogos from bolão JSON
+    $jogosJson = json_decode($bolao['jogos'], true) ?? [];
+    
+    // Create lookup for jogos
+    $jogosLookup = [];
+    foreach ($jogosJson as $jogo) {
+        $jogosLookup[$jogo['id']] = $jogo;
+    }
+    
+    // Process palpites and match with jogos
+    foreach ($palpitesJson as $palpiteKey => $palpiteValue) {
+        // Remove 'resultado_' prefix if present
+        $jogoId = str_replace('resultado_', '', $palpiteKey);
+        
+        if (isset($jogosLookup[$jogoId])) {
+            $jogo = $jogosLookup[$jogoId];
+            
+            $palpitesData[] = [
+                'jogo_id' => $jogoId,
+                'palpite' => $palpiteValue,
+                'time_casa' => $jogo['time_casa'],
+                'time_visitante' => $jogo['time_visitante'],
+                'data_hora' => $jogo['data_hora'],
+                'local' => $jogo['local'] ?? '',
+                'jogo_status' => $jogo['status'],
+                'resultado_casa' => $jogo['resultado_casa'] ?? null,
+                'resultado_visitante' => $jogo['resultado_visitante'] ?? null,
+                'pontos' => 0 // Will be calculated if needed
+            ];
+        }
+    }
+    
+    // Sort by date
+    usort($palpitesData, function($a, $b) {
+        return strtotime($a['data_hora']) - strtotime($b['data_hora']);
+    });
+}
 
-// Get jogador's ranking position
-$ranking = dbFetchOne(
-    "SELECT * FROM ranking WHERE jogador_id = ? AND bolao_id = ?",
-    [$jogadorId, $bolaoId]
-);
+$palpites = $palpitesData;
+$pontuacaoTotal = 0; // Points calculation would need to be implemented
+$ranking = null; // Ranking would need to be calculated from JSON data
 
 // Page title
 $pageTitle = 'Palpites de ' . $jogador['nome'];

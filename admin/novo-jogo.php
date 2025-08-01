@@ -85,21 +85,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    // If no errors, insert the game
+    // If no errors, add the game to JSON
     if (empty($errors)) {
-        $data = [
-            'bolao_id' => $bolaoId,
+        // Get current jogos JSON
+        $jogosJson = json_decode($bolao['jogos'], true) ?? [];
+        
+        // Generate unique ID for the new game
+        $maxId = 0;
+        foreach ($jogosJson as $existingJogo) {
+            if (isset($existingJogo['id']) && $existingJogo['id'] > $maxId) {
+                $maxId = $existingJogo['id'];
+            }
+        }
+        $newId = $maxId + 1;
+        
+        // Create new game data
+        $novoJogo = [
+            'id' => $newId,
             'time_casa' => $jogo['time_casa'],
             'time_visitante' => $jogo['time_visitante'],
             'data_hora' => $jogo['data_hora'],
             'local' => $jogo['local'],
-            'status' => $jogo['status'],
-            'peso' => $jogo['peso']
+            'status' => $jogo['status'] === 'agendado' ? 'NS' : $jogo['status'], // Convert to API format
+            'peso' => $jogo['peso'],
+            'campeonato_id' => null,
+            'campeonato' => 'Manual',
+            'rodada' => null,
+            'resultado_casa' => null,
+            'resultado_visitante' => null
         ];
         
-        $jogoId = dbInsert('jogos', $data);
+        // Add to jogos array
+        $jogosJson[] = $novoJogo;
         
-        if ($jogoId) {
+        // Update bolao with new jogos JSON
+        $success = dbUpdate('dados_boloes', 
+            ['jogos' => json_encode($jogosJson, JSON_UNESCAPED_UNICODE)], 
+            ['id' => $bolaoId]
+        );
+        
+        if ($success) {
             setFlashMessage('success', 'Jogo adicionado com sucesso!');
             redirect(APP_URL . '/admin/jogos-bolao.php?bolao_id=' . $bolaoId);
         } else {

@@ -89,33 +89,23 @@ if ($bolao['valor_participacao'] > 0) {
 dbBeginTransaction();
 
 try {
-    // Inserir palpites
+    // Preparar dados dos palpites
+    $palpitesForm = [];
+    foreach ($_POST as $key => $value) {
+        if (strpos($key, 'resultado_') === 0) {
+            $jogoId = substr($key, strlen('resultado_'));
+            $palpitesForm[$jogoId] = $value;
+        }
+    }
+    
+    // Inserir palpites como JSON
     $palpiteId = dbInsert('palpites', [
         'jogador_id' => $usuarioId,
         'bolao_id' => $bolaoId,
+        'palpites' => json_encode($palpitesForm),
         'status' => $statusPagamento,
         'data_palpite' => date('Y-m-d H:i:s')
     ]);
-
-    // Inserir resultados
-    error_log("Debug: POST data - " . print_r($_POST, true));
-    $stmt = dbPrepare("INSERT INTO palpites_resultados (palpite_id, partida_id, resultado) VALUES (?, ?, ?)");
-    
-    // Verificar se a preparação da query foi bem-sucedida
-    if ($stmt === false) {
-        error_log("Debug: Falha ao preparar query - " . print_r($pdo->errorInfo(), true));
-        throw new Exception('Erro ao preparar query para inserção de resultados.');
-    }
-    
-    foreach ($_POST as $key => $value) {
-        if (strpos($key, 'resultado_') === 0) {
-            $partidaId = substr($key, strlen('resultado_'));
-            // Verificar se execute foi bem-sucedido
-            if (!$stmt->execute([$palpiteId, $partidaId, $value])) {
-                throw new Exception('Erro ao inserir resultado para a partida ' . $partidaId);
-            }
-        }
-    }
 
     // Processar pagamento conforme modelo
     if ($bolao['valor_participacao'] > 0) {
