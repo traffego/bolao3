@@ -7,10 +7,26 @@ require_once '../includes/functions.php';
 $payload = file_get_contents('php://input');
 $data = json_decode($payload, true);
 
-// Verificar se é um payload válido
-if (!$data || !isset($data['txid'])) {
+// Verificar se é um payload válido e extrair txid
+$txid = null;
+if ($data) {
+    // Tentar diferentes formatos de txid que o provedor EFI pode enviar
+    if (isset($data['txid'])) {
+        $txid = $data['txid'];
+    } elseif (isset($data['endToEndId'])) {
+        $txid = $data['endToEndId'];
+    } elseif (isset($data['pix']['txid'])) {
+        $txid = $data['pix']['txid'];
+    } elseif (isset($data['pix']['endToEndId'])) {
+        $txid = $data['pix']['endToEndId'];
+    } elseif (isset($data['cobranca']['txid'])) {
+        $txid = $data['cobranca']['txid'];
+    }
+}
+
+if (!$txid) {
     http_response_code(400);
-    die('Invalid payload');
+    die('Invalid payload - txid not found');
 }
 
 // Log do webhook (para debug)
@@ -30,11 +46,11 @@ try {
         LEFT JOIN palpites p ON t.palpite_id = p.id
         WHERE t.txid = ?
     ");
-    $stmt->execute([$data['txid']]);
+    $stmt->execute([$txid]);
     $transacao = $stmt->fetch();
     
     if (!$transacao) {
-        throw new Exception('Transação não encontrada para TXID: ' . $data['txid']);
+        throw new Exception('Transação não encontrada para TXID: ' . $txid);
     }
 
     // Verificar se o pagamento já foi processado
@@ -53,7 +69,7 @@ try {
             afeta_saldo = 1
         WHERE txid = ?
     ");
-    $stmt->execute([$data['txid']]);
+    $stmt->execute([$txid]);
 
     // Se houver palpite associado, atualizar seu status
     if ($transacao['palpite_id']) {
