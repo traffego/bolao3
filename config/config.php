@@ -15,6 +15,7 @@ require_once __DIR__ . '/database.php';
 // Application Configuration
 define('APP_NAME', 'Bolão Vitimba');
 define('APP_URL', 'https://bolao.traffego.agency');
+// define('APP_URL', 'http://localhost/bolao3');
 define('APP_VERSION', '1.0.0');
 
 // Webhook Configuration - Dynamic based on APP_URL

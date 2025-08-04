@@ -21,8 +21,7 @@ try {
     }
 
     // Calcular saldo atual
-    $saldoInfo = verificarSaldoJogador($jogadorId);
-    $saldoAtual = $saldoInfo['saldo_atual'];
+    $saldoAtual = $contaManager->getSaldo($conta['id']);
 
     // Buscar transações com mais detalhes
     $sql = "

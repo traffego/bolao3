@@ -44,45 +44,15 @@ try {
         exit;
     }
 
-    // Calcular saldo atual se a transação afeta saldo
-    if ($transacao['afeta_saldo']) {
-        $stmt = $pdo->prepare("
-            SELECT COALESCE(SUM(CASE 
-                WHEN tipo IN ('deposito', 'premio', 'bonus') THEN valor 
-                WHEN tipo IN ('saque', 'aposta') THEN -valor 
-            END), 0) as saldo_atual
-            FROM transacoes 
-            WHERE conta_id = ? 
-            AND status = 'aprovado' 
-            AND afeta_saldo = TRUE
-        ");
-        $stmt->execute([$transacao['conta_id']]);
-        $saldoAtual = $stmt->fetch()['saldo_atual'];
-
-        // Atualizar transação com os saldos
-        $stmt = $pdo->prepare("
-            UPDATE transacoes 
-            SET status = 'aprovado',
-                saldo_anterior = ?,
-                saldo_posterior = ?,
-                data_processamento = NOW()
-            WHERE txid = ?
-        ");
-        $stmt->execute([
-            $saldoAtual,
-            $saldoAtual + $transacao['valor'],
-            $data['txid']
-        ]);
-    } else {
-        // Se não afeta saldo, apenas atualizar status
-        $stmt = $pdo->prepare("
-            UPDATE transacoes 
-            SET status = 'aprovado',
-                data_processamento = NOW()
-            WHERE txid = ?
-        ");
-        $stmt->execute([$data['txid']]);
-    }
+    // Apenas atualiza o status da transação para 'aprovado'
+    // O saldo é calculado dinamicamente pela classe ContaManager para garantir consistência.
+    $stmt = $pdo->prepare("
+        UPDATE transacoes 
+        SET status = 'aprovado',
+            data_processamento = NOW()
+        WHERE txid = ?
+    ");
+    $stmt->execute([$data['txid']]);
 
     // Se houver palpite associado, atualizar seu status
     if ($transacao['palpite_id']) {

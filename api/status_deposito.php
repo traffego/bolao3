@@ -46,9 +46,11 @@ try {
             // Consulta status da cobrança
             $statusPix = $efiPix->checkPayment($transacao['txid']);
             
-            // Se pagamento foi confirmado
+            // Se pagamento foi confirmado, atualiza o status no banco de dados
             if ($statusPix['status'] === 'aprovado') {
-                $transacao['status'] = 'aprovado';
+                $updateSql = "UPDATE transacoes SET status = 'aprovado', data_processamento = NOW() WHERE id = ?";
+                dbExecute($updateSql, [$transacaoId]);
+                $transacao['status'] = 'aprovado'; // Atualiza a variável local para retorno imediato
             }
         } catch (Exception $e) {
             error_log("Erro ao verificar status no EfiPix: " . $e->getMessage());
