@@ -44,12 +44,13 @@ try {
         exit;
     }
 
-    // Apenas atualiza o status da transação para 'aprovado'
-    // O saldo é calculado dinamicamente pela classe ContaManager para garantir consistência.
+    // Atualiza o status da transação para 'aprovado' e define afeta_saldo = 1
+    // O campo afeta_saldo é obrigatório para transações aprovadas devido à constraint do banco
     $stmt = $pdo->prepare("
         UPDATE transacoes 
         SET status = 'aprovado',
-            data_processamento = NOW()
+            data_processamento = NOW(),
+            afeta_saldo = 1
         WHERE txid = ?
     ");
     $stmt->execute([$data['txid']]);

@@ -48,7 +48,7 @@ try {
             
             // Se pagamento foi confirmado, atualiza o status no banco de dados
             if ($statusPix['status'] === 'aprovado') {
-                $updateSql = "UPDATE transacoes SET status = 'aprovado', data_processamento = NOW() WHERE id = ?";
+                $updateSql = "UPDATE transacoes SET status = 'aprovado', data_processamento = NOW(), afeta_saldo = 1 WHERE id = ?";
                 dbExecute($updateSql, [$transacaoId]);
                 $transacao['status'] = 'aprovado'; // Atualiza a variável local para retorno imediato
             }
