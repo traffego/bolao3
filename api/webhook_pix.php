@@ -8,25 +8,22 @@ $payload = file_get_contents('php://input');
 $data = json_decode($payload, true);
 
 // Verificar se é um payload válido e extrair txid
+// Formato oficial da EFI Pay: { "pix": [{ "txid": "...", "endToEndId": "...", ... }] }
 $txid = null;
-if ($data) {
-    // Tentar diferentes formatos de txid que o provedor EFI pode enviar
-    if (isset($data['txid'])) {
-        $txid = $data['txid'];
-    } elseif (isset($data['endToEndId'])) {
-        $txid = $data['endToEndId'];
-    } elseif (isset($data['pix']['txid'])) {
-        $txid = $data['pix']['txid'];
-    } elseif (isset($data['pix']['endToEndId'])) {
-        $txid = $data['pix']['endToEndId'];
-    } elseif (isset($data['cobranca']['txid'])) {
-        $txid = $data['cobranca']['txid'];
+if ($data && isset($data['pix']) && is_array($data['pix']) && count($data['pix']) > 0) {
+    $pixData = $data['pix'][0]; // Primeiro PIX do array
+    
+    // Buscar txid no formato oficial da EFI Pay
+    if (isset($pixData['txid'])) {
+        $txid = $pixData['txid'];
+    } elseif (isset($pixData['endToEndId'])) {
+        $txid = $pixData['endToEndId'];
     }
 }
 
 if (!$txid) {
     http_response_code(400);
-    die('Invalid payload - txid not found');
+    die('Invalid payload - txid not found in pix array');
 }
 
 // Log do webhook (para debug)
