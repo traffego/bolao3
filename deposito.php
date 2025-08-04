@@ -266,8 +266,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function iniciarVerificacaoStatus() {
         if (intervalId) return;
         
-        // Define o intervalo baseado no ambiente
-        const intervalo = data.ambiente_local ? 3000 : 5000; // 3 segundos em local, 5 em produção
+        // Define o intervalo para verificação de status (5 segundos)
+        const intervalo = 5000;
         
         intervalId = setInterval(async () => {
             try {
