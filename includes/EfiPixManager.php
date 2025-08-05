@@ -551,7 +551,7 @@ class EfiPixManager {
             'grant_type' => 'client_credentials'
         ];
         
-        $url = EFI_API_URL . '/v1/authorize';
+        $url = EFI_API_URL . '/oauth/token';
         
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
