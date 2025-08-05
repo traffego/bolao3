@@ -155,7 +155,7 @@ try {
     }
 
     // Verificar status na API do EFIBANK
-    $efiPix = new EfiPixManager();
+    $efiPix = new EfiPixManager(defined('EFI_WEBHOOK_FATAL_FAILURE') ? EFI_WEBHOOK_FATAL_FAILURE : false);
     $paymentStatus = $efiPix->checkPayment($user['txid_pagamento']);
     error_log("Status do pagamento EFIBANK: " . print_r($paymentStatus, true));
 

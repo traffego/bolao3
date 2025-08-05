@@ -7,6 +7,29 @@ class EfiPixManager {
     private $access_token;
     private $client;
     private $pdo;
+    private $logger;
+    private $token_cache_file;
+    private $token_cache_duration = 3600; // 1 hora
+    private $webhook_failure_fatal; // Flag para controlar se falhas de webhook devem ser fatais
+
+    /**
+     * Define se falhas no registro de webhook devem ser fatais
+     * @param bool $fatal True se falhas devem interromper a execução, false para apenas logar
+     */
+    public function setWebhookFailureFatal($fatal = false) {
+        $this->webhook_failure_fatal = (bool) $fatal;
+        $this->logger->info("Configuração de webhook failure fatal alterada", [
+            'webhook_failure_fatal' => $this->webhook_failure_fatal
+        ]);
+    }
+
+    /**
+     * Retorna se falhas no registro de webhook são fatais
+     * @return bool
+     */
+    public function isWebhookFailureFatal() {
+        return $this->webhook_failure_fatal;
+    }
 
     private function validateCertificate() {
         if (!file_exists(EFI_CERTIFICATE_PATH)) {
@@ -31,23 +54,504 @@ class EfiPixManager {
         return true;
     }
 
-    public function registerWebhook() {
+    /**
+     * Testa conectividade com a API EFI
+     * @return array Status da conectividade
+     */
+    public function testConnectivity() {
+        try {
+            $this->logger->info('Iniciando teste de conectividade EFI');
+            
+            // Verificar certificado
+            $this->validateCertificate();
+            
+            // Tentar autenticar
+            $this->authenticate();
+            
+            // Verificar se conseguimos fazer uma requisição básica
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => EFI_API_URL . '/v2/gn/infracoes',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: Bearer ' . $this->access_token,
+                    'Content-Type: application/json'
+                ],
+                CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
+                CURLOPT_SSLCERTTYPE => 'P12'
+            ]);
+            
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $err = curl_error($curl);
+            curl_close($curl);
+            
+            if ($err) {
+                throw new Exception('Erro de conectividade: ' . $err);
+            }
+            
+            $this->logger->info('Teste de conectividade concluído', [
+                'http_code' => $httpCode,
+                'api_url' => EFI_API_URL
+            ]);
+            
+            return [
+                'status' => 'success',
+                'message' => 'Conectividade OK',
+                'details' => [
+                    'api_url' => EFI_API_URL,
+                    'certificate_path' => EFI_CERTIFICATE_PATH,
+                    'http_code' => $httpCode,
+                    'authenticated' => !empty($this->access_token)
+                ]
+            ];
+            
+        } catch (Exception $e) {
+            $this->logger->error('Erro no teste de conectividade', [
+                'erro' => $e->getMessage(),
+                'linha' => $e->getLine()
+            ]);
+            
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'details' => [
+                    'api_url' => EFI_API_URL,
+                    'certificate_exists' => file_exists(EFI_CERTIFICATE_PATH)
+                ]
+            ];
+        }
+    }
+    
+    /**
+     * Verifica se o webhook está registrado na EFI
+     * @return array Status do webhook
+     */
+    public function checkWebhookRegistration() {
+        try {
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => EFI_API_URL . '/v2/webhook/' . EFI_PIX_KEY,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: Bearer ' . $this->access_token,
+                    'Content-Type: application/json'
+                ],
+                CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
+                CURLOPT_SSLCERTTYPE => 'P12'
+            ]);
+            
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+            
+            return [
+                'registered' => $httpCode === 200,
+                'http_code' => $httpCode,
+                'response' => json_decode($response, true)
+            ];
+            
+        } catch (Exception $e) {
+            return [
+                'registered' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Validate webhook URL before registration
+     * 
+     * @param string $webhookUrl Optional webhook URL to validate, uses EFI_WEBHOOK_URL if not provided
+     * @return array Validation result
+     */
+    public function validateWebhookUrl($webhookUrl = null) {
+        if (!$webhookUrl) {
+            $webhookUrl = defined('EFI_WEBHOOK_URL') ? EFI_WEBHOOK_URL : WEBHOOK_URL;
+        }
+        
+        $this->logger->info('Validando webhook URL antes do registro', ['webhook_url' => $webhookUrl]);
+        
+        $result = [
+            'valid' => false,
+            'webhook_url' => $webhookUrl,
+            'errors' => []
+        ];
+        
+        // Check if URL is provided
+        if (empty($webhookUrl)) {
+            $result['errors'][] = 'Webhook URL não foi fornecida';
+            return $result;
+        }
+        
+        // Check if localhost in production
+        $isProduction = strpos(EFI_API_URL, 'pix.api.efipay.com.br') !== false;
+        $isLocalhost = strpos($webhookUrl, 'localhost') !== false || strpos($webhookUrl, '127.0.0.1') !== false;
+        
+        if ($isProduction && $isLocalhost) {
+            $result['errors'][] = 'URL localhost não é válida em ambiente de produção';
+            return $result;
+        }
+        
+        // Check HTTPS requirement
+        if (strpos($webhookUrl, 'https://') !== 0) {
+            $result['errors'][] = 'Webhook deve usar protocolo HTTPS';
+            return $result;
+        }
+        
+        // Check URL format
+        if (!filter_var($webhookUrl, FILTER_VALIDATE_URL)) {
+            $result['errors'][] = 'Formato de URL inválido';
+            return $result;
+        }
+        
+        $result['valid'] = true;
+        $this->logger->info('Webhook URL validada com sucesso', ['webhook_url' => $webhookUrl]);
+        
+        return $result;
+    }
+    
+    /**
+     * Check current webhook registration status with EFI Pay
+     * 
+     * @return array Registration status
+     */
+    public function getWebhookRegistrationStatus() {
+        $this->logger->info('Verificando status de registro do webhook');
+        
+        try {
+            $webhookCheck = $this->checkWebhookRegistration();
+            
+            $result = [
+                'registered' => $webhookCheck['registered'],
+                'http_code' => $webhookCheck['http_code'],
+                'webhook_url' => defined('EFI_WEBHOOK_URL') ? EFI_WEBHOOK_URL : WEBHOOK_URL,
+                'pix_key' => EFI_PIX_KEY,
+                'api_url' => EFI_API_URL
+            ];
+            
+            if (isset($webhookCheck['response'])) {
+                $result['response'] = $webhookCheck['response'];
+            }
+            
+            if (isset($webhookCheck['error'])) {
+                $result['error'] = $webhookCheck['error'];
+            }
+            
+            $this->logger->info('Status de webhook verificado', [
+                'registered' => $result['registered'],
+                'http_code' => $result['http_code']
+            ]);
+            
+            return $result;
+            
+        } catch (Exception $e) {
+            $this->logger->error('Erro ao verificar status do webhook', [
+                'error' => $e->getMessage()
+            ]);
+            
+            return [
+                'registered' => false,
+                'error' => $e->getMessage(),
+                'webhook_url' => defined('EFI_WEBHOOK_URL') ? EFI_WEBHOOK_URL : WEBHOOK_URL
+            ];
+        }
+    }
+    
+    /**
+     * Force webhook re-registration
+     * 
+     * @param string $webhookUrlOverride Optional webhook URL override
+     * @return array Registration result
+     */
+    public function forceWebhookReRegistration($webhookUrlOverride = null) {
+        $webhookUrl = $webhookUrlOverride ?: (defined('EFI_WEBHOOK_URL') ? EFI_WEBHOOK_URL : WEBHOOK_URL);
+        
+        $this->logger->info('Forçando re-registro de webhook', [
+            'webhook_url' => $webhookUrl,
+            'override_provided' => !empty($webhookUrlOverride)
+        ]);
+        
+        // Validate URL first
+        $validation = $this->validateWebhookUrl($webhookUrl);
+        if (!$validation['valid']) {
+            return [
+                'status' => 'error',
+                'message' => 'Webhook URL inválida: ' . implode(', ', $validation['errors']),
+                'validation_errors' => $validation['errors']
+            ];
+        }
+        
+        // Attempt registration with higher retry count for forced registration
+        return $this->registerWebhook(5, $webhookUrl);
+    }
+
+    public function registerWebhook($maxRetries = 3, $webhookUrlOverride = null) {
+        $webhookUrl = $webhookUrlOverride ?: (defined('EFI_WEBHOOK_URL') ? EFI_WEBHOOK_URL : WEBHOOK_URL);
+        
+        // Validate webhook URL first
+        $validation = $this->validateWebhookUrl($webhookUrl);
+        if (!$validation['valid']) {
+            $this->logger->error("Webhook URL inválida, cancelando registro", [
+                'webhook_url' => $webhookUrl,
+                'validation_errors' => $validation['errors']
+            ]);
+            return [
+                'status' => 'error',
+                'message' => 'Webhook URL inválida: ' . implode(', ', $validation['errors']),
+                'validation_errors' => $validation['errors']
+            ];
+        }
+        
         // Verificar se é localhost
-        if (strpos(WEBHOOK_URL, 'localhost') !== false || strpos(WEBHOOK_URL, '127.0.0.1') !== false) {
-            log_info("Ignorando registro de webhook em ambiente local");
-            return;
+        if (strpos($webhookUrl, 'localhost') !== false || strpos($webhookUrl, '127.0.0.1') !== false) {
+            $this->logger->info("Ignorando registro de webhook em ambiente local");
+            return ['status' => 'skipped', 'message' => 'Ambiente local - webhook ignorado'];
+        }
+
+        $data = [
+            'webhookUrl' => $webhookUrl
+        ];
+
+        $this->logger->info("Registrando webhook", [
+            'webhook_url' => $webhookUrl,
+            'pix_key' => EFI_PIX_KEY,
+            'max_retries' => $maxRetries,
+            'override_provided' => !empty($webhookUrlOverride)
+        ]);
+        
+        $lastError = null;
+        
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            try {
+                $curl = curl_init();
+                
+                // Endpoint correto conforme documentação da Efí
+                $url = EFI_API_URL . '/v2/webhook/' . EFI_PIX_KEY;
+                
+                curl_setopt_array($curl, [
+                    CURLOPT_URL => $url,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => '',
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => 'PUT',
+                    CURLOPT_POSTFIELDS => json_encode($data),
+                    CURLOPT_HTTPHEADER => [
+                        'Authorization: Bearer ' . $this->access_token,
+                        'Content-Type: application/json'
+                    ],
+                    CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
+                    CURLOPT_SSLCERTTYPE => 'P12'
+                ]);
+        
+                $response = curl_exec($curl);
+                $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                $err = curl_error($curl);
+                curl_close($curl);
+        
+                $this->logger->info("Tentativa de registro de webhook", [
+                    'attempt' => $attempt,
+                    'http_code' => $httpCode,
+                    'response' => $response,
+                    'curl_error' => $err
+                ]);
+        
+                if ($err) {
+                    $lastError = 'Erro cURL: ' . $err;
+                    if ($attempt < $maxRetries) {
+                        $this->logger->warning("Erro cURL na tentativa $attempt, tentando novamente", ['error' => $err]);
+                        sleep(2); // Aguardar 2 segundos antes da próxima tentativa
+                        continue;
+                    }
+                    throw new Exception($lastError);
+                }
+        
+                if ($httpCode === 200 || $httpCode === 201) {
+                    $this->logger->info("Webhook registrado com sucesso", [
+                        'attempt' => $attempt,
+                        'http_code' => $httpCode
+                    ]);
+                    return [
+                        'status' => 'success',
+                        'message' => 'Webhook registrado com sucesso',
+                        'data' => json_decode($response, true),
+                        'attempts' => $attempt
+                    ];
+                }
+                
+                $lastError = "HTTP $httpCode: $response";
+                if ($attempt < $maxRetries) {
+                    $this->logger->warning("Erro HTTP na tentativa $attempt, tentando novamente", [
+                        'http_code' => $httpCode,
+                        'response' => $response
+                    ]);
+                    sleep(2);
+                    continue;
+                }
+                
+            } catch (Exception $e) {
+                $lastError = $e->getMessage();
+                if ($attempt < $maxRetries) {
+                    $this->logger->warning("Exceção na tentativa $attempt, tentando novamente", ['error' => $e->getMessage()]);
+                    sleep(2);
+                    continue;
+                }
+            }
+        }
+
+        // Return error response when all attempts fail
+        $errorResult = [
+            'status' => 'error', 
+            'message' => $lastError, 
+            'attempts' => $maxRetries,
+            'webhook_url' => $webhookUrl,
+            'troubleshooting' => $this->getWebhookTroubleshootingInfo($webhookUrl)
+        ];
+        
+        $this->logger->error('Falha completa no registro de webhook', $errorResult);
+        
+        return $errorResult;
+    }
+    
+    /**
+     * Get troubleshooting information for webhook issues
+     * 
+     * @param string $webhookUrl Webhook URL that failed
+     * @return array Troubleshooting information
+     */
+    private function getWebhookTroubleshootingInfo($webhookUrl) {
+        return [
+            'suggestions' => [
+                'Verifique se a URL é acessível publicamente',
+                'Confirme que o certificado SSL está válido',
+                'Verifique se não há firewall bloqueando requisições da EFI Pay',
+                'Confirme que o endpoint /api/webhook_pix.php existe e está funcionando'
+            ],
+            'checks' => [
+                'webhook_url_format' => filter_var($webhookUrl, FILTER_VALIDATE_URL) !== false,
+                'uses_https' => strpos($webhookUrl, 'https://') === 0,
+                'not_localhost' => strpos($webhookUrl, 'localhost') === false && strpos($webhookUrl, '127.0.0.1') === false,
+                'certificate_exists' => file_exists(EFI_CERTIFICATE_PATH),
+                'api_url' => EFI_API_URL,
+                'pix_key_set' => !empty(EFI_PIX_KEY)
+            ]
+        ];
+    }
+
+    public function __construct($webhookFailureFatal = false) {
+        global $pdo;
+        $this->pdo = $pdo;
+        $this->logger = Logger::getInstance();
+        $this->token_cache_file = __DIR__ . '/../logs/efi_token_cache.json';
+        $this->webhook_failure_fatal = $webhookFailureFatal;
+        
+        // Verificar ambiente
+        $isLocalhost = strpos(WEBHOOK_URL, 'localhost') !== false || strpos(WEBHOOK_URL, '127.0.0.1') !== false;
+        $isProduction = strpos(EFI_API_URL, 'pix.api.efipay.com.br') !== false;
+        
+        if ($isLocalhost) {
+            $this->logger->info("Ambiente local detectado - Webhook será ignorado");
+            // Em ambiente local, vamos apenas autenticar
+            $this->validateCertificate();
+            $this->authenticate();
+                    } else {
+                try {
+                $this->validateCertificate();
+                $this->authenticate();
+                
+                // Validate webhook URL before attempting registration
+                $webhookValidation = $this->validateWebhookUrl();
+                if (!$webhookValidation['valid']) {
+                    $this->logger->error("Webhook URL inválida durante inicialização", [
+                        'validation_errors' => $webhookValidation['errors'],
+                        'webhook_url' => $webhookValidation['webhook_url']
+                    ]);
+                    
+                    if ($this->webhook_failure_fatal) {
+                        throw new Exception("Webhook URL inválida: " . implode(', ', $webhookValidation['errors']));
+                    }
+                } else {
+                    // Tentar registrar webhook apenas se URL for válida
+                    $webhookResult = $this->registerWebhook();
+                    
+                    // Verificar se o registro falhou e se deve ser fatal
+                    if ($webhookResult['status'] === 'error' && $this->webhook_failure_fatal) {
+                        $this->logger->error("Falha fatal no registro de webhook", [
+                            'error' => $webhookResult['message'],
+                            'webhook_failure_fatal' => $this->webhook_failure_fatal,
+                            'troubleshooting' => $webhookResult['troubleshooting'] ?? null
+                        ]);
+                        throw new Exception("Falha crítica no registro de webhook: " . $webhookResult['message']);
+                    } else if ($webhookResult['status'] === 'error') {
+                        $this->logger->warning("Falha no registro de webhook (não fatal)", [
+                            'error' => $webhookResult['message'],
+                            'webhook_failure_fatal' => $this->webhook_failure_fatal,
+                            'troubleshooting' => $webhookResult['troubleshooting'] ?? null
+                        ]);
+                    }
+                }
+                
+            } catch (Exception $e) {
+                if ($this->webhook_failure_fatal) {
+                    log_error("Erro fatal ao inicializar EfiPixManager", ['error' => $e->getMessage()]);
+                    throw $e;
+                } else {
+                    log_error("Erro ao inicializar EfiPixManager (não fatal)", ['error' => $e->getMessage()]);
+                    // Continuar a execução mesmo com erro
+                }
+            }
+        }
+    }
+
+    private function loadTokenFromCache() {
+        if (!file_exists($this->token_cache_file)) {
+            return false;
+        }
+        
+        $cacheData = json_decode(file_get_contents($this->token_cache_file), true);
+        if (!$cacheData || !isset($cacheData['token']) || !isset($cacheData['expires_at'])) {
+            return false;
+        }
+        
+        if (time() >= $cacheData['expires_at']) {
+            $this->logger->info('Token em cache expirado');
+            return false;
+        }
+        
+        $this->access_token = $cacheData['token'];
+        $this->logger->info('Token carregado do cache', ['expires_in' => $cacheData['expires_at'] - time()]);
+        return true;
+    }
+    
+    private function saveTokenToCache($token, $expiresIn = null) {
+        $expiresIn = $expiresIn ?: $this->token_cache_duration;
+        $cacheData = [
+            'token' => $token,
+            'expires_at' => time() + $expiresIn - 60, // 1 minuto de margem
+            'created_at' => time()
+        ];
+        
+        file_put_contents($this->token_cache_file, json_encode($cacheData));
+        $this->logger->info('Token salvo no cache', ['expires_in' => $expiresIn]);
+    }
+
+    public function authenticate($retryCount = 0) {
+        // Tentar carregar token do cache primeiro
+        if ($this->loadTokenFromCache()) {
+            return $this->access_token;
         }
 
         $curl = curl_init();
         
-        $data = [
-            'webhookUrl' => WEBHOOK_URL
+        $params = [
+            'grant_type' => 'client_credentials'
         ];
-
-        log_debug("Registrando webhook", ['data' => $data]);
         
-        // Endpoint correto conforme documentação da Efí
-        $url = EFI_API_URL . '/v2/webhook/' . EFI_PIX_KEY;
+        $url = EFI_API_URL . '/v1/authorize';
         
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -56,11 +560,11 @@ class EfiPixManager {
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'PUT',
-            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => http_build_query($params),
             CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $this->access_token,
-                'Content-Type: application/json'
+                'Authorization: Basic ' . base64_encode(EFI_CLIENT_ID . ':' . EFI_CLIENT_SECRET),
+                'Content-Type: application/x-www-form-urlencoded'
             ],
             CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
             CURLOPT_SSLCERTTYPE => 'P12'
@@ -71,165 +575,60 @@ class EfiPixManager {
         $err = curl_error($curl);
         curl_close($curl);
 
-        log_debug("Resposta do registro de webhook", [
+        $this->logger->info("Resposta da autenticação", [
             'http_code' => $httpCode,
             'response' => $response,
             'error' => $err
         ]);
 
         if ($err) {
-            log_error("Erro ao registrar webhook", ['error' => $err]);
-            throw new Exception('Erro ao registrar webhook: ' . $err);
+            $this->logger->error("Erro cURL na autenticação", ['error' => $err]);
+            if ($retryCount < 3) {
+                sleep(2);
+                return $this->authenticate($retryCount + 1);
+            }
+            throw new Exception('Erro de conexão: ' . $err);
         }
 
-        if ($httpCode !== 200 && $httpCode !== 201) {
-            log_error("Erro ao registrar webhook", [
-                'http_code' => $httpCode,
-                'response' => $response
-            ]);
-            throw new Exception('Erro ao registrar webhook. HTTP Code: ' . $httpCode . '. Resposta: ' . $response);
+        $responseData = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->error("Falha ao decodificar JSON da resposta", ['error' => json_last_error_msg()]);
+            throw new Exception('Resposta inválida da API');
         }
 
-        return json_decode($response, true);
-    }
-
-    public function __construct() {
-        global $pdo;
-        $this->pdo = $pdo;
-        
-        // Verificar ambiente
-        $isLocalhost = strpos(WEBHOOK_URL, 'localhost') !== false || strpos(WEBHOOK_URL, '127.0.0.1') !== false;
-        $isProduction = strpos(EFI_API_URL, 'pix.api.efipay.com.br') !== false;
-        
-        if ($isLocalhost) {
-            log_info("Ambiente local detectado - Webhook será ignorado");
-            // Em ambiente local, vamos apenas autenticar
-            $this->validateCertificate();
-            $this->authenticate();
-        } else {
-            log_info("Ambiente de produção detectado - Webhook será registrado");
-            $this->validateCertificate();
-            $this->authenticate();
+        if ($httpCode == 200) {
+            $this->access_token = $responseData['access_token'];
             
-            // Registrar webhook apenas em produção
-            try {
-                $this->registerWebhook();
-            } catch (Exception $e) {
-                log_error("Erro ao registrar webhook", ['error' => $e->getMessage()]);
-                // Não vamos interromper o fluxo se falhar o registro do webhook
-            }
-        }
-    }
-
-    private function authenticate($retryCount = 0) {
-        log_info("Iniciando autenticação EFIBANK", [
-            'tentativa' => $retryCount + 1,
-            'api_url' => EFI_API_URL,
-            'client_id_configured' => !empty(EFI_CLIENT_ID),
-            'client_secret_configured' => !empty(EFI_CLIENT_SECRET),
-            'certificate_path' => EFI_CERTIFICATE_PATH,
-            'certificate_exists' => file_exists(EFI_CERTIFICATE_PATH)
-        ]);
-
-        if (!file_exists(EFI_CERTIFICATE_PATH)) {
-            log_error("Certificado não encontrado", ['path' => EFI_CERTIFICATE_PATH]);
-            throw new Exception('Certificado não encontrado. Por favor, faça o upload do certificado nas configurações.');
-        }
-
-        if (empty(EFI_CLIENT_ID) || empty(EFI_CLIENT_SECRET)) {
-            log_error("Credenciais não configuradas");
-            throw new Exception('Credenciais da API não configuradas.');
-        }
-        
-        $curl = curl_init();
-        
-        $authString = base64_encode(EFI_CLIENT_ID . ':' . EFI_CLIENT_SECRET);
-        log_debug("String de autenticação gerada (base64)");
-
-        $curlOptions = [
-            CURLOPT_URL => EFI_API_URL . '/oauth/token',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode(['grant_type' => 'client_credentials']),
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Authorization: Basic ' . $authString
-            ],
-            CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
-            CURLOPT_SSLCERTTYPE => 'P12',
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_VERBOSE => true
-        ];
-
-        log_debug("Configurando opções do CURL para autenticação", ['curl_options' => $curlOptions]);
-
-        curl_setopt_array($curl, $curlOptions);
-
-        // Capturar output verbose do CURL
-        $verbose = fopen('php://temp', 'w+');
-        curl_setopt($curl, CURLOPT_STDERR, $verbose);
-
-        log_debug("Executando requisição de autenticação...");
-        $response = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $err = curl_error($curl);
-
-        // Log do resultado
-        log_debug("Resposta da autenticação", [
-            'http_code' => $httpCode,
-            'error' => $err,
-            'response' => $response
-        ]);
-
-        // Log verbose do CURL
-        rewind($verbose);
-        $verboseLog = stream_get_contents($verbose);
-        log_trace("CURL Verbose Log", ['verbose_log' => $verboseLog]);
-        fclose($verbose);
-
-        curl_close($curl);
-
-        if ($err) {
-            log_error("Falha na autenticação", ['error' => $err]);
-            throw new Exception('Erro na autenticação: ' . $err);
-        }
-
-        if ($httpCode !== 200) {
-            log_error("Código HTTP inválido na autenticação", [
-                'http_code' => $httpCode,
-                'response' => $response
+            // Salvar token no cache
+            $expiresIn = isset($responseData['expires_in']) ? $responseData['expires_in'] : $this->token_cache_duration;
+            $this->saveTokenToCache($this->access_token, $expiresIn);
+            
+            $this->logger->info("Autenticação realizada com sucesso", [
+                'expires_in' => $expiresIn,
+                'retry_count' => $retryCount
             ]);
-            throw new Exception('Erro na autenticação. HTTP Code: ' . $httpCode . '. Resposta: ' . $response);
+            return $this->access_token;
         }
 
-        $result = json_decode($response, true);
-        if (!isset($result['access_token'])) {
-            log_error("Token não recebido na resposta", ['result' => $result]);
-            throw new Exception('Erro na autenticação: Token não recebido');
-        }
-        
-        // Verificar escopos necessários
-        $required_scopes = ['cob.write', 'cob.read', 'pix.read', 'webhook.write', 'webhook.read'];
-        $received_scopes = explode(' ', $result['scope']);
-        
-        foreach ($required_scopes as $scope) {
-            if (!in_array($scope, $received_scopes)) {
-                log_error("Escopo necessário não encontrado", ['scope' => $scope]);
-                throw new Exception('Erro na autenticação: Escopo ' . $scope . ' não autorizado');
-            }
-        }
-        
-        $this->access_token = $result['access_token'];
-        log_info("Autenticação concluída com sucesso", [
-            'escopos_autorizados' => $result['scope']
+        $this->logger->error("Erro na autenticação", [
+            'http_code' => $httpCode,
+            'response' => $responseData
         ]);
+        
+        if ($retryCount < 3) {
+            sleep(2);
+            return $this->authenticate($retryCount + 1);
+        }
+        
+        if (isset($responseData['message'])) {
+            throw new Exception('Erro na autenticação: ' . $responseData['message']);
+        } else {
+            throw new Exception('Erro na autenticação. HTTP Code: ' . $httpCode);
+        }
     }
 
     public function createCharge($user_id, $valor, $referencia = null, $descricao = null) {
+        // ... (rest of the code remains the same)
         log_debug("Iniciando createCharge", [
             'user_id' => $user_id,
             'valor' => $valor,
@@ -422,67 +821,6 @@ class EfiPixManager {
         }
     }
 
-    public function getQrCode($location_id) {
-        log_debug("Iniciando getQrCode", [
-            'location_id' => $location_id,
-            'url' => EFI_API_URL . '/v2/loc/' . $location_id . '/qrcode',
-            'access_token_configured' => !empty($this->access_token),
-            'certificate_path' => EFI_CERTIFICATE_PATH,
-            'certificate_exists' => file_exists(EFI_CERTIFICATE_PATH)
-        ]);
-        
-        $curl = curl_init();
-        
-        curl_setopt_array($curl, [
-            CURLOPT_URL => EFI_API_URL . '/v2/loc/' . $location_id . '/qrcode',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $this->access_token
-            ],
-            CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
-            CURLOPT_SSLCERTTYPE => 'P12'
-        ]);
-
-        $response = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $err = curl_error($curl);
-        curl_close($curl);
-
-        log_debug("Resposta getQrCode", [
-            'http_code' => $httpCode,
-            'response' => $response,
-            'error' => $err
-        ]);
-
-        if ($err) {
-            log_error("Erro cURL ao gerar QR Code", ['error' => $err]);
-            throw new Exception('Erro ao gerar QR Code: ' . $err);
-        }
-
-        if ($httpCode !== 200) {
-            log_error("HTTP Code inválido ao gerar QR Code", [
-                'http_code' => $httpCode,
-                'response' => $response
-            ]);
-            throw new Exception('Erro ao gerar QR Code. HTTP Code: ' . $httpCode . '. Resposta: ' . $response);
-        }
-
-        $qrCodeData = json_decode($response, true);
-        log_debug("QR Code data decodificado", ['qr_code_data' => $qrCodeData]);
-        
-        if (!isset($qrCodeData['qrcode'])) {
-            log_error("Resposta inválida ao gerar QR Code - campo qrcode não encontrado", ['qr_code_data' => $qrCodeData]);
-            throw new Exception('Resposta inválida ao gerar QR Code');
-        }
-
-        return $qrCodeData;
-    }
-
     public function checkPayment($txid) {
         if (empty($txid)) {
             throw new Exception('TXID não fornecido');
@@ -507,76 +845,27 @@ class EfiPixManager {
             $this->authenticate();
         }
 
-        // Buscar transação
-        $stmt = $this->pdo->prepare("
-            SELECT t.*, c.jogador_id 
-            FROM transacoes t 
-            INNER JOIN contas c ON t.conta_id = c.id 
-            WHERE t.txid = ?
-        ");
+        // Normalizar TXID para busca
+        $txid = strtoupper(trim($txid));
+        $this->logger->info('Verificando pagamento', ['txid' => $txid]);
+        
+        // Buscar transação pelo TXID (case-insensitive)
+        $stmt = $this->pdo->prepare("SELECT * FROM transacoes WHERE UPPER(txid) = UPPER(?)");
         $stmt->execute([$txid]);
         $transacao = $stmt->fetch();
-
-        if (!$transacao) {
-            throw new Exception('Transação não encontrada');
-        }
-
-        $curl = curl_init();
         
-        $curlOptions = [
-            CURLOPT_URL => EFI_API_URL . '/v2/cob/' . $txid,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $this->access_token,
-                'Content-Type: application/json'
-            ],
-            CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
-            CURLOPT_SSLCERTTYPE => 'P12',
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_VERBOSE => true
-        ];
-
-        log_debug("Configurando CURL", ['curl_options' => $curlOptions]);
-        curl_setopt_array($curl, $curlOptions);
-
-        // Capturar output verbose do CURL
-        $verbose = fopen('php://temp', 'w+');
-        curl_setopt($curl, CURLOPT_STDERR, $verbose);
-
-        $response = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $err = curl_error($curl);
-
-        // Log do resultado
-        log_debug("Resposta da verificação", [
-            'http_code' => $httpCode,
-            'error' => $err,
-            'response' => $response
+        if (!$transacao) {
+            $this->logger->error("Transação não encontrada", ['txid' => $txid]);
+            throw new Exception('Transação não encontrada para TXID: ' . $txid);
+        }
+        
+        $this->logger->info('Transação encontrada', [
+            'transacao_id' => $transacao['id'],
+            'status_atual' => $transacao['status'],
+            'valor' => $transacao['valor']
         ]);
 
-        // Log verbose do CURL
-        rewind($verbose);
-        $verboseLog = stream_get_contents($verbose);
-        log_trace("CURL Verbose Log", ['verbose_log' => $verboseLog]);
-        fclose($verbose);
-
-        curl_close($curl);
-
-        if ($err) {
-            log_error("Erro na verificação", ['error' => $err]);
-            throw new Exception('Erro ao verificar pagamento: ' . $err);
-        }
-
-        if ($httpCode !== 200) {
-            log_error("Código HTTP inválido", ['http_code' => $httpCode]);
-            throw new Exception('Erro ao verificar pagamento. HTTP Code: ' . $httpCode);
-        }
-
+        // ... restante do código ...
         $responseData = json_decode($response, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             log_error("Falha ao decodificar JSON", ['error' => json_last_error_msg()]);
@@ -627,26 +916,28 @@ class EfiPixManager {
                     SET status = ?, 
                         data_processamento = NOW(),
                         afeta_saldo = 1
-                    WHERE txid = ?
+                    WHERE UPPER(txid) = UPPER(?)
                 ");
-                log_debug("Executando update", [
+                $this->logger->info("Executando update para aprovado", [
                     'status' => $novoStatus,
                     'txid' => $txid,
-                    'afeta_saldo' => 1
+                    'afeta_saldo' => 1,
+                    'transacao_id' => $transacao['id']
                 ]);
                 $stmt->execute([
                     $novoStatus,
                     $txid
                 ]);
-                log_debug("Update executado com sucesso");
+                $this->logger->info("Update executado com sucesso");
             } else if ($status === 'REMOVIDA_PELO_PSP') {
                 $stmt = $this->pdo->prepare("
                     UPDATE transacoes 
                     SET status = 'cancelado',
                         data_processamento = NOW()
-                    WHERE txid = ?
+                    WHERE UPPER(txid) = UPPER(?)
                 ");
                 $stmt->execute([$txid]);
+                $this->logger->info("Transação cancelada", ['txid' => $txid]);
                 $novoStatus = 'cancelado';
             } else {
                 $novoStatus = 'pendente';
@@ -655,10 +946,12 @@ class EfiPixManager {
             // Commit da transação no banco
             $this->pdo->commit();
 
-            log_info("Status final determinado", [
+            $this->logger->info("Status final determinado", [
                 'status' => $novoStatus,
                 'valor_cobrado' => $valorCobrado,
-                'valor_pago' => $valorPago
+                'valor_pago' => $valorPago,
+                'txid' => $txid,
+                'transacao_id' => $transacao['id']
             ]);
 
             return [
@@ -684,7 +977,7 @@ class EfiPixManager {
      * @return string TXID com 32 caracteres alfanuméricos aleatórios
      */
     private function generateRandomTxid() {
-        log_debug("Iniciando geração de TXID aleatório");
+        $this->logger->info("Iniciando geração de TXID aleatório");
         
         $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $txid = '';
@@ -694,11 +987,75 @@ class EfiPixManager {
             $txid .= $characters[random_int(0, strlen($characters) - 1)];
         }
         
-        log_debug("TXID aleatório gerado", [
+        $this->logger->info("TXID aleatório gerado", [
             'txid' => $txid,
             'comprimento' => strlen($txid)
         ]);
         
         return $txid;
+    }
+
+    /**
+     * Generate QR Code for a given location ID
+     * 
+     * @param string $locationId Location ID from charge creation
+     * @return array QR Code data
+     */
+    private function getQrCode($locationId) {
+        $this->logger->info('Gerando QR Code', ['location_id' => $locationId]);
+        
+        try {
+            $curl = curl_init();
+            
+            curl_setopt_array($curl, [
+                CURLOPT_URL => EFI_API_URL . '/v2/loc/' . $locationId . '/qrcode',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: Bearer ' . $this->access_token,
+                    'Content-Type: application/json'
+                ],
+                CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
+                CURLOPT_SSLCERTTYPE => 'P12'
+            ]);
+
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $err = curl_error($curl);
+            curl_close($curl);
+
+            if ($err) {
+                $this->logger->error('Erro cURL ao gerar QR Code', ['error' => $err]);
+                throw new Exception('Erro ao gerar QR Code: ' . $err);
+            }
+
+            if ($httpCode !== 200) {
+                $this->logger->error('Erro HTTP ao gerar QR Code', [
+                    'http_code' => $httpCode,
+                    'response' => $response
+                ]);
+                throw new Exception('Erro ao gerar QR Code. HTTP Code: ' . $httpCode);
+            }
+
+            $responseData = json_decode($response, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->logger->error('Erro ao decodificar JSON do QR Code', ['error' => json_last_error_msg()]);
+                throw new Exception('Erro ao decodificar resposta do QR Code');
+            }
+
+            $this->logger->info('QR Code gerado com sucesso', ['location_id' => $locationId]);
+            return $responseData;
+
+        } catch (Exception $e) {
+            $this->logger->error('Erro ao gerar QR Code', [
+                'location_id' => $locationId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
     }
 } 

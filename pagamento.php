@@ -55,7 +55,7 @@ $qrcode = null;
 $copiaCola = null;
 
 try {
-    $efiPix = new EfiPixManager();
+    $efiPix = new EfiPixManager(defined('EFI_WEBHOOK_FATAL_FAILURE') ? EFI_WEBHOOK_FATAL_FAILURE : false);
     
     // Criar transação se ainda não existir
     $transacao = dbFetchOne(

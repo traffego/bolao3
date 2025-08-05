@@ -1,2 +1,20 @@
 # Prevenir acesso direto aos arquivos de log
-deny from all 
+<Files ~ "^.*\.log$">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Negar acesso a todos os arquivos neste diretório
+Order allow,deny
+Deny from all
+
+# Prevenir listagem de diretório
+Options -Indexes
+
+# Tipos de conteúdo seguros
+AddType text/plain .log
+
+# Cabeçalhos de segurança
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>

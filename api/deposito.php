@@ -138,7 +138,7 @@ try {
     }
 
     // Instancia EfiPay
-    $efiPix = new EfiPixManager();
+    $efiPix = new EfiPixManager(defined('EFI_WEBHOOK_FATAL_FAILURE') ? EFI_WEBHOOK_FATAL_FAILURE : false);
     
     // Gera identificador único para o depósito (TXID aleatório)
     $identificador = generateRandomTxid();

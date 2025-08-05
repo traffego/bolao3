@@ -41,7 +41,7 @@ try {
     if ($forceCheck && $transacao['status'] !== 'aprovado') {
         try {
             // Instancia EfiPixManager
-            $efiPix = new EfiPixManager();
+            $efiPix = new EfiPixManager(defined('EFI_WEBHOOK_FATAL_FAILURE') ? EFI_WEBHOOK_FATAL_FAILURE : false);
             
             // Consulta status da cobrança
             $statusPix = $efiPix->checkPayment($transacao['txid']);

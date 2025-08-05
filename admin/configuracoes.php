@@ -404,7 +404,119 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlashMessage('success', 'Certificado excluído com sucesso!');
             redirect(APP_URL . '/admin/configuracoes.php?categoria=pagamentos');
         }
-
+        
+        // Processar teste manual do webhook
+        if (isset($_POST['action']) && $_POST['action'] === 'test_webhook') {
+            try {
+                // Incluir EfiPixManager para testes
+                require_once __DIR__ . '/../includes/EfiPixManager.php';
+                
+                $pixManager = new EfiPixManager(EFI_WEBHOOK_FATAL_FAILURE);
+                $testResult = $pixManager->testConnectivity();
+                
+                if ($testResult['status'] === 'success') {
+                    setFlashMessage('success', 'Conexão com a API EFI testada com sucesso!');
+                    
+                    // Log do teste bem-sucedido
+                    if (isset($testResult['details'])) {
+                        $logStmt = $pdo->prepare("
+                            INSERT INTO logs 
+                                (tipo, descricao, usuario_id, data_hora, ip_address) 
+                            VALUES 
+                                ('teste_api', ?, ?, NOW(), ?)
+                        ");
+                        $logStmt->execute([
+                            'Teste de conectividade EFI realizado com sucesso',
+                            $_SESSION['admin_id'],
+                            $_SERVER['REMOTE_ADDR']
+                        ]);
+                    }
+                } else {
+                    setFlashMessage('danger', 'Erro na conexão com a API: ' . $testResult['message']);
+                }
+            } catch (Exception $e) {
+                setFlashMessage('danger', 'Erro ao testar conexão: ' . $e->getMessage());
+            }
+            
+            redirect(APP_URL . '/admin/configuracoes.php?categoria=pagamentos');
+        }
+        
+        // Processar re-registro do webhook
+        if (isset($_POST['action']) && $_POST['action'] === 'reregister_webhook') {
+            try {
+                require_once __DIR__ . '/../includes/EfiPixManager.php';
+                
+                $pixManager = new EfiPixManager(EFI_WEBHOOK_FATAL_FAILURE);
+                $result = $pixManager->registerWebhook();
+                
+                if ($result['status'] === 'success') {
+                    setFlashMessage('success', 'Webhook re-registrado com sucesso!');
+                    
+                    // Log do re-registro
+                    $logStmt = $pdo->prepare("
+                        INSERT INTO logs 
+                            (tipo, descricao, usuario_id, data_hora, ip_address) 
+                        VALUES 
+                            ('webhook', ?, ?, NOW(), ?)
+                    ");
+                    $logStmt->execute([
+                        'Webhook EFI re-registrado com sucesso',
+                        $_SESSION['admin_id'],
+                        $_SERVER['REMOTE_ADDR']
+                    ]);
+                } else {
+                    setFlashMessage('danger', 'Erro ao re-registrar webhook: ' . $result['message']);
+                }
+            } catch (Exception $e) {
+                setFlashMessage('danger', 'Erro ao re-registrar webhook: ' . $e->getMessage());
+            }
+            
+            redirect(APP_URL . '/admin/configuracoes.php?categoria=pagamentos');
+        }
+        
+        // Processar teste automático após salvar configurações EFI
+        $shouldTestConnectivity = false;
+        $efiConfigKeys = ['efi_client_id', 'efi_client_secret', 'efi_sandbox', 'efi_chave_pix'];
+        
+        foreach ($efiConfigKeys as $key) {
+            if (isset($_POST['config'][$key])) {
+                $shouldTestConnectivity = true;
+                break;
+            }
+        }
+        
+        if ($shouldTestConnectivity) {
+            try {
+                require_once __DIR__ . '/../includes/EfiPixManager.php';
+                
+                $pixManager = new EfiPixManager(EFI_WEBHOOK_FATAL_FAILURE);
+                $testResult = $pixManager->testConnectivity();
+                
+                if ($testResult['status'] === 'success') {
+                    setFlashMessage('success', 'Conexão com a API EFI testada com sucesso!');
+                    
+                    // Log do teste bem-sucedido
+                    if (isset($testResult['details'])) {
+                        $logStmt = $pdo->prepare("
+                            INSERT INTO logs 
+                                (tipo, descricao, usuario_id, data_hora, ip_address) 
+                            VALUES 
+                                ('teste_api', ?, ?, NOW(), ?)
+                        ");
+                        $logStmt->execute([
+                            'Teste de conectividade EFI realizado com sucesso',
+                            $_SESSION['admin_id'],
+                            $_SERVER['REMOTE_ADDR']
+                        ]);
+                    }
+                } else {
+                    setFlashMessage('danger', 'Erro na conexão com a API: ' . $testResult['message']);
+                }
+            } catch (Exception $e) {
+                setFlashMessage('danger', 'Erro ao testar conexão: ' . $e->getMessage());
+            }
+        }
+        
         if ($currentCategory === 'pagamentos') {
             // Validar campos obrigatórios
             $requiredFields = ['ambiente', 'client_id', 'client_secret', 'pix_key', 'modelo_pagamento'];
@@ -454,6 +566,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'valor' => $_POST['modelo_pagamento'],
                         'categoria' => 'pagamento',
                         'descricao' => 'Define como os pagamentos são processados: por_aposta (individual) ou conta_saldo (débito em conta)'
+                    ],
+                    'webhook_fatal_failure' => [
+                        'valor' => isset($_POST['webhook_fatal_failure']) ? 'true' : 'false',
+                        'categoria' => 'pagamento',
+                        'descricao' => 'Define se falhas no registro de webhook devem ser fatais'
                     ]
                 ];
 
@@ -480,6 +597,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $log = "Configurações de pagamento atualizadas por admin #$admin_id";
                 $log .= "\nAmbiente: " . $_POST['ambiente'];
                 $log .= "\nModelo: " . $_POST['modelo_pagamento'];
+                $log .= "\nFalha Fatal Webhook: " . (isset($_POST['webhook_fatal_failure']) ? 'Ativado' : 'Desativado');
                 
                 dbExecute(
                     "INSERT INTO logs (tipo, descricao, admin_id) VALUES (?, ?, ?)",
@@ -487,7 +605,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
 
                 dbCommit();
-                setFlashMessage('success', 'Configurações atualizadas com sucesso!');
+                
+                // Após salvar as configurações, tentar testar a conexão e registrar o webhook
+                $testResult = null;
+                $webhookResult = null;
+                
+                try {
+                    // Incluir EfiPixManager para testes
+                    require_once __DIR__ . '/../includes/EfiPixManager.php';
+                    
+                    // Testar conexão com a API
+                    $efiManager = new EfiPixManager(EFI_WEBHOOK_FATAL_FAILURE);
+                    $testResult = $efiManager->testConnectivity();
+                    
+                    if ($testResult['status'] === 'success') {
+                        // Se a conexão foi bem-sucedida, tentar registrar o webhook
+                        try {
+                            $webhookResult = $efiManager->registerWebhook();
+                            if ($webhookResult['status'] === 'success') {
+                                setFlashMessage('success', 'Configurações atualizadas com sucesso! Conexão com a API estabelecida e webhook registrado.');
+                            } else {
+                                setFlashMessage('warning', 'Configurações atualizadas com sucesso! Conexão com a API estabelecida, mas houve um problema ao registrar o webhook: ' . $webhookResult['message']);
+                            }
+                        } catch (Exception $e) {
+                            setFlashMessage('warning', 'Configurações atualizadas com sucesso! Conexão com a API estabelecida, mas houve um erro ao registrar o webhook: ' . $e->getMessage());
+                        }
+                    } else {
+                        setFlashMessage('warning', 'Configurações atualizadas com sucesso, mas houve um problema na conexão com a API: ' . $testResult['message']);
+                    }
+                } catch (Exception $e) {
+                    setFlashMessage('warning', 'Configurações atualizadas com sucesso, mas houve um erro ao testar a conexão: ' . $e->getMessage());
+                }
+                
                 redirect(APP_URL . '/admin/configuracoes.php?categoria=pagamentos');
 
             } catch (Exception $e) {
@@ -669,6 +818,115 @@ include '../templates/admin/header.php';
             
 
             <?php if ($currentCategory === 'pagamentos'): ?>
+                <!-- Status Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Status da Integração EFI</h5>
+                    </div>
+                    <div class="card-body">
+                        <?php
+                        // Verificar status dos componentes EFI
+                        $efiStatus = [];
+                        
+                        // Verificar configurações básicas
+                        $newPixConfig['client_id'] = $_POST['client_id'];
+                        $newPixConfig['client_secret'] = $_POST['client_secret'];
+                        $newPixConfig['pix_key'] = $_POST['pix_key'];
+                        $newPixConfig['ambiente'] = $_POST['ambiente'];
+                        $newPixConfig['webhook_fatal_failure'] = isset($_POST['webhook_fatal_failure']);
+                        
+                        $efiStatus['config'] = [
+                            'client_id' => !empty($newPixConfig['client_id']),
+                            'client_secret' => !empty($newPixConfig['client_secret']),
+                            'pix_key' => !empty($newPixConfig['pix_key']),
+                            'ambiente' => !empty($newPixConfig['ambiente'])
+                        ];
+                        
+                        // Verificar certificados
+                        $certDir = __DIR__ . '/../config/certificates/';
+                        $efiStatus['certificates'] = [
+                            'p12' => file_exists($certDir . 'certificate.p12'),
+                            'pem_cert' => file_exists($certDir . 'certificate.cert.pem'),
+                            'pem_key' => file_exists($certDir . 'certificate.key.pem')
+                        ];
+                        
+                        // Verificar arquivos necessários
+                        $efiStatus['files'] = [
+                            'efi_manager' => file_exists(__DIR__ . '/../includes/EfiPixManager.php'),
+                            'webhook' => file_exists(__DIR__ . '/../api/webhook_pix.php'),
+                            'logs_dir' => is_dir(__DIR__ . '/../logs') && is_writable(__DIR__ . '/../logs')
+                        ];
+                        
+                        // Calcular status geral
+                        $configComplete = array_sum($efiStatus['config']) === count($efiStatus['config']);
+                        $certificatesOk = $efiStatus['certificates']['p12'] || ($efiStatus['certificates']['pem_cert'] && $efiStatus['certificates']['pem_key']);
+                        $filesOk = array_sum($efiStatus['files']) === count($efiStatus['files']);
+                        
+                        $overallStatus = $configComplete && $certificatesOk && $filesOk ? 'success' : 'warning';
+                        ?>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-cog me-2 <?= $configComplete ? 'text-success' : 'text-warning' ?>"></i>
+                                    <strong>Configurações</strong>
+                                    <span class="badge bg-<?= $configComplete ? 'success' : 'warning' ?> ms-auto">
+                                        <?= $configComplete ? 'Completa' : 'Incompleta' ?>
+                                    </span>
+                                </div>
+                                <small class="text-muted">
+                                    Client ID: <?= $efiStatus['config']['client_id'] ? '✓' : '✗' ?> |
+                                    Secret: <?= $efiStatus['config']['client_secret'] ? '✓' : '✗' ?> |
+                                    Chave PIX: <?= $efiStatus['config']['pix_key'] ? '✓' : '✗' ?>
+                                </small>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-certificate me-2 <?= $certificatesOk ? 'text-success' : 'text-danger' ?>"></i>
+                                    <strong>Certificados</strong>
+                                    <span class="badge bg-<?= $certificatesOk ? 'success' : 'danger' ?> ms-auto">
+                                        <?= $certificatesOk ? 'OK' : 'Ausente' ?>
+                                    </span>
+                                </div>
+                                <small class="text-muted">
+                                    P12: <?= $efiStatus['certificates']['p12'] ? '✓' : '✗' ?> |
+                                    PEM: <?= ($efiStatus['certificates']['pem_cert'] && $efiStatus['certificates']['pem_key']) ? '✓' : '✗' ?>
+                                </small>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-file-code me-2 <?= $filesOk ? 'text-success' : 'text-danger' ?>"></i>
+                                    <strong>Sistema</strong>
+                                    <span class="badge bg-<?= $filesOk ? 'success' : 'danger' ?> ms-auto">
+                                        <?= $filesOk ? 'OK' : 'Erro' ?>
+                                    </span>
+                                </div>
+                                <small class="text-muted">
+                                    Manager: <?= $efiStatus['files']['efi_manager'] ? '✓' : '✗' ?> |
+                                    Webhook: <?= $efiStatus['files']['webhook'] ? '✓' : '✗' ?> |
+                                    Logs: <?= $efiStatus['files']['logs_dir'] ? '✓' : '✗' ?>
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex align-items-center">
+                            <div class="me-auto">
+                                <strong>Status Geral:</strong>
+                                <span class="badge bg-<?= $overallStatus ?> ms-2">
+                                    <?= $overallStatus === 'success' ? 'Sistema Pronto' : 'Configuração Pendente' ?>
+                                </span>
+                            </div>
+                            <div>
+                                <small class="text-muted">Ambiente: <strong><?= ucfirst($pixConfig['ambiente'] ?? 'não definido') ?></strong></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">Configurações da API Pix - Efí</h5>
@@ -679,18 +937,10 @@ include '../templates/admin/header.php';
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Ambiente</label>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="ambiente" value="producao" id="ambiente_prod" 
-                                            <?= $pixConfig['ambiente'] === 'producao' ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="ambiente_prod">
-                                            Produção
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="ambiente" value="homologacao" id="ambiente_hml"
-                                            <?= $pixConfig['ambiente'] === 'homologacao' ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="ambiente_hml">
-                                            Homologação
+                                    <select class="form-select" id="efi_ambiente" name="efi_pix_config[ambiente]">
+                                        <option value="producao" <?= ($pixConfig['ambiente'] ?? '') === 'producao' ? 'selected' : '' ?>>Produção</option>
+                                        <option value="homologacao" <?= ($pixConfig['ambiente'] ?? '') === 'homologacao' ? 'selected' : '' ?>>Homologação (Desenvolvimento)</option>
+                                    </select>
                                         </label>
                                     </div>
                                 </div>
@@ -724,13 +974,17 @@ include '../templates/admin/header.php';
                                 <div class="col-md-6">
                                     <label for="client_id" class="form-label">Client ID</label>
                                     <input type="text" class="form-control" id="client_id" name="client_id" 
-                                           value="<?= htmlspecialchars($pixConfig['client_id']) ?>" required>
+                                           value="<?= htmlspecialchars($pixConfig['client_id']) ?>" required
+                                           onblur="validateClientCredentials()" oninput="clearValidation(this)">
+                                    <div id="client_id_feedback" class="invalid-feedback"></div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="client_secret" class="form-label">Client Secret</label>
                                     <input type="text" class="form-control" id="client_secret" name="client_secret" 
-                                           value="<?= htmlspecialchars($pixConfig['client_secret']) ?>">
+                                           value="<?= htmlspecialchars($pixConfig['client_secret']) ?>"
+                                           onblur="validateClientCredentials()" oninput="clearValidation(this)">
                                     <div class="form-text">Client Secret para autenticação na API da Efí</div>
+                                    <div id="client_secret_feedback" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
@@ -738,8 +992,11 @@ include '../templates/admin/header.php';
                                 <div class="col-md-6">
                                     <label for="pix_key" class="form-label">Chave Pix</label>
                                     <input type="text" class="form-control" id="pix_key" name="pix_key" 
-                                           value="<?= htmlspecialchars($pixConfig['pix_key']) ?>" required>
+                                           value="<?= htmlspecialchars($pixConfig['pix_key']) ?>" required
+                                           onblur="validatePixKey(this)" oninput="clearValidation(this)">
                                     <div class="form-text">Chave Pix que receberá os pagamentos</div>
+                                    <div id="pix_key_feedback" class="invalid-feedback"></div>
+                                    <div id="pix_key_valid" class="valid-feedback">Chave PIX válida!</div>
                                 </div>
                             </div>
 
@@ -756,16 +1013,54 @@ include '../templates/admin/header.php';
                                         <i class="fas fa-info-circle me-1"></i>
                                         Esta é a URL que receberá as notificações de pagamento. Configure-a no painel da Efí.
                                     </div>
+                                    <div class="mt-2">
+                                        <div class="btn-group" role="group">
+                                            <form method="post" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                <input type="hidden" name="action" value="test_webhook">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-sync-alt me-1"></i> Testar Conexão
+                                                </button>
+                                            </form>
+                                            <form method="post" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                <input type="hidden" name="action" value="reregister_webhook">
+                                                <button type="submit" class="btn btn-sm btn-outline-warning">
+                                                    <i class="fas fa-redo me-1"></i> Re-registrar Webhook
+                                                </button>
+                                            </form>
+                                            <a href="<?= APP_URL ?>/admin/teste-efi-debug.php" class="btn btn-sm btn-outline-info" target="_blank">
+                                                <i class="fas fa-bug me-1"></i> Diagnóstico Completo
+                                            </a>
+                                        </div>
+                                        <div class="form-text mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Ferramentas para testar e diagnosticar a integração EFI.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="webhook_fatal_failure" name="webhook_fatal_failure" value="true" <?= !empty($pixConfig['webhook_fatal_failure']) ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="webhook_fatal_failure">Falha Fatal no Webhook</label>
+                                        <small class="form-text text-muted d-block">Se ativado, o sistema irá parar a execução se o registro do webhook com a Efí falhar. Desative para apenas registrar um aviso.</small>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="certificado" class="form-label">Certificado (.P12 ou .PEM)</label>
-                                    <input type="file" class="form-control" id="certificado" name="certificado" accept=".p12,.pem">
+                                    <input type="file" class="form-control" id="certificado" name="certificado" accept=".p12,.pem"
+                                           onchange="validateCertificate(this)">
                                     <div class="form-text mb-2">
                                         Faça upload do certificado fornecido pela Efí (formato .P12 ou .PEM)
                                     </div>
+                                    <div id="certificate_feedback" class="invalid-feedback"></div>
+                                    <div id="certificate_valid" class="valid-feedback">Certificado válido!</div>
                                     <?php
                                     $certDir = __DIR__ . '/../config/certificates/';
                                     $certificates = [
@@ -997,6 +1292,174 @@ function toggleApiKey(inputId) {
         button.classList.remove('fa-eye-slash');
         button.classList.add('fa-eye');
     }
+}
+
+function clearValidation(input) {
+    input.classList.remove('is-valid', 'is-invalid');
+}
+
+// Real-time validation functions
+function validatePixKey(input) {
+    const value = input.value.trim();
+    const feedback = document.getElementById('pix_key_feedback');
+    const validFeedback = document.getElementById('pix_key_valid');
+    
+    if (!value) {
+        input.classList.remove('is-valid', 'is-invalid');
+        return;
+    }
+    
+    // CPF (11 digits)
+    if (/^\d{11}$/.test(value)) {
+        if (validateCPF(value)) {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+            return;
+        }
+    }
+    
+    // CNPJ (14 digits)
+    if (/^\d{14}$/.test(value)) {
+        if (validateCNPJ(value)) {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+            return;
+        }
+    }
+    
+    // Email
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        return;
+    }
+    
+    // Phone (+5511999999999)
+    if (/^\+55\d{10,11}$/.test(value)) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        return;
+    }
+    
+    // Random key (UUID)
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        return;
+    }
+    
+    // Invalid
+    input.classList.remove('is-valid');
+    input.classList.add('is-invalid');
+    feedback.textContent = 'Formato de chave PIX inválido. Use CPF, CNPJ, email, telefone (+5511999999999) ou chave aleatória.';
+}
+
+function validateCPF(cpf) {
+    cpf = cpf.replace(/[^\d]/g, '');
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+        sum += parseInt(cpf[i]) * (10 - i);
+    }
+    let remainder = sum % 11;
+    let digit1 = remainder < 2 ? 0 : 11 - remainder;
+    
+    if (parseInt(cpf[9]) !== digit1) return false;
+    
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+        sum += parseInt(cpf[i]) * (11 - i);
+    }
+    remainder = sum % 11;
+    let digit2 = remainder < 2 ? 0 : 11 - remainder;
+    
+    return parseInt(cpf[10]) === digit2;
+}
+
+function validateCNPJ(cnpj) {
+    cnpj = cnpj.replace(/[^\d]/g, '');
+    if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
+    
+    const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+        sum += parseInt(cnpj[i]) * weights1[i];
+    }
+    let remainder = sum % 11;
+    let digit1 = remainder < 2 ? 0 : 11 - remainder;
+    
+    if (parseInt(cnpj[12]) !== digit1) return false;
+    
+    sum = 0;
+    for (let i = 0; i < 13; i++) {
+        sum += parseInt(cnpj[i]) * weights2[i];
+    }
+    remainder = sum % 11;
+    let digit2 = remainder < 2 ? 0 : 11 - remainder;
+    
+    return parseInt(cnpj[13]) === digit2;
+}
+
+function validateClientCredentials() {
+    const clientId = document.getElementById('client_id');
+    const clientSecret = document.getElementById('client_secret');
+    const clientIdFeedback = document.getElementById('client_id_feedback');
+    const clientSecretFeedback = document.getElementById('client_secret_feedback');
+    
+    // Validate Client ID
+    if (clientId.value.trim().length < 10) {
+        clientId.classList.remove('is-valid');
+        clientId.classList.add('is-invalid');
+        clientIdFeedback.textContent = 'Client ID deve ter pelo menos 10 caracteres.';
+    } else {
+        clientId.classList.remove('is-invalid');
+        clientId.classList.add('is-valid');
+    }
+    
+    // Validate Client Secret
+    if (clientSecret.value.trim().length < 10) {
+        clientSecret.classList.remove('is-valid');
+        clientSecret.classList.add('is-invalid');
+        clientSecretFeedback.textContent = 'Client Secret deve ter pelo menos 10 caracteres.';
+    } else {
+        clientSecret.classList.remove('is-invalid');
+        clientSecret.classList.add('is-valid');
+    }
+}
+
+function validateCertificate(input) {
+    const file = input.files[0];
+    const feedback = document.getElementById('certificate_feedback');
+    const validFeedback = document.getElementById('certificate_valid');
+    
+    if (!file) {
+        input.classList.remove('is-valid', 'is-invalid');
+        return;
+    }
+    
+    const allowedExtensions = ['p12', 'pem'];
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const maxSize = 1024 * 1024; // 1MB
+    
+    if (!allowedExtensions.includes(fileExtension)) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedback.textContent = 'Formato inválido. Use apenas arquivos .P12 ou .PEM.';
+        return;
+    }
+    
+    if (file.size > maxSize) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedback.textContent = 'O arquivo é muito grande. Tamanho máximo permitido: 1MB';
+        return;
+    }
+
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
 }
 
 // Inicializar todos os campos de chave como password

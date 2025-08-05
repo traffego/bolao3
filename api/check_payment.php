@@ -32,7 +32,7 @@ try {
     }
 
     // Verificar status na Efí
-    $efiPix = new EfiPixManager();
+    $efiPix = new EfiPixManager(defined('EFI_WEBHOOK_FATAL_FAILURE') ? EFI_WEBHOOK_FATAL_FAILURE : false);
     $status = $efiPix->checkPayment($txid);
 
     echo json_encode([
