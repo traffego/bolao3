@@ -103,6 +103,7 @@ try {
                     comprovante_url = ?,
                     descricao = ?,
                     data_processamento = NOW(),
+                    afeta_saldo = 1,
                     processado_por = ?
                 WHERE id = ?
             ");
@@ -152,6 +153,7 @@ try {
                 SET status = 'rejeitado',
                     descricao = ?,
                     data_processamento = NOW(),
+                    afeta_saldo = 0,
                     processado_por = ?
                 WHERE id = ?
             ");

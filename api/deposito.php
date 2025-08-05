@@ -2,12 +2,13 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Log detalhado
-error_log("=== Iniciando geração de QR Code PIX ===");
-
 require_once '../config/config.php';
 require_once '../includes/functions.php';
 require_once '../includes/EfiPixManager.php';
+require_once '../includes/classes/Logger.php';
+
+// Log detalhado
+log_info("Iniciando geração de QR Code PIX");
 
 /**
  * Gera um TXID aleatório alfanumérico conforme especificação EFI Pay
@@ -16,7 +17,7 @@ require_once '../includes/EfiPixManager.php';
  * @return string TXID com 32 caracteres alfanuméricos aleatórios
  */
 function generateRandomTxid() {
-    error_log("DEPOSITO DEBUG - Iniciando geração de TXID aleatório");
+    log_debug("Iniciando geração de TXID aleatório");
     
     $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $txid = '';
@@ -26,7 +27,10 @@ function generateRandomTxid() {
         $txid .= $characters[random_int(0, strlen($characters) - 1)];
     }
     
-    error_log("DEPOSITO DEBUG - TXID aleatório gerado: $txid (comprimento: " . strlen($txid) . ")");
+    log_debug("TXID aleatório gerado", [
+        'txid' => $txid,
+        'comprimento' => strlen($txid)
+    ]);
     
     return $txid;
 }
@@ -35,12 +39,19 @@ function generateRandomTxid() {
 header('Content-Type: application/json');
 
 // Log de entrada
-error_log("Método da requisição: " . $_SERVER['REQUEST_METHOD']);
-error_log("Dados recebidos: " . file_get_contents('php://input'));
+log_debug("Requisição recebida", [
+    'method' => $_SERVER['REQUEST_METHOD'],
+    'data' => file_get_contents('php://input')
+]);
 
 // Tratamento de erros para capturar erros fatais
 function handleError($errno, $errstr, $errfile, $errline) {
-    error_log("Erro detectado: [$errno] $errstr em $errfile:$errline");
+    log_error("Erro detectado", [
+        'errno' => $errno,
+        'error' => $errstr,
+        'file' => $errfile,
+        'line' => $errline
+    ]);
     http_response_code(500);
     echo json_encode([
         'error' => 'Erro interno do servidor',
@@ -52,20 +63,20 @@ set_error_handler('handleError');
 
 try {
     // Log do início do processo
-    error_log("Verificando método da requisição...");
+    log_debug("Verificando método da requisição...");
 
     // Verifica se é POST
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         throw new Exception('Método não permitido');
     }
 
-    error_log("Verificando autenticação...");
+    log_debug("Verificando autenticação...");
     // Verifica se está logado
     if (!isLoggedIn()) {
         throw new Exception('Usuário não autenticado', 401);
     }
 
-    error_log("Obtendo e validando dados do depósito...");
+    log_debug("Obtendo e validando dados do depósito...");
     // Obtém dados do POST
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) {
@@ -156,13 +167,13 @@ try {
         $novaTransacao['txid'] = $cobranca['txid'];
     } else {
         // Cria nova transação
-        error_log("Criando nova transação com os seguintes dados: " . json_encode([
+        log_debug("Criando nova transação", [
             'user_id' => getCurrentUserId(),
             'valor' => $valor,
             'txid' => $cobranca['txid'],
             'identificador' => $identificador,
-            'afeta_saldo' => 1 // Log adicionado
-        ]));
+            'afeta_saldo' => 0 // Transação pendente não afeta saldo
+        ]);
         
         $sql = "INSERT INTO transacoes (
                     conta_id, 
@@ -183,19 +194,22 @@ try {
                     ?,
                     ?,
                     NOW(),
-                    1,
                     0,
-                    ?
+                    0,
+                    0
                 )";
         
-        dbExecute($sql, [getCurrentUserId(), $valor, $cobranca['txid'], $identificador, $valor]);
+        dbExecute($sql, [getCurrentUserId(), $valor, $cobranca['txid'], $identificador]);
         $novaTransacao = [
             'id' => dbLastInsertId(),
             'valor' => $valor,
             'txid' => $cobranca['txid'],
-            'afeta_saldo' => 1
+            'afeta_saldo' => 0
         ];
-        error_log("Transação criada com sucesso. ID: " . $novaTransacao['id'] . ", afeta_saldo: 1");
+        log_debug("Transação criada com sucesso", [
+            'id' => $novaTransacao['id'],
+            'afeta_saldo' => 0
+        ]);
     }
 
     // Retorna dados para o frontend
@@ -212,12 +226,14 @@ try {
     ]);
 
 } catch (Exception $e) {
-    error_log("Exceção capturada: " . $e->getMessage());
-    error_log("Stack trace: " . $e->getTraceAsString());
+    log_error("Exceção capturada", [
+        'error' => $e->getMessage(),
+        'stack_trace' => $e->getTraceAsString()
+    ]);
     
     http_response_code($e->getCode() ?: 500);
     echo json_encode([
         'error' => $e->getMessage()
     ]);
 }
-error_log("=== Fim do processamento ==="); 
+log_info("Fim do processamento"); 

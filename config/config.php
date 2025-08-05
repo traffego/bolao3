@@ -9,6 +9,15 @@ if (!defined('DEBUG_MODE')) {
     define('DEBUG_MODE', true);
 }
 
+// Logging Configuration
+if (!defined('LOG_LEVEL')) {
+    define('LOG_LEVEL', DEBUG_MODE ? 'DEBUG' : 'INFO');
+}
+
+if (!defined('LOG_FILE')) {
+    define('LOG_FILE', ROOT_DIR . '/logs/app.log');
+}
+
 // Carregar configurações do banco de dados
 require_once __DIR__ . '/database.php';
 
