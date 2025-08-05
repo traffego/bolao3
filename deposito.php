@@ -292,32 +292,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         intervalId = setInterval(async () => {
             try {
-                console.log('Verificando status automaticamente...', new Date().toLocaleTimeString());
                 const response = await fetch(`api/status_deposito.php?id=${transacaoId}`);
                 const responseText = await response.text();
                 let data;
                 
                 try {
                     data = JSON.parse(responseText);
-                    console.log('Status recebido:', data);
                 } catch (jsonError) {
                     console.error('Erro de JSON no status:', responseText);
                     return; // Pula esta verificação e tenta na próxima
                 }
                 
                 if (data.status === 'aprovado') {
-                    statusPagamento.className = 'alert alert-success';
-                    statusPagamento.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-check-circle me-2"></i>
-                            <div>Pagamento confirmado! Redirecionando...</div>
-                        </div>
-                    `;
-                    
                     pararVerificacaoStatus();
-                    setTimeout(() => {
-                        window.location.href = 'minha-conta.php';
-                    }, 3000);
+                    mostrarSucessoPagamento();
                 }
                 
             } catch (error) {
@@ -355,18 +343,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (data.status === 'aprovado') {
-                statusPagamento.className = 'alert alert-success';
-                statusPagamento.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <div>Pagamento confirmado! Redirecionando...</div>
-                    </div>
-                `;
-                
                 pararVerificacaoStatus();
-                setTimeout(() => {
-                    window.location.href = 'minha-conta.php';
-                }, 3000);
+                mostrarSucessoPagamento();
             } else {
                 statusPagamento.className = 'alert alert-warning';
                 statusPagamento.innerHTML = `
@@ -393,6 +371,102 @@ document.addEventListener('DOMContentLoaded', function() {
         
         verificacaoManualEmAndamento = false;
     });
+
+    // Função para mostrar sucesso do pagamento com efeitos visuais
+    function mostrarSucessoPagamento() {
+        // Cria o overlay e modal de sucesso
+        const overlay = document.createElement('div');
+        overlay.className = 'payment-success-overlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'success-modal';
+        
+        modal.innerHTML = `
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="success-title">Pagamento Confirmado!</div>
+            <div class="success-message">
+                Seu depósito foi processado com sucesso.<br>
+                O valor já está disponível em sua conta.
+            </div>
+            <div class="btn btn-success btn-lg" onclick="redirecionarParaConta()">
+                <i class="fas fa-arrow-right me-2"></i>Ir para Minha Conta
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        // Cria confetes
+        criarConfetes();
+        
+        // Toca som de sucesso (se suportado)
+        tocarSomSucesso();
+        
+        // Auto-redireciona após 5 segundos
+        setTimeout(() => {
+            redirecionarParaConta();
+        }, 5000);
+    }
+    
+    function criarConfetes() {
+        const cores = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#00b894', '#e84393'];
+        
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = cores[Math.floor(Math.random() * cores.length)];
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                
+                document.body.appendChild(confetti);
+                
+                // Remove confete após animação
+                setTimeout(() => {
+                    if (confetti.parentNode) {
+                        confetti.parentNode.removeChild(confetti);
+                    }
+                }, 5000);
+            }, i * 100);
+        }
+    }
+    
+    function tocarSomSucesso() {
+        try {
+            // Cria um contexto de áudio para tocar um som de sucesso
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Frequências para um acorde de sucesso (Dó maior)
+            const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5
+            
+            frequencies.forEach((freq, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+                
+                oscillator.start(audioContext.currentTime + index * 0.1);
+                oscillator.stop(audioContext.currentTime + 0.8 + index * 0.1);
+            });
+        } catch (error) {
+            console.log('Som de sucesso não suportado:', error);
+        }
+    }
+    
+    window.redirecionarParaConta = function() {
+        window.location.href = 'minha-conta.php';
+    };
 });
 </script>
 

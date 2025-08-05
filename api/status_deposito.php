@@ -45,14 +45,11 @@ try {
     
     if ($shouldCheckEfi && $transacao['status'] !== 'aprovado') {
         try {
-            error_log("DEBUG: Consultando EFI Pay para transação " . $transacao['id'] . " (force_check: " . ($forceCheck ? 'sim' : 'não') . ")");
-            
             // Instancia EfiPixManager
             $efiPix = new EfiPixManager(defined('EFI_WEBHOOK_FATAL_FAILURE') ? EFI_WEBHOOK_FATAL_FAILURE : false);
             
             // Consulta status da cobrança
             $statusPix = $efiPix->checkPayment($transacao['txid']);
-            error_log("DEBUG: Status retornado da EFI Pay: " . json_encode($statusPix));
             
             // Se pagamento foi confirmado, atualiza o status no banco de dados
             if ($statusPix['status'] === 'aprovado') {
