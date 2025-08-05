@@ -284,12 +284,9 @@ class EfiPixManager {
         }
 
         // Gerar novo TXID se não fornecido
-        $timestamp = time();
-        $random = bin2hex(random_bytes(8)); // 16 caracteres
-        $prefix = 'DEP';
-        $userId = str_pad($user_id, 3, '0', STR_PAD_LEFT);
-        $txid = $prefix . $userId . $timestamp . $random;
-        $txid = substr($txid, 0, 35); // Garantir máximo de 35 caracteres
+        // Formato: apenas caracteres alfanuméricos aleatórios (26-35 chars)
+        // Conforme especificação EFI Pay: ^[a-zA-Z0-9]{26,35}$
+        $txid = $this->generateRandomTxid();
 
         error_log("EFIPIX DEBUG - Gerando TXID: $txid para user_id: $user_id");
         
@@ -655,5 +652,23 @@ class EfiPixManager {
             $this->pdo->rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * Gera um TXID aleatório alfanumérico conforme especificação EFI Pay
+     * Formato: ^[a-zA-Z0-9]{26,35}$
+     * 
+     * @return string TXID com 32 caracteres alfanuméricos aleatórios
+     */
+    private function generateRandomTxid() {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $txid = '';
+        $length = 32; // Usar 32 caracteres (dentro do range 26-35)
+        
+        for ($i = 0; $i < $length; $i++) {
+            $txid .= $characters[random_int(0, strlen($characters) - 1)];
+        }
+        
+        return $txid;
     }
 } 
