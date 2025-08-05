@@ -174,14 +174,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = dbUpdate('dados_boloes', $formData, 'id = ?', [$bolaoId]);
             
             if ($result) {
-                setFlashMessage('success', 'Bolão atualizado com sucesso!');
+                setFlashMessage('success', 'Bolão "' . $formData['nome'] . '" atualizado com sucesso!');
                 
                 // Log da ação para auditoria
                 if (function_exists('logAdminAction')) {
                     logAdminAction('update_bolao', 'Bolão editado: ' . $formData['nome'], ['bolao_id' => $bolaoId]);
                 }
                 
-                redirect(APP_URL . '/admin/editar-bolao.php?id=' . $bolaoId);
+                redirect(APP_URL . '/admin/boloes.php');
             } else {
                 $errors[] = 'Erro ao atualizar o bolão no banco de dados.';
             }
@@ -202,7 +202,7 @@ include '../templates/admin/header.php';
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><?= $pageTitle ?></h1>
     <div>
-        <a href="<?= APP_URL ?>/admin/bolao.php?id=<?= $bolaoId ?>" class="btn btn-secondary">
+        <a href="<?= APP_URL ?>/admin/boloes.php" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Voltar
         </a>
     </div>
