@@ -661,6 +661,8 @@ class EfiPixManager {
      * @return string TXID com 32 caracteres alfanuméricos aleatórios
      */
     private function generateRandomTxid() {
+        error_log("EFIPIX DEBUG - Iniciando geração de TXID aleatório");
+        
         $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $txid = '';
         $length = 32; // Usar 32 caracteres (dentro do range 26-35)
@@ -668,6 +670,8 @@ class EfiPixManager {
         for ($i = 0; $i < $length; $i++) {
             $txid .= $characters[random_int(0, strlen($characters) - 1)];
         }
+        
+        error_log("EFIPIX DEBUG - TXID aleatório gerado: $txid (comprimento: " . strlen($txid) . ")");
         
         return $txid;
     }
