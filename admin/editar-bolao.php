@@ -27,6 +27,13 @@ if (!$bolao) {
     redirect(APP_URL . '/admin/boloes.php');
 }
 
+// Verificar se o admin tem permissão para editar este bolão
+// (Por enquanto, apenas administradores podem editar qualquer bolão)
+if (!isAdmin()) {
+    setFlashMessage('danger', 'Você não tem permissão para editar este bolão.');
+    redirect(APP_URL . '/admin/boloes.php');
+}
+
 // Decode JSON data
 $jogos = json_decode($bolao['jogos'], true) ?: [];
 $campeonatos = json_decode($bolao['campeonatos'], true) ?: [];
@@ -72,18 +79,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!in_array($extension, $allowedTypes)) {
             $errors[] = 'Tipo de arquivo não permitido. Use apenas JPG, PNG ou WebP.';
         } else {
-            $newFileName = 'bolao_' . $bolaoId . '_' . time() . '.' . $extension;
-            $uploadFile = $uploadDir . $newFileName;
-            
-            if (move_uploaded_file($_FILES['imagem_bolao']['tmp_name'], $uploadFile)) {
-                // Delete old image if exists
-                if (!empty($bolao['imagem_bolao_url'])) {
-                    @unlink('../' . $bolao['imagem_bolao_url']);
-                }
-                $formData['imagem_bolao_url'] = 'uploads/boloes/' . $newFileName;
+            // Validate file size (max 5MB)
+            $maxSize = 5 * 1024 * 1024; // 5MB
+            if ($_FILES['imagem_bolao']['size'] > $maxSize) {
+                $errors[] = 'Arquivo muito grande. Tamanho máximo permitido: 5MB.';
             } else {
-                $errors[] = 'Erro ao fazer upload da imagem.';
+                $newFileName = 'bolao_' . $bolaoId . '_' . time() . '.' . $extension;
+                $uploadFile = $uploadDir . $newFileName;
+                
+                if (move_uploaded_file($_FILES['imagem_bolao']['tmp_name'], $uploadFile)) {
+                    // Delete old image if exists
+                    if (!empty($bolao['imagem_bolao_url'])) {
+                        $oldFile = '../' . $bolao['imagem_bolao_url'];
+                        if (file_exists($oldFile)) {
+                            @unlink($oldFile);
+                        }
+                    }
+                    $formData['imagem_bolao_url'] = 'uploads/boloes/' . $newFileName;
+                } else {
+                    $errors[] = 'Erro ao fazer upload da imagem. Verifique as permissões da pasta.';
+                }
             }
+        }
+    } elseif (isset($_FILES['imagem_bolao']) && $_FILES['imagem_bolao']['error'] !== UPLOAD_ERR_NO_FILE) {
+        // Handle upload errors
+        switch ($_FILES['imagem_bolao']['error']) {
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                $errors[] = 'Arquivo muito grande.';
+                break;
+            case UPLOAD_ERR_PARTIAL:
+                $errors[] = 'Upload incompleto. Tente novamente.';
+                break;
+            default:
+                $errors[] = 'Erro no upload da imagem.';
         }
     }
     
@@ -141,13 +170,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Update bolão
-        $result = dbUpdate('dados_boloes', $formData, 'id = ?', [$bolaoId]);
-        
-        if ($result) {
-            setFlashMessage('success', 'Bolão atualizado com sucesso!');
-            redirect(APP_URL . '/admin/bolao.php?id=' . $bolaoId);
-        } else {
-            setFlashMessage('danger', 'Erro ao atualizar o bolão.');
+        try {
+            $result = dbUpdate('dados_boloes', $formData, 'id = ?', [$bolaoId]);
+            
+            if ($result) {
+                setFlashMessage('success', 'Bolão atualizado com sucesso!');
+                
+                // Log da ação para auditoria
+                if (function_exists('logAdminAction')) {
+                    logAdminAction('update_bolao', 'Bolão editado: ' . $formData['nome'], ['bolao_id' => $bolaoId]);
+                }
+                
+                redirect(APP_URL . '/admin/editar-bolao.php?id=' . $bolaoId);
+            } else {
+                $errors[] = 'Erro ao atualizar o bolão no banco de dados.';
+            }
+        } catch (Exception $e) {
+            error_log("Erro ao atualizar bolão ID $bolaoId: " . $e->getMessage());
+            $errors[] = 'Erro interno do sistema. Tente novamente mais tarde.';
         }
     }
 }
