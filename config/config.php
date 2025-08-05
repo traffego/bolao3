@@ -4,6 +4,12 @@
  * Contains all system configuration, database connection settings and constants
  */
 
+// Directory Configuration - Definir primeiro para uso em outras constantes
+define('ROOT_DIR', dirname(__DIR__));
+define('PUBLIC_DIR', ROOT_DIR . '/public');
+define('TEMPLATE_DIR', ROOT_DIR . '/templates');
+define('UPLOAD_DIR', PUBLIC_DIR . '/uploads');
+
 // Definir modo de debug
 if (!defined('DEBUG_MODE')) {
     define('DEBUG_MODE', true);
@@ -29,12 +35,6 @@ define('APP_VERSION', '1.0.0');
 
 // Webhook Configuration - Dynamic based on APP_URL
 define('WEBHOOK_URL', APP_URL . '/api/webhook_pix.php');
-
-// Directory Configuration
-define('ROOT_DIR', dirname(__DIR__));
-define('PUBLIC_DIR', ROOT_DIR . '/public');
-define('TEMPLATE_DIR', ROOT_DIR . '/templates');
-define('UPLOAD_DIR', PUBLIC_DIR . '/uploads');
 
 // Session Configuration
 define('SESSION_NAME', 'bolao_session');
