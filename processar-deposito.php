@@ -4,6 +4,24 @@ require_once 'includes/functions.php';
 require_once 'includes/classes/ContaManager.php';
 require_once 'includes/classes/SecurityValidator.php';
 
+/**
+ * Gera um TXID aleatório alfanumérico conforme especificação EFI Pay
+ * Formato: ^[a-zA-Z0-9]{26,35}$
+ * 
+ * @return string TXID com 32 caracteres alfanuméricos aleatórios
+ */
+function generateRandomTxid() {
+    $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $txid = '';
+    $length = 32; // Usar 32 caracteres (dentro do range 26-35)
+    
+    for ($i = 0; $i < $length; $i++) {
+        $txid .= $characters[random_int(0, strlen($characters) - 1)];
+    }
+    
+    return $txid;
+}
+
 // Verifica se está logado
 if (!isLoggedIn()) {
     setFlashMessage('warning', 'Você precisa estar logado para fazer um depósito.');
@@ -52,8 +70,8 @@ try {
         ]
     );
     
-    // Gera referência única
-    $referencia = 'DEP' . time() . rand(1000, 9999);
+    // Gera referência única (TXID aleatório)
+    $referencia = generateRandomTxid();
     
     // Processa depósito
     $contaManager->depositar($conta['id'], $valor, $metodo, $referencia);

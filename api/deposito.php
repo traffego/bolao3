@@ -9,6 +9,28 @@ require_once '../config/config.php';
 require_once '../includes/functions.php';
 require_once '../includes/EfiPixManager.php';
 
+/**
+ * Gera um TXID aleatório alfanumérico conforme especificação EFI Pay
+ * Formato: ^[a-zA-Z0-9]{26,35}$
+ * 
+ * @return string TXID com 32 caracteres alfanuméricos aleatórios
+ */
+function generateRandomTxid() {
+    error_log("DEPOSITO DEBUG - Iniciando geração de TXID aleatório");
+    
+    $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $txid = '';
+    $length = 32; // Usar 32 caracteres (dentro do range 26-35)
+    
+    for ($i = 0; $i < $length; $i++) {
+        $txid .= $characters[random_int(0, strlen($characters) - 1)];
+    }
+    
+    error_log("DEPOSITO DEBUG - TXID aleatório gerado: $txid (comprimento: " . strlen($txid) . ")");
+    
+    return $txid;
+}
+
 // Garantir que sempre retorne JSON
 header('Content-Type: application/json');
 
@@ -107,8 +129,8 @@ try {
     // Instancia EfiPay
     $efiPix = new EfiPixManager();
     
-    // Gera identificador único para o depósito
-    $identificador = 'DEP' . time() . rand(1000000, 9999999);
+    // Gera identificador único para o depósito (TXID aleatório)
+    $identificador = generateRandomTxid();
     
     // Cria cobrança PIX
     $cobranca = $efiPix->createCharge(
