@@ -141,42 +141,11 @@ include 'templates/header.php';
                         <?php endif; ?>
                     </div>
 
-                    <!-- Transações Pendentes -->
                     <?php if (!empty($transacoesPendentes)): ?>
                     <div class="mt-4">
-                        <h6 class="text-warning mb-3">
-                            <i class="fas fa-clock"></i> Depósitos Pendentes
-                        </h6>
-                        <div class="list-group list-group-flush">
-                            <?php foreach ($transacoesPendentes as $pendente): ?>
-                            <div class="pending-transaction">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <small class="text-muted">
-                                        <?php 
-                                        $dataPendente = $pendente['data_processamento'] ?: $pendente['data_solicitacao'];
-                                        echo formatDateTime($dataPendente);
-                                        ?>
-                                    </small>
-                                    <span class="badge bg-warning">
-                                        <i class="fas fa-clock"></i> Pendente
-                                    </span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="text-success">
-                                        R$ <?= number_format($pendente['valor'], 2, ',', '.') ?>
-                                    </span>
-                                    <a href="deposito.php?id=<?= $pendente['id'] ?>" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-redo-alt"></i> Retomar Pagamento
-                                    </a>
-                                </div>
-                                <?php if ($pendente['txid']): ?>
-                                <small class="text-muted d-block">
-                                    <i class="fas fa-fingerprint"></i> PIX ID: <?= substr($pendente['txid'], 0, 10) ?>...
-                                </small>
-                                <?php endif; ?>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
+                        <button type="button" id="excluirPendentes" class="btn btn-danger w-100">
+                            <i class="fas fa-trash"></i> Excluir Transações Pendentes
+                        </button>
                     </div>
                     <?php endif; ?>
 
@@ -392,3 +361,34 @@ include 'templates/header.php';
 </div>
 
 <?php include 'templates/footer.php'; ?> 
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnExcluirPendentes = document.getElementById('excluirPendentes');
+    
+    if (btnExcluirPendentes) {
+        btnExcluirPendentes.addEventListener('click', function() {
+            if (confirm('Tem certeza que deseja excluir todas as transações pendentes?')) {
+                fetch('admin/actions/excluir-transacoes-pendentes.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Transações pendentes excluídas com sucesso!');
+                        window.location.reload();
+                    } else {
+                        alert(data.error || 'Erro ao excluir transações pendentes');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao excluir transações pendentes');
+                });
+            }
+        });
+    }
+});</script>
