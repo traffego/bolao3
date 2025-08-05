@@ -202,4 +202,46 @@ include 'templates/header.php';
     </div>
 </div>
 
+<script>
+// Adicionar feedback visual especial para pagamentos confirmados
+document.addEventListener('DOMContentLoaded', function() {
+    const flashMessage = document.querySelector('.alert-success');
+    if (flashMessage && flashMessage.textContent.includes('Pagamento realizado com sucesso')) {
+        // Adicionar confetti ou animação especial
+        flashMessage.style.border = '2px solid #28a745';
+        flashMessage.style.boxShadow = '0 0 20px rgba(40, 167, 69, 0.3)';
+        
+        // Animação de pulse
+        flashMessage.style.animation = 'pulse 2s ease-in-out 3';
+        
+        // Adicionar ícone especial
+        const icon = flashMessage.querySelector('i') || document.createElement('i');
+        icon.className = 'bi bi-check-circle-fill me-2';
+        icon.style.fontSize = '1.2em';
+        
+        if (!flashMessage.querySelector('i')) {
+            flashMessage.insertBefore(icon, flashMessage.firstChild);
+        }
+        
+        // Scroll suave para a mensagem
+        flashMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Destacar o card do status do palpite
+        const statusBadge = document.querySelector('.badge.bg-success');
+        if (statusBadge && statusBadge.textContent.includes('Pago')) {
+            statusBadge.style.animation = 'pulse 1s ease-in-out 5';
+            statusBadge.style.fontSize = '1.1em';
+        }
+    }
+});
+</script>
+
+<style>
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+</style>
+
 <?php include 'templates/footer.php'; ?> 

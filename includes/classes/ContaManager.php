@@ -93,7 +93,7 @@ class ContaManager {
     /**
      * Processa uma aposta
      */
-    public function processarAposta($contaId, $valor, $bolaoId) {
+    public function processarAposta($contaId, $valor, $bolaoId, $palpiteId = null) {
         try {
             // Validações
             $this->validarStatusConta($contaId);
@@ -108,9 +108,9 @@ class ContaManager {
             $saldoPosterior = $saldoAnterior - $valor;
             
             // Registra transação
-            $sql = "INSERT INTO transacoes (conta_id, tipo, valor, status, referencia, afeta_saldo) 
-                    VALUES (?, 'aposta', ?, 'aprovado', ?, 1)";
-            dbExecute($sql, [$contaId, $valor, "bolao_$bolaoId"]);
+            $sql = "INSERT INTO transacoes (conta_id, tipo, valor, status, referencia, afeta_saldo, palpite_id) 
+                    VALUES (?, 'aposta', ?, 'aprovado', ?, 1, ?)";
+            dbExecute($sql, [$contaId, $valor, "bolao_$bolaoId", $palpiteId]);
             
             dbCommit();
             return true;

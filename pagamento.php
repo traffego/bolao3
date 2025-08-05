@@ -80,7 +80,7 @@ if (isLoggedIn()) {
     if ($saldo >= $palpite['valor_participacao']) {
         try {
             // Processar pagamento via saldo
-            $contaManager->processarAposta($contaId, $palpite['valor_participacao'], $bolaoId);
+            $contaManager->processarAposta($contaId, $palpite['valor_participacao'], $bolaoId, $palpiteId);
             
             // Atualizar status do palpite
             $sql = "UPDATE palpites SET status = 'pago' WHERE id = ?";
@@ -89,7 +89,7 @@ if (isLoggedIn()) {
             // Limpar sessão e redirecionar
             unset($_SESSION['palpite_pendente']);
             setFlashMessage('success', 'Pagamento realizado com sucesso via saldo!');
-            redirect(APP_URL . '/meus-palpites.php');
+            redirect(APP_URL . '/ver-palpite.php?id=' . $palpiteId);
             
         } catch (Exception $e) {
             $error = 'Erro ao processar pagamento: ' . $e->getMessage();
@@ -235,7 +235,7 @@ if (isset($_GET['action'])) {
                 
                 if ($saldo >= $palpite['valor_participacao']) {
                     // Processar pagamento via saldo
-                    $contaManager->processarAposta($conta['id'], $palpite['valor_participacao'], $bolaoId);
+                    $contaManager->processarAposta($conta['id'], $palpite['valor_participacao'], $bolaoId, $palpiteId);
                     
                     // Atualizar status do palpite
                     $sql = "UPDATE palpites SET status = 'pago' WHERE id = ?";
@@ -500,7 +500,7 @@ function checkPaymentStatus() {
                     status.innerHTML = '<i class="bi bi-check-circle me-2"></i>Pagamento confirmado! Redirecionando...';
                     
                     setTimeout(() => {
-                        window.location.href = '<?php echo APP_URL; ?>/meus-palpites.php';
+                        window.location.href = '<?php echo APP_URL; ?>/ver-palpite.php?id=<?php echo $palpiteId; ?>';
                     }, 2000);
                 }
             } else if (data.status === 'waiting') {
