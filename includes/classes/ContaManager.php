@@ -47,9 +47,9 @@ class ContaManager {
             $saldoPosterior = $saldoAnterior + $valor;
             
             // Registra transação
-            $sql = "INSERT INTO transacoes (conta_id, tipo, valor, saldo_anterior, saldo_posterior, status, referencia) 
-                    VALUES (?, 'deposito', ?, ?, ?, 'pendente', ?)";
-            dbExecute($sql, [$contaId, $valor, $saldoAnterior, $saldoPosterior, $referencia]);
+            $sql = "INSERT INTO transacoes (conta_id, tipo, valor, status, referencia, afeta_saldo) 
+                    VALUES (?, 'deposito', ?, 'pendente', ?, 0)";
+            dbExecute($sql, [$contaId, $valor, $referencia]);
             
             dbCommit();
             return true;
@@ -78,9 +78,9 @@ class ContaManager {
             $saldoPosterior = $saldoAnterior - $valor;
             
             // Registra transação
-            $sql = "INSERT INTO transacoes (conta_id, tipo, valor, saldo_anterior, saldo_posterior, status) 
-                    VALUES (?, 'saque', ?, ?, ?, 'pendente')";
-            dbExecute($sql, [$contaId, $valor, $saldoAnterior, $saldoPosterior]);
+            $sql = "INSERT INTO transacoes (conta_id, tipo, valor, status, afeta_saldo) 
+                    VALUES (?, 'saque', ?, 'pendente', 0)";
+            dbExecute($sql, [$contaId, $valor]);
             
             dbCommit();
             return true;
@@ -108,9 +108,9 @@ class ContaManager {
             $saldoPosterior = $saldoAnterior - $valor;
             
             // Registra transação
-            $sql = "INSERT INTO transacoes (conta_id, tipo, valor, saldo_anterior, saldo_posterior, status, referencia) 
-                    VALUES (?, 'aposta', ?, ?, ?, 'aprovado', ?)";
-            dbExecute($sql, [$contaId, $valor, $saldoAnterior, $saldoPosterior, "bolao_$bolaoId"]);
+            $sql = "INSERT INTO transacoes (conta_id, tipo, valor, status, referencia, afeta_saldo) 
+                    VALUES (?, 'aposta', ?, 'aprovado', ?, 1)";
+            dbExecute($sql, [$contaId, $valor, "bolao_$bolaoId"]);
             
             dbCommit();
             return true;
@@ -137,9 +137,9 @@ class ContaManager {
             $saldoPosterior = $saldoAnterior + $valor;
             
             // Registra transação
-            $sql = "INSERT INTO transacoes (conta_id, tipo, valor, saldo_anterior, saldo_posterior, status, referencia) 
-                    VALUES (?, 'premio', ?, ?, ?, 'aprovado', ?)";
-            dbExecute($sql, [$contaId, $valor, $saldoAnterior, $saldoPosterior, "premio_bolao_$bolaoId"]);
+            $sql = "INSERT INTO transacoes (conta_id, tipo, valor, status, referencia, afeta_saldo) 
+                    VALUES (?, 'premio', ?, 'aprovado', ?, 1)";
+            dbExecute($sql, [$contaId, $valor, "premio_bolao_$bolaoId"]);
             
             dbCommit();
             return true;

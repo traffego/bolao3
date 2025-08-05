@@ -183,9 +183,7 @@ try {
                     txid,
                     referencia,
                     data_processamento,
-                    afeta_saldo,
-                    saldo_anterior,
-                    saldo_posterior
+                    afeta_saldo
                 ) VALUES (
                     (SELECT id FROM contas WHERE jogador_id = ?),
                     'deposito',
@@ -194,8 +192,6 @@ try {
                     ?,
                     ?,
                     NOW(),
-                    0,
-                    0,
                     0
                 )";
         
