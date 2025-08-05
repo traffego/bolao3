@@ -292,12 +292,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         intervalId = setInterval(async () => {
             try {
+                console.log('Verificando status automaticamente...', new Date().toLocaleTimeString());
                 const response = await fetch(`api/status_deposito.php?id=${transacaoId}`);
                 const responseText = await response.text();
                 let data;
                 
                 try {
                     data = JSON.parse(responseText);
+                    console.log('Status recebido:', data);
                 } catch (jsonError) {
                     console.error('Erro de JSON no status:', responseText);
                     return; // Pula esta verificação e tenta na próxima

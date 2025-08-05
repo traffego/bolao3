@@ -39,15 +39,20 @@ try {
         throw new Exception('Transação não encontrada', 404);
     }
 
-    // Se solicitada verificação manual e transação ainda não está aprovada
+    // Verificar se deve consultar a EFI Pay
     $forceCheck = filter_input(INPUT_GET, 'force_check', FILTER_VALIDATE_BOOLEAN);
-    if ($forceCheck && $transacao['status'] !== 'aprovado') {
+    $shouldCheckEfi = $forceCheck || ($transacao['status'] === 'pendente');
+    
+    if ($shouldCheckEfi && $transacao['status'] !== 'aprovado') {
         try {
+            error_log("DEBUG: Consultando EFI Pay para transação " . $transacao['id'] . " (force_check: " . ($forceCheck ? 'sim' : 'não') . ")");
+            
             // Instancia EfiPixManager
             $efiPix = new EfiPixManager(defined('EFI_WEBHOOK_FATAL_FAILURE') ? EFI_WEBHOOK_FATAL_FAILURE : false);
             
             // Consulta status da cobrança
             $statusPix = $efiPix->checkPayment($transacao['txid']);
+            error_log("DEBUG: Status retornado da EFI Pay: " . json_encode($statusPix));
             
             // Se pagamento foi confirmado, atualiza o status no banco de dados
             if ($statusPix['status'] === 'aprovado') {
@@ -57,6 +62,10 @@ try {
             }
         } catch (Exception $e) {
             error_log("Erro ao verificar status no EfiPix: " . $e->getMessage());
+            // Para verificação automática, não loga no console para evitar spam
+            if ($forceCheck) {
+                error_log("Erro na verificação manual: " . $e->getMessage());
+            }
             // Não propaga o erro, apenas continua e retorna o status atual
         }
     }
