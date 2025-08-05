@@ -376,6 +376,51 @@ include '../templates/admin/header.php';
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
+
+/* Bolão Card Styles */
+.bolao-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+}
+
+.bolao-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.bolao-card .card-header {
+    padding: 1rem 1.25rem;
+    background: linear-gradient(45deg, #f8f9fa, #ffffff);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 1rem 1rem 0 0;
+}
+
+.bolao-card .card-body {
+    padding: 1.25rem;
+}
+
+.bolao-card .card-footer {
+    padding: 1rem 1.25rem;
+    background: #f8f9fa;
+    border-radius: 0 0 1rem 1rem;
+}
+
+.bolao-card small.text-muted {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.bolao-card .fw-bold {
+    font-size: 0.95rem;
+}
+
+.bolao-card .fw-semibold {
+    font-size: 0.9rem;
+}
 </style>
 
 <div class="container-fluid px-4">
@@ -483,68 +528,96 @@ include '../templates/admin/header.php';
                 </div>
             </form>
             
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Data Início</th>
-                            <th>Data Fim</th>
-                            <th>Valor</th>
-                            <th>Prêmio Total</th>
-                            <th>Prêmio por Rodada</th>
-                            <th>Status</th>
-                            <th>Jogos</th>
-                            <th>Palpites</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($boloes)): ?>
-                            <tr>
-                                <td colspan="11" class="text-center py-4">Nenhum bolão encontrado.</td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($boloes as $bolao): ?>
-                                <?php 
-                                    $jogosArray = json_decode($bolao['jogos'], true);
-                                    $totalJogos = is_array($jogosArray) ? count($jogosArray) : 0;
-                                ?>
-                                <tr>
-                                    <td><?= $bolao['id'] ?></td>
-                                    <td><?= htmlspecialchars($bolao['nome']) ?></td>
-                                    <td><?= formatDate($bolao['data_inicio']) ?></td>
-                                    <td><?= formatDate($bolao['data_fim']) ?></td>
-                                    <td><?= formatMoney($bolao['valor_participacao']) ?></td>
-                                    <td><?= formatMoney($bolao['premio_total']) ?></td>
-                                    <td><?= formatMoney($bolao['premio_rodada']) ?></td>
-                                    <td>
-                                        <?php if ($bolao['status'] == 1): ?>
-                                            <a href="?status=0&id=<?= $bolao['id'] ?>" class="badge bg-success text-decoration-none" 
-                                               title="Clique para desativar" data-bs-toggle="tooltip">Ativo</a>
-                                        <?php else: ?>
-                                            <a href="?status=1&id=<?= $bolao['id'] ?>" class="badge bg-danger text-decoration-none" 
-                                               title="Clique para ativar" data-bs-toggle="tooltip">Inativo</a>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?= $totalJogos ?></td>
-                                    <td>
-                                        <a href="palpites-bolao.php?bolao_id=<?= $bolao['id'] ?>" class="badge bg-info text-decoration-none">
-                                            <?= $bolao['total_palpites'] ?>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm btn-actions" type="button" data-bs-toggle="modal" data-bs-target="#bolaoActionsModal<?= $bolao['id'] ?>">
-                                            AÇÕES
-                                        </button>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+            <?php if (empty($boloes)): ?>
+                <div class="text-center py-5">
+                    <i class="fas fa-trophy fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nenhum bolão encontrado</h5>
+                    <p class="text-muted">Crie seu primeiro bolão para começar.</p>
+                    <a href="novo-bolao.php" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Criar Novo Bolão
+                    </a>
+                </div>
+            <?php else: ?>
+                <div class="row g-4">
+                    <?php foreach ($boloes as $bolao): ?>
+                        <?php 
+                            $jogosArray = json_decode($bolao['jogos'], true);
+                            $totalJogos = is_array($jogosArray) ? count($jogosArray) : 0;
+                        ?>
+                        <div class="col-lg-6 col-xl-4">
+                            <div class="card bolao-card h-100 shadow-sm">
+                                <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-trophy text-primary me-2"></i>
+                                        <span class="fw-bold text-truncate"><?= htmlspecialchars($bolao['nome']) ?></span>
+                                    </div>
+                                    <span class="badge text-muted">#<?= $bolao['id'] ?></span>
+                                </div>
+                                
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Data Início</small>
+                                            <span class="fw-semibold"><?= formatDate($bolao['data_inicio']) ?></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Data Fim</small>
+                                            <span class="fw-semibold"><?= formatDate($bolao['data_fim']) ?></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Valor Participação</small>
+                                            <span class="fw-bold text-success"><?= formatMoney($bolao['valor_participacao']) ?></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Status</small>
+                                            <?php if ($bolao['status'] == 1): ?>
+                                                <a href="?status=0&id=<?= $bolao['id'] ?>" class="badge bg-success text-decoration-none" 
+                                                   title="Clique para desativar" data-bs-toggle="tooltip">Ativo</a>
+                                            <?php else: ?>
+                                                <a href="?status=1&id=<?= $bolao['id'] ?>" class="badge bg-danger text-decoration-none" 
+                                                   title="Clique para ativar" data-bs-toggle="tooltip">Inativo</a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Prêmio Total</small>
+                                            <span class="fw-bold text-warning"><?= formatMoney($bolao['premio_total']) ?></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Prêmio/Rodada</small>
+                                            <span class="fw-bold text-info"><?= formatMoney($bolao['premio_rodada']) ?></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Total de Jogos</small>
+                                            <span class="fw-semibold"><?= $totalJogos ?></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Palpites</small>
+                                            <a href="palpites-bolao.php?bolao_id=<?= $bolao['id'] ?>" class="badge bg-info text-decoration-none fs-6">
+                                                <?= $bolao['total_palpites'] ?>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-footer bg-light border-top-0">
+                                    <button class="btn btn-primary w-100" type="button" data-bs-toggle="modal" data-bs-target="#bolaoActionsModal<?= $bolao['id'] ?>">
+                                        <i class="fas fa-cog"></i> Gerenciar Bolão
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
             
             <!-- Pagination -->
             <?php if ($totalPages > 1): ?>
