@@ -9,15 +9,8 @@ require_once 'config/config.php';require_once 'includes/functions.php';
 $condition = "status = 1";
 $params = [];
 
-if (isLoggedIn()) {
-    $userId = getCurrentUserId();
-    // Mostrar bolões públicos ou bolões privados que o usuário participa
-    $condition .= " AND (publico = 1 OR id IN (SELECT bolao_id FROM participacoes WHERE jogador_id = ?))";
-    $params[] = $userId;
-} else {
-    // Para usuários não logados, mostrar apenas bolões públicos
-    $condition .= " AND publico = 1";
-}
+// Mostrar apenas bolões públicos (simplificando a lógica)
+$condition .= " AND publico = 1";
 
 // Buscar bolões ativos
 $sql = "SELECT b.*, 
