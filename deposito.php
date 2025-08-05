@@ -171,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const formDeposito = document.getElementById('formDeposito');
     const etapaValor = document.getElementById('etapaValor');
     const etapaPix = document.getElementById('etapaPix');
+    const btnGerarPix = formDeposito.querySelector('button[type="submit"]');
     const btnCopiarPix = document.getElementById('btnCopiarPix');
     const btnNovoDeposito = document.getElementById('btnNovoDeposito');
     const btnJaPaguei = document.getElementById('btnJaPaguei');
