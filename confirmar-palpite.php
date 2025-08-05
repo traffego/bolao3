@@ -35,7 +35,16 @@ if (isset($_SESSION['palpite_pendente'])) {
     
     if ($palpiteExistente) {
         $palpitesJson = json_decode($palpiteExistente['palpites'], true);
-        $palpites = $palpitesJson['jogos'] ?? [];
+        $palpitesRaw = $palpitesJson['jogos'] ?? [];
+        
+        // Processar palpites para lidar com diferentes formatos (com e sem prefixo 'resultado_')
+        $palpites = [];
+        foreach ($palpitesRaw as $key => $value) {
+            // Remove o prefixo 'resultado_' se existir para normalizar as chaves
+            $jogoId = str_replace('resultado_', '', $key);
+            // Garantir que a chave seja string para consistência
+            $palpites[(string)$jogoId] = $value;
+        }
     } else {
         unset($_SESSION['palpite_pendente']);
         redirect(APP_URL . '/boloes.php');
@@ -294,17 +303,18 @@ include TEMPLATE_DIR . '/header.php';
                                         </td>
                                         <td><?= formatDateTime($jogo['data_formatada'] ?? $jogo['data']) ?></td>
                                         <td>
-                                            <input type="hidden" name="resultado_<?= $jogo['id'] ?>" value="<?= $palpites[$jogo['id']] ?? '' ?>">
+                                            <?php $jogoIdStr = (string)$jogo['id']; ?>
+                                            <input type="hidden" name="resultado_<?= $jogo['id'] ?>" value="<?= $palpites[$jogoIdStr] ?? '' ?>">
                                             <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-outline-success btn-sm resultado-btn <?= ($palpites[$jogo['id']] ?? '') === '1' ? 'active' : '' ?>" 
+                                                <button type="button" class="btn btn-outline-success btn-sm resultado-btn <?= ($palpites[$jogoIdStr] ?? '') === '1' ? 'active' : '' ?>" 
                                                         onclick="selecionarResultado(<?= $jogo['id'] ?>, '1')">
                                                     Casa Vence
                                                 </button>
-                                                <button type="button" class="btn btn-outline-warning btn-sm resultado-btn <?= ($palpites[$jogo['id']] ?? '') === '0' ? 'active' : '' ?>"
+                                                <button type="button" class="btn btn-outline-warning btn-sm resultado-btn <?= ($palpites[$jogoIdStr] ?? '') === '0' ? 'active' : '' ?>"
                                                         onclick="selecionarResultado(<?= $jogo['id'] ?>, '0')">
                                                     Empate
                                                 </button>
-                                                <button type="button" class="btn btn-outline-danger btn-sm resultado-btn <?= ($palpites[$jogo['id']] ?? '') === '2' ? 'active' : '' ?>"
+                                                <button type="button" class="btn btn-outline-danger btn-sm resultado-btn <?= ($palpites[$jogoIdStr] ?? '') === '2' ? 'active' : '' ?>"
                                                         onclick="selecionarResultado(<?= $jogo['id'] ?>, '2')">
                                                     Visitante Vence
                                                 </button>

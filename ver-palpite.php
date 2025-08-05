@@ -38,7 +38,17 @@ if ($palpite['status'] === 'pendente' && $palpite['valor_participacao'] > 0) {
 
 // Decodificar palpites e jogos
 $palpitesJson = json_decode($palpite['palpites'], true);
-$palpites = $palpitesJson['jogos'] ?? [];
+$palpitesRaw = $palpitesJson['jogos'] ?? [];
+
+// Processar palpites para lidar com diferentes formatos (com e sem prefixo 'resultado_')
+$palpites = [];
+foreach ($palpitesRaw as $key => $value) {
+    // Remove o prefixo 'resultado_' se existir para normalizar as chaves
+    $jogoId = str_replace('resultado_', '', $key);
+    // Garantir que a chave seja string para consistência
+    $palpites[(string)$jogoId] = $value;
+}
+
 $jogos = json_decode($palpite['jogos'], true) ?? [];
 
 // Get configuration for points
@@ -115,7 +125,7 @@ include 'templates/header.php';
                     <tbody>
                         <?php foreach ($jogos as $jogo): ?>
                             <?php 
-                            $jogoId = $jogo['id'];
+                            $jogoId = (string)$jogo['id']; // Converter para string para garantir correspondência
                             $palpiteJogo = $palpites[$jogoId] ?? null;
                             $resultado = isset($jogo['resultado']) ? $jogo['resultado'] : null;
                             ?>
@@ -126,16 +136,18 @@ include 'templates/header.php';
                                 </td>
                                 <td><?= formatDateTime($jogo['data_formatada'] ?? $jogo['data']) ?></td>
                                 <td class="text-center">
-                                    <?php if ($palpiteJogo): ?>
+                                    <?php if ($palpiteJogo !== null): ?>
                                         <?php if ($palpiteJogo === '1'): ?>
                                             <span class="text-success">Vitória <?= htmlspecialchars($jogo['time_casa']) ?></span>
                                         <?php elseif ($palpiteJogo === '2'): ?>
                                             <span class="text-danger">Vitória <?= htmlspecialchars($jogo['time_visitante']) ?></span>
-                                        <?php else: ?>
+                                        <?php elseif ($palpiteJogo === '0'): ?>
                                             <span class="text-warning">Empate</span>
+                                        <?php else: ?>
+                                            <span class="text-muted">Palpite: <?= htmlspecialchars($palpiteJogo) ?></span>
                                         <?php endif; ?>
                                     <?php else: ?>
-                                        <span class="text-warning">Empate</span>
+                                        <span class="text-muted">Sem palpite</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
