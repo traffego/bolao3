@@ -865,7 +865,57 @@ class EfiPixManager {
             'valor' => $transacao['valor']
         ]);
 
-        // ... restante do código ...
+        // Se a transação já está aprovada, retorna sem consultar a EFI
+        if ($transacao['status'] === 'aprovado') {
+            return [
+                'status' => 'aprovado',
+                'txid' => $txid,
+                'valor_pago' => $transacao['valor'],
+                'data_pagamento' => $transacao['data_processamento']
+            ];
+        }
+
+        // Fazer requisição para EFI Pay para verificar status
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => EFI_API_URL . '/v2/cob/' . $txid,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $this->access_token,
+                'Content-Type: application/json'
+            ],
+            CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
+            CURLOPT_SSLCERTTYPE => 'P12'
+        ]);
+
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        if ($err) {
+            $this->logger->error("Erro cURL na verificação de pagamento", ['error' => $err]);
+            throw new Exception('Erro de conexão: ' . $err);
+        }
+
+        if ($httpCode !== 200) {
+            $this->logger->error("Erro HTTP na verificação de pagamento", [
+                'http_code' => $httpCode,
+                'response' => $response
+            ]);
+            // Se for 404, a cobrança não existe ou não foi paga
+            if ($httpCode === 404) {
+                return [
+                    'status' => 'pendente',
+                    'txid' => $txid,
+                    'valor_pago' => 0,
+                    'message' => 'Cobrança não encontrada ou ainda não paga'
+                ];
+            }
+            throw new Exception('Erro na consulta EFI Pay. HTTP Code: ' . $httpCode);
+        }
+
         $responseData = json_decode($response, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             log_error("Falha ao decodificar JSON", ['error' => json_last_error_msg()]);
