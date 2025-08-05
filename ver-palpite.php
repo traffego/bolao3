@@ -38,7 +38,16 @@ if ($palpite['status'] === 'pendente' && $palpite['valor_participacao'] > 0) {
 
 // Decodificar palpites e jogos
 $palpitesJson = json_decode($palpite['palpites'], true);
-$palpitesRaw = $palpitesJson['jogos'] ?? [];
+
+// Lidar com diferentes estruturas de dados:
+// 1. {"jogos": {"id": "valor"}} - formato novo
+// 2. {"id": "valor"} - formato antigo direto
+if (isset($palpitesJson['jogos'])) {
+    $palpitesRaw = $palpitesJson['jogos'];
+} else {
+    // Se não tem a estrutura "jogos", assume que o JSON é direto
+    $palpitesRaw = $palpitesJson ?? [];
+}
 
 // Processar palpites para lidar com diferentes formatos (com e sem prefixo 'resultado_')
 $palpites = [];

@@ -98,11 +98,11 @@ try {
         }
     }
     
-    // Inserir palpites como JSON
+    // Inserir palpites como JSON com estrutura correta
     $palpiteId = dbInsert('palpites', [
         'jogador_id' => $usuarioId,
         'bolao_id' => $bolaoId,
-        'palpites' => json_encode($palpitesForm),
+        'palpites' => json_encode(['jogos' => $palpitesForm]),
         'status' => $statusPagamento,
         'data_palpite' => date('Y-m-d H:i:s')
     ]);
