@@ -828,12 +828,13 @@ include '../templates/admin/header.php';
                         // Verificar status dos componentes EFI
                         $efiStatus = [];
                         
-                        // Verificar configurações básicas
-                        $newPixConfig['client_id'] = $_POST['client_id'];
-                        $newPixConfig['client_secret'] = $_POST['client_secret'];
-                        $newPixConfig['pix_key'] = $_POST['pix_key'];
-                        $newPixConfig['ambiente'] = $_POST['ambiente'];
-                        $newPixConfig['webhook_fatal_failure'] = isset($_POST['webhook_fatal_failure']);
+                        // Verificar configurações básicas - usar valores do banco ou POST se disponível
+                        $newPixConfig = [];
+                        $newPixConfig['client_id'] = $_POST['client_id'] ?? $pixConfig['client_id'] ?? '';
+                        $newPixConfig['client_secret'] = $_POST['client_secret'] ?? $pixConfig['client_secret'] ?? '';
+                        $newPixConfig['pix_key'] = $_POST['pix_key'] ?? $pixConfig['pix_key'] ?? '';
+                        $newPixConfig['ambiente'] = $_POST['ambiente'] ?? $pixConfig['ambiente'] ?? 'producao';
+                        $newPixConfig['webhook_fatal_failure'] = isset($_POST['webhook_fatal_failure']) ? $_POST['webhook_fatal_failure'] : ($pixConfig['webhook_fatal_failure'] ?? false);
                         
                         $efiStatus['config'] = [
                             'client_id' => !empty($newPixConfig['client_id']),
