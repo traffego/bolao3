@@ -20,7 +20,12 @@ if (isLoggedIn()) {
 }
 
 // Buscar bolões ativos
-$boloes = dbFetchAll("SELECT * FROM dados_boloes WHERE {$condition} ORDER BY data_criacao DESC", $params);
+$sql = "SELECT b.*, 
+        (SELECT COUNT(*) FROM palpites p WHERE p.bolao_id = b.id AND p.status = 'pago') as total_participantes
+        FROM dados_boloes b 
+        WHERE {$condition} 
+        ORDER BY b.data_criacao DESC";
+$boloes = dbFetchAll($sql, $params);
 
 // Título da página
 $pageTitle = "Bolões Disponíveis";
