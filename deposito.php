@@ -205,6 +205,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        // Adiciona loading (considera se é retomada ou novo)
+        const isRetomada = btnGerarPix.innerHTML.includes('Retomar');
+        const originalText = btnGerarPix.innerHTML;
+        btnGerarPix.innerHTML = isRetomada ? 
+            '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Retomando...' :
+            '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Gerando PIX...';
+        btnGerarPix.disabled = true;
+        
         try {
             const response = await fetch('api/deposito.php', {
                 method: 'POST',
@@ -214,7 +222,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({ valor })
             });
             
-            const data = await response.json();
+            const responseText = await response.text();
+            let data;
+            
+            try {
+                data = JSON.parse(responseText);
+            } catch (jsonError) {
+                console.error('Erro de JSON:', responseText);
+                throw new Error('Resposta inválida do servidor. Verifique os logs.');
+            }
             
             if (data.error) {
                 throw new Error(data.error);
@@ -238,6 +254,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
         } catch (error) {
             alert(error.message || 'Erro ao gerar PIX. Tente novamente.');
+        } finally {
+            // Remove loading
+            btnGerarPix.innerHTML = originalText;
+            btnGerarPix.disabled = false;
         }
     });
     
@@ -272,7 +292,15 @@ document.addEventListener('DOMContentLoaded', function() {
         intervalId = setInterval(async () => {
             try {
                 const response = await fetch(`api/status_deposito.php?id=${transacaoId}`);
-                const data = await response.json();
+                const responseText = await response.text();
+                let data;
+                
+                try {
+                    data = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.error('Erro de JSON no status:', responseText);
+                    return; // Pula esta verificação e tenta na próxima
+                }
                 
                 if (data.status === 'aprovado') {
                     statusPagamento.className = 'alert alert-success';
@@ -313,7 +341,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             const response = await fetch(`api/status_deposito.php?id=${transacaoId}&force_check=1`);
-            const data = await response.json();
+            const responseText = await response.text();
+            let data;
+            
+            try {
+                data = JSON.parse(responseText);
+            } catch (jsonError) {
+                console.error('Erro de JSON no force_check:', responseText);
+                throw new Error('Erro na verificação do pagamento.');
+            }
             
             if (data.status === 'aprovado') {
                 statusPagamento.className = 'alert alert-success';

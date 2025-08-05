@@ -1,7 +1,10 @@
 <?php
 // Previne que erros PHP sejam exibidos diretamente
 ini_set('display_errors', 0);
-error_reporting(E_ALL);
+error_reporting(0);
+
+// Limpa qualquer output anterior
+ob_clean();
 
 // Garante que a resposta será sempre JSON
 header('Content-Type: application/json');
