@@ -28,7 +28,6 @@ try {
         SELECT 
             t.*,
             p.id as palpite_id,
-            p.valor as valor_palpite,
             b.nome as bolao_nome,
             b.id as bolao_id,
             CASE 
@@ -43,7 +42,7 @@ try {
         LEFT JOIN palpites p ON p.id = t.palpite_id
         LEFT JOIN dados_boloes b ON b.id = p.bolao_id
         WHERE t.conta_id = ? 
-        ORDER BY t.data_processamento DESC 
+        ORDER BY COALESCE(t.data_processamento, t.data_solicitacao) DESC 
         LIMIT 20";
 
     $transacoes = dbFetchAll($sql, [$conta['id']]);
@@ -53,7 +52,6 @@ try {
         SELECT 
             t.*,
             p.id as palpite_id,
-            p.valor as valor_palpite,
             b.nome as bolao_nome,
             b.id as bolao_id
         FROM transacoes t
@@ -62,7 +60,7 @@ try {
         WHERE t.conta_id = ? 
         AND t.status = 'pendente'
         AND t.tipo = 'deposito'
-        ORDER BY t.data_processamento DESC";
+        ORDER BY COALESCE(t.data_processamento, t.data_solicitacao) DESC";
 
     $transacoesPendentes = dbFetchAll($sqlPendentes, [$conta['id']]);
 
@@ -115,13 +113,18 @@ include 'templates/header.php';
     <div class="row">
         <!-- Coluna da Esquerda - Saldo e Ações -->
         <div class="col-md-4 mb-4">
+            <!-- Saldo com design melhorado -->
+            <div class="account-balance">
+                <div class="wallet-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <h5 class="mb-2">Saldo Disponível</h5>
+                <div class="balance-amount">R$ <?= number_format($saldoAtual, 2, ',', '.') ?></div>
+            </div>
+            
+            <!-- Ações -->
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center">
-                    <div class="mb-3">
-                        <i class="fas fa-wallet fa-3x text-primary"></i>
-                    </div>
-                    <h5 class="card-title">Saldo Disponível</h5>
-                    <h2 class="text-success mb-4">R$ <?= number_format($saldoAtual, 2, ',', '.') ?></h2>
                     
                     <div class="d-grid gap-2">
                         <a href="deposito.php" class="btn btn-primary">
@@ -146,10 +149,13 @@ include 'templates/header.php';
                         </h6>
                         <div class="list-group list-group-flush">
                             <?php foreach ($transacoesPendentes as $pendente): ?>
-                            <div class="list-group-item">
+                            <div class="pending-transaction">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <small class="text-muted">
-                                        <?= formatDateTime($pendente['data_processamento']) ?>
+                                        <?php 
+                                        $dataPendente = $pendente['data_processamento'] ?: $pendente['data_solicitacao'];
+                                        echo formatDateTime($dataPendente);
+                                        ?>
                                     </small>
                                     <span class="badge bg-warning">
                                         <i class="fas fa-clock"></i> Pendente
@@ -237,7 +243,16 @@ include 'templates/header.php';
                 </div>
                 <div class="card-body">
                     <?php if (empty($transacoes)): ?>
-                        <p class="text-muted text-center">Nenhuma transação encontrada</p>
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-receipt fa-3x text-muted"></i>
+                            </div>
+                            <h5 class="text-muted">Nenhuma transação encontrada</h5>
+                            <p class="text-muted">Suas transações aparecerão aqui quando você fizer depósitos ou apostas.</p>
+                            <a href="deposito.php" class="btn btn-primary">
+                                <i class="fas fa-plus-circle"></i> Fazer Primeiro Depósito
+                            </a>
+                        </div>
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
@@ -252,10 +267,13 @@ include 'templates/header.php';
                                 </thead>
                                 <tbody>
                                     <?php foreach ($transacoes as $transacao): ?>
-                                        <tr>
+                                        <tr class="transaction-item <?= $transacao['tipo'] ?>">
                                             <td>
-                                                <div><?= formatDate($transacao['data_processamento']) ?></div>
-                                                <small class="text-muted"><?= formatTime($transacao['data_processamento']) ?></small>
+                                                <?php 
+                                                $dataExibir = $transacao['data_processamento'] ?: $transacao['data_solicitacao'];
+                                                ?>
+                                                <div><?= formatDate($dataExibir) ?></div>
+                                                <small class="text-muted"><?= formatTime($dataExibir) ?></small>
                                             </td>
                                             <td>
                                                 <?php

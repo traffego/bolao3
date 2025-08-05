@@ -129,6 +129,87 @@
     to { opacity: 1; }
 }
 
+/* Minha Conta - Melhorias */
+.account-balance {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.account-balance .balance-amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 1rem 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.account-balance .wallet-icon {
+    font-size: 3rem;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+}
+
+.transaction-item {
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.transaction-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.transaction-item.deposito {
+    border-left-color: #28a745;
+}
+
+.transaction-item.saque {
+    border-left-color: #dc3545;
+}
+
+.transaction-item.aposta {
+    border-left-color: #ffc107;
+}
+
+.transaction-item.premio {
+    border-left-color: #007bff;
+}
+
+.transaction-item.bonus {
+    border-left-color: #17a2b8;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.pending-transaction {
+    background: linear-gradient(45deg, #fff3cd, #ffeaa7);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-left: 4px solid #ffc107;
+}
+
 /* General Styles */
 body {
     background-color: #f8f9fa;
