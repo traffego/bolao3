@@ -50,6 +50,14 @@ foreach ($configsPagamento as $config) {
     }
 }
 
+// Verifica se há valor sugerido via URL (para pagamentos)
+$valorSugerido = filter_input(INPUT_GET, 'valor', FILTER_VALIDATE_FLOAT);
+if ($valorSugerido && $valorSugerido >= $configs['deposito_minimo'] && $valorSugerido <= $configs['deposito_maximo']) {
+    $valorPadrao = $valorSugerido;
+} else {
+    $valorPadrao = null;
+}
+
 $pageTitle = "Realizar Depósito";
 include 'templates/header.php';
 ?>
@@ -79,13 +87,15 @@ include 'templates/header.php';
                                            min="<?= number_format($configs['deposito_minimo'], 2, '.', '') ?>" 
                                            max="<?= number_format($configs['deposito_maximo'], 2, '.', '') ?>" 
                                            step="0.01" 
-                                           value="<?= $transacao ? number_format($transacao['valor'], 2, '.', '') : '' ?>"
+                                           value="<?= $transacao ? number_format($transacao['valor'], 2, '.', '') : ($valorPadrao ? number_format($valorPadrao, 2, '.', '') : '') ?>"
                                            <?= $transacao ? 'readonly' : '' ?>
                                            required>
                                 </div>
                                 <div class="form-text">
                                     <?php if ($transacao): ?>
                                         <i class="fas fa-info-circle"></i> Retomando pagamento pendente
+                                    <?php elseif ($valorPadrao): ?>
+                                        <i class="bi bi-info-circle text-primary"></i> Valor necessário para completar seu pagamento
                                     <?php else: ?>
                                         Mínimo: R$ <?= number_format($configs['deposito_minimo'], 2, ',', '.') ?> | 
                                         Máximo: R$ <?= number_format($configs['deposito_maximo'], 2, ',', '.') ?>
