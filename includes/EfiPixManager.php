@@ -1011,7 +1011,7 @@ class EfiPixManager {
                     'pago' => $valorPago
                 ],
                 'pix' => $pixPagamentos,
-                'jogador_id' => $transacao['jogador_id']
+                'jogador_id' => $transacao['jogador_id'] ?? null
             ];
 
         } catch (Exception $e) {
