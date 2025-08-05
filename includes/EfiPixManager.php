@@ -363,7 +363,7 @@ class EfiPixManager {
                 if ($err) {
                     $lastError = 'Erro cURL: ' . $err;
                     if ($attempt < $maxRetries) {
-                        $this->logger->warning("Erro cURL na tentativa $attempt, tentando novamente", ['error' => $err]);
+                        $this->logger->warn("Erro cURL na tentativa $attempt, tentando novamente", ['error' => $err]);
                         sleep(2); // Aguardar 2 segundos antes da próxima tentativa
                         continue;
                     }
@@ -385,7 +385,7 @@ class EfiPixManager {
                 
                 $lastError = "HTTP $httpCode: $response";
                 if ($attempt < $maxRetries) {
-                    $this->logger->warning("Erro HTTP na tentativa $attempt, tentando novamente", [
+                    $this->logger->warn("Erro HTTP na tentativa $attempt, tentando novamente", [
                         'http_code' => $httpCode,
                         'response' => $response
                     ]);
@@ -396,7 +396,7 @@ class EfiPixManager {
             } catch (Exception $e) {
                 $lastError = $e->getMessage();
                 if ($attempt < $maxRetries) {
-                    $this->logger->warning("Exceção na tentativa $attempt, tentando novamente", ['error' => $e->getMessage()]);
+                    $this->logger->warn("Exceção na tentativa $attempt, tentando novamente", ['error' => $e->getMessage()]);
                     sleep(2);
                     continue;
                 }
@@ -487,7 +487,7 @@ class EfiPixManager {
                         ]);
                         throw new Exception("Falha crítica no registro de webhook: " . $webhookResult['message']);
                     } else if ($webhookResult['status'] === 'error') {
-                        $this->logger->warning("Falha no registro de webhook (não fatal)", [
+                        $this->logger->warn("Falha no registro de webhook (não fatal)", [
                             'error' => $webhookResult['message'],
                             'webhook_failure_fatal' => $this->webhook_failure_fatal,
                             'troubleshooting' => $webhookResult['troubleshooting'] ?? null
