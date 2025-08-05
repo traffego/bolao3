@@ -23,9 +23,21 @@ if (isLoggedIn()) {
 $sql = "SELECT b.*, 
         (SELECT COUNT(*) FROM palpites p WHERE p.bolao_id = b.id AND p.status = 'pago') as total_participantes
         FROM dados_boloes b 
-        WHERE {$condition} 
+        WHERE " . $condition . " 
         ORDER BY b.data_criacao DESC";
 $boloes = dbFetchAll($sql, $params);
+
+// Debug temporário
+if (DEBUG_MODE) {
+    echo "<div class='alert alert-info'>";
+    echo "<strong>Debug Info:</strong><br>";
+    echo "Condição SQL: " . htmlspecialchars($condition) . "<br>";
+    echo "Parâmetros: " . print_r($params, true) . "<br>";
+    echo "SQL completo: " . htmlspecialchars($sql) . "<br>";
+    echo "Total de bolões encontrados: " . count($boloes) . "<br>";
+    echo "Usuário logado: " . (isLoggedIn() ? 'Sim (ID: ' . getCurrentUserId() . ')' : 'Não') . "<br>";
+    echo "</div>";
+}
 
 // Título da página
 $pageTitle = "Bolões Disponíveis";
