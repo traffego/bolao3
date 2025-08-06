@@ -174,26 +174,23 @@ try {
         }
         error_log("DEBUG TRANSACAO REJECT: AdminId = $adminId, NovoStatus = $novoStatus, Motivo = $motivo");
         
-        // Se estava aprovado e agora está sendo rejeitado, remover do saldo
-        if ($statusAnterior === 'aprovado' && ($transacao['tipo'] === 'deposito' || $transacao['tipo'] === 'saque')) {
-            // Marcar como não afetando mais o saldo
-            dbExecute(
-                "UPDATE transacoes SET afeta_saldo = FALSE WHERE id = ?",
-                [$transacaoId]
-            );
-        }
-        
-        // Update transaction status
+        // Update transaction status and afeta_saldo in a single query to avoid constraint violation
         $motivoTexto = !empty($motivo) ? ": " . $motivo : "";
         $rejeicaoTexto = $statusAnterior === 'aprovado' ? " [REVERTIDO PARA REJEITADO$motivoTexto]" : " [REJEITADO$motivoTexto]";
+        
+        // Se estava aprovado e agora está sendo rejeitado, marcar afeta_saldo = FALSE
+        // Se não estava aprovado, manter afeta_saldo = 0 (que já era o padrão)
+        $novoAfetaSaldo = ($statusAnterior === 'aprovado') ? 0 : 0;
+        
         $updateSql = "UPDATE transacoes SET 
                      status = ?, 
                      data_processamento = NOW(), 
                      processado_por = ?,
-                     descricao = CONCAT(COALESCE(descricao, ''), ?)
+                     descricao = CONCAT(COALESCE(descricao, ''), ?),
+                     afeta_saldo = ?
                      WHERE id = ?";
         
-        $params = [$novoStatus, $adminId, $rejeicaoTexto, $transacaoId];
+        $params = [$novoStatus, $adminId, $rejeicaoTexto, $novoAfetaSaldo, $transacaoId];
         error_log("DEBUG TRANSACAO REJECT: SQL = $updateSql");
         error_log("DEBUG TRANSACAO REJECT: Params = " . json_encode($params));
         
