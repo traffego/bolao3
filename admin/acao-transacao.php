@@ -54,8 +54,16 @@ try {
         redirect(APP_URL . '/admin/pagamentos.php');
     }
 
-    if ($transacao['status'] !== 'pendente') {
-        $_SESSION['error'] = 'Esta transação já foi processada.';
+    // Verificar se a ação é válida para o status atual
+    if (($action === 'approve' && $transacao['status'] === 'aprovado') || 
+        ($action === 'reject' && $transacao['status'] === 'rejeitado')) {
+        $_SESSION['error'] = 'Esta transação já possui o status solicitado.';
+        redirect(APP_URL . '/admin/pagamentos.php');
+    }
+    
+    // Permitir apenas para status: pendente, aprovado ou rejeitado
+    if (!in_array($transacao['status'], ['pendente', 'aprovado', 'rejeitado'])) {
+        $_SESSION['error'] = 'Não é possível alterar o status desta transação.';
         redirect(APP_URL . '/admin/pagamentos.php');
     }
 
@@ -66,7 +74,10 @@ try {
     if ($action === 'approve') {
         // Aprovar transação
         $novoStatus = 'aprovado';
-        $mensagem = 'Transação aprovada com sucesso!';
+        $statusAnterior = $transacao['status'];
+        $mensagem = $statusAnterior === 'rejeitado' ? 
+            'Transação revertida para aprovada com sucesso!' : 
+            'Transação aprovada com sucesso!';
         
         // Get current admin user ID
         $adminId = getCurrentAdminId();
@@ -98,34 +109,37 @@ try {
 
         // If it's a deposit or withdrawal that affects balance, update it
         if ($transacao['tipo'] === 'deposito' || $transacao['tipo'] === 'saque') {
-            // Calculate new balance
-            $saldoAtual = dbFetchOne(
-                "SELECT COALESCE(SUM(CASE 
-                    WHEN tipo IN ('deposito', 'premio', 'bonus') THEN valor 
-                    WHEN tipo IN ('saque', 'aposta') THEN -valor 
-                END), 0) as saldo_atual
-                FROM transacoes 
-                WHERE conta_id = ? AND status = 'aprovado' AND afeta_saldo = TRUE",
-                [$transacao['conta_id']]
-            );
-            
-            $saldoAnterior = $saldoAtual ? floatval($saldoAtual['saldo_atual']) : 0;
-            
-            if ($transacao['tipo'] === 'deposito') {
-                $novoSaldo = $saldoAnterior + $transacao['valor'];
-            } else { // saque
-                $novoSaldo = $saldoAnterior - $transacao['valor'];
+            // Se estava rejeitado e agora está sendo aprovado, ou se é novo (pendente)
+            if ($statusAnterior === 'rejeitado' || $statusAnterior === 'pendente') {
+                // Calculate new balance (excluding this transaction)
+                $saldoAtual = dbFetchOne(
+                    "SELECT COALESCE(SUM(CASE 
+                        WHEN tipo IN ('deposito', 'premio', 'bonus') THEN valor 
+                        WHEN tipo IN ('saque', 'aposta') THEN -valor 
+                    END), 0) as saldo_atual
+                    FROM transacoes 
+                    WHERE conta_id = ? AND status = 'aprovado' AND afeta_saldo = TRUE AND id != ?",
+                    [$transacao['conta_id'], $transacaoId]
+                );
+                
+                $saldoAnterior = $saldoAtual ? floatval($saldoAtual['saldo_atual']) : 0;
+                
+                if ($transacao['tipo'] === 'deposito') {
+                    $novoSaldo = $saldoAnterior + $transacao['valor'];
+                } else { // saque
+                    $novoSaldo = $saldoAnterior - $transacao['valor'];
+                }
+                
+                // Update transaction with balance info
+                dbExecute(
+                    "UPDATE transacoes SET 
+                     saldo_anterior = ?, 
+                     saldo_posterior = ?,
+                     afeta_saldo = TRUE
+                     WHERE id = ?",
+                    [$saldoAnterior, $novoSaldo, $transacaoId]
+                );
             }
-            
-            // Update transaction with balance info
-            dbExecute(
-                "UPDATE transacoes SET 
-                 saldo_anterior = ?, 
-                 saldo_posterior = ?,
-                 afeta_saldo = TRUE
-                 WHERE id = ?",
-                [$saldoAnterior, $novoSaldo, $transacaoId]
-            );
         }
         
         // Create notification for user
@@ -148,7 +162,10 @@ try {
     } else { // reject
         // Rejeitar transação
         $novoStatus = 'rejeitado';
-        $mensagem = 'Transação rejeitada com sucesso!';
+        $statusAnterior = $transacao['status'];
+        $mensagem = $statusAnterior === 'aprovado' ? 
+            'Transação revertida para rejeitada com sucesso!' : 
+            'Transação rejeitada com sucesso!';
         
         // Get current admin user ID
         $adminId = getCurrentAdminId();
@@ -157,8 +174,18 @@ try {
         }
         error_log("DEBUG TRANSACAO REJECT: AdminId = $adminId, NovoStatus = $novoStatus, Motivo = $motivo");
         
+        // Se estava aprovado e agora está sendo rejeitado, remover do saldo
+        if ($statusAnterior === 'aprovado' && ($transacao['tipo'] === 'deposito' || $transacao['tipo'] === 'saque')) {
+            // Marcar como não afetando mais o saldo
+            dbExecute(
+                "UPDATE transacoes SET afeta_saldo = FALSE WHERE id = ?",
+                [$transacaoId]
+            );
+        }
+        
         // Update transaction status
         $motivoTexto = !empty($motivo) ? ": " . $motivo : "";
+        $rejeicaoTexto = $statusAnterior === 'aprovado' ? " [REVERTIDO PARA REJEITADO$motivoTexto]" : " [REJEITADO$motivoTexto]";
         $updateSql = "UPDATE transacoes SET 
                      status = ?, 
                      data_processamento = NOW(), 
@@ -166,7 +193,7 @@ try {
                      descricao = CONCAT(COALESCE(descricao, ''), ?)
                      WHERE id = ?";
         
-        $params = [$novoStatus, $adminId, " [REJEITADO$motivoTexto]", $transacaoId];
+        $params = [$novoStatus, $adminId, $rejeicaoTexto, $transacaoId];
         error_log("DEBUG TRANSACAO REJECT: SQL = $updateSql");
         error_log("DEBUG TRANSACAO REJECT: Params = " . json_encode($params));
         
@@ -202,14 +229,22 @@ try {
     // Log the action
     if (class_exists('LogFinanceiroManager')) {
         $logManager = new LogFinanceiroManager();
+        $acaoTexto = '';
+        if ($action === 'approve') {
+            $acaoTexto = $statusAnterior === 'rejeitado' ? 'revertida para aprovada' : 'aprovada';
+        } else {
+            $acaoTexto = $statusAnterior === 'aprovado' ? 'revertida para rejeitada' : 'rejeitada';
+        }
+        
         $descricaoLog = sprintf(
-            'Transação #%d %s por admin #%d - %s de %s do jogador %s',
+            'Transação #%d %s por admin #%d - %s de %s do jogador %s (status anterior: %s)',
             $transacaoId,
-            $action === 'approve' ? 'aprovada' : 'rejeitada',
-            getCurrentUserId(),
+            $acaoTexto,
+            getCurrentAdminId(),
             $transacao['tipo'],
             formatMoney($transacao['valor']),
-            $transacao['jogador_nome']
+            $transacao['jogador_nome'],
+            $statusAnterior
         );
         
         $logManager->registrarOperacao(

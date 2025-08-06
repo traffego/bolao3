@@ -281,18 +281,26 @@ include '../templates/admin/header.php';
                                     <small><?= $transacao['txid'] ? sanitize($transacao['txid']) : 'N/A' ?></small>
                                 </td>
                                 <td>
-                                    <?php if ($transacao['status'] === 'pendente'): ?>
-                                        <div class="btn-group">
+                                    <div class="btn-group">
+                                        <?php if ($transacao['status'] === 'pendente'): ?>
                                             <button type="button" class="btn btn-sm btn-success approver" data-id="<?= $transacao['id'] ?>" title="Aprovar">
                                                 <i class="bi bi-check-lg me-1"></i>Aprovar
                                             </button>
                                             <button type="button" class="btn btn-sm btn-danger rejecter" data-id="<?= $transacao['id'] ?>" title="Rejeitar">
                                                 <i class="bi bi-x-lg me-1"></i>Rejeitar
                                             </button>
-                                        </div>
-                                    <?php else: ?>
-                                        <span class="text-muted">-</span>
-                                    <?php endif; ?>
+                                        <?php elseif ($transacao['status'] === 'aprovado'): ?>
+                                            <button type="button" class="btn btn-sm btn-danger rejecter" data-id="<?= $transacao['id'] ?>" title="Rejeitar transação aprovada">
+                                                <i class="bi bi-x-lg me-1"></i>Rejeitar
+                                            </button>
+                                        <?php elseif ($transacao['status'] === 'rejeitado'): ?>
+                                            <button type="button" class="btn btn-sm btn-success approver" data-id="<?= $transacao['id'] ?>" title="Aprovar transação rejeitada">
+                                                <i class="bi bi-check-lg me-1"></i>Aprovar
+                                            </button>
+                                        <?php else: ?>
+                                            <span class="text-muted">-</span>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
