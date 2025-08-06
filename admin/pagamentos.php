@@ -12,7 +12,7 @@ if (!isAdmin()) {
 
 // Handle status filter
 $status = isset($_GET['status']) ? $_GET['status'] : 'todos';
-if (!in_array($status, ['pendente', 'aprovado', 'recusado', 'todos'])) {
+if (!in_array($status, ['pendente', 'aprovado', 'rejeitado', 'todos'])) {
     $status = 'todos';
 }
 
@@ -21,8 +21,8 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $itemsPerPage = ITEMS_PER_PAGE;
 $offset = ($page - 1) * $itemsPerPage;
 
-// Status clause for SQL
-$statusClause = $status === 'todos' ? '1' : "p.status = '$status'";
+// Status clause for SQL  
+$statusClause = $status === 'todos' ? '1' : "t.status = '$status'";
 
 // Date range filter
 $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : '';
@@ -30,11 +30,11 @@ $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $dateClause = '';
 
 if (!empty($startDate) && !empty($endDate)) {
-    $dateClause = " AND p.data_pagamento BETWEEN '$startDate 00:00:00' AND '$endDate 23:59:59'";
+    $dateClause = " AND t.data_solicitacao BETWEEN '$startDate 00:00:00' AND '$endDate 23:59:59'";
 } elseif (!empty($startDate)) {
-    $dateClause = " AND p.data_pagamento >= '$startDate 00:00:00'";
+    $dateClause = " AND t.data_solicitacao >= '$startDate 00:00:00'";
 } elseif (!empty($endDate)) {
-    $dateClause = " AND p.data_pagamento <= '$endDate 23:59:59'";
+    $dateClause = " AND t.data_solicitacao <= '$endDate 23:59:59'";
 }
 
 // Search functionality
@@ -43,34 +43,39 @@ $searchClause = '';
 $searchParams = [];
 
 if (!empty($search)) {
-    $searchClause = " AND (j.nome LIKE ? OR j.email LIKE ? OR b.nome LIKE ?)";
+    $searchClause = " AND (j.nome LIKE ? OR j.email LIKE ? OR t.descricao LIKE ?)";
     $searchParams = ["%$search%", "%$search%", "%$search%"];
 }
 
-// Count total pagamentos
-$countQuery = "SELECT COUNT(*) as total FROM pagamentos p 
-               JOIN jogador j ON p.jogador_id = j.id 
-               LEFT JOIN boloes b ON p.bolao_id = b.id 
-               JOIN transacoes t ON p.transacao_id = t.id
-               WHERE $statusClause $dateClause $searchClause";
+// Count total transacoes
+$countQuery = "SELECT COUNT(*) as total FROM transacoes t 
+               JOIN contas c ON t.conta_id = c.id
+               JOIN jogador j ON c.jogador_id = j.id 
+               WHERE t.tipo IN ('deposito', 'saque') AND $statusClause $dateClause $searchClause";
 
 $totalResult = dbFetchOne($countQuery, $searchParams);
-$totalPagamentos = $totalResult ? $totalResult['total'] : 0;
-$totalPages = ceil($totalPagamentos / $itemsPerPage);
+$totalTransacoes = $totalResult ? $totalResult['total'] : 0;
+$totalPages = ceil($totalTransacoes / $itemsPerPage);
 
 // Make sure $page is within limits
 if ($page < 1) $page = 1;
 if ($page > $totalPages && $totalPages > 0) $page = $totalPages;
 
-// Get pagamentos with pagination
-$pagamentos = dbFetchAll(
-    "SELECT p.*, j.nome as jogador_nome, j.email as jogador_email, b.nome as bolao_nome, t.tipo as transacao_tipo 
-     FROM pagamentos p
-     JOIN jogador j ON p.jogador_id = j.id
-     LEFT JOIN boloes b ON p.bolao_id = b.id
-     JOIN transacoes t ON p.transacao_id = t.id
-     WHERE $statusClause $dateClause $searchClause
-     ORDER BY p.data_pagamento DESC
+// Get transacoes with pagination
+$transacoes = dbFetchAll(
+    "SELECT t.*, j.nome as jogador_nome, j.email as jogador_email, 
+            CASE 
+                WHEN t.tipo = 'deposito' THEN 'Depósito'
+                WHEN t.tipo = 'saque' THEN 'Saque'
+                ELSE t.tipo
+            END as metodo,
+            t.data_solicitacao as data_pagamento,
+            t.id as transacao_id
+     FROM transacoes t
+     JOIN contas c ON t.conta_id = c.id
+     JOIN jogador j ON c.jogador_id = j.id
+     WHERE t.tipo IN ('deposito', 'saque') AND $statusClause $dateClause $searchClause
+     ORDER BY t.data_solicitacao DESC
      LIMIT ? OFFSET ?", 
     array_merge($searchParams, [$itemsPerPage, $offset])
 );
@@ -78,24 +83,23 @@ $pagamentos = dbFetchAll(
 // Calculate totals
 $totalsQuery = "SELECT 
                 SUM(CASE 
-                    WHEN p.status = 'aprovado' AND t.tipo = 'deposito' THEN p.valor
-                    WHEN p.status = 'aprovado' AND t.tipo = 'saque' THEN -p.valor
+                    WHEN t.status = 'aprovado' AND t.tipo = 'deposito' THEN t.valor
+                    WHEN t.status = 'aprovado' AND t.tipo = 'saque' THEN -t.valor
                     ELSE 0 
                 END) as balanco_total,
-                SUM(CASE WHEN p.status = 'aprovado' AND t.tipo = 'deposito' THEN p.valor ELSE 0 END) as total_depositos,
-                SUM(CASE WHEN p.status = 'aprovado' AND t.tipo = 'saque' THEN p.valor ELSE 0 END) as total_saques,
-                SUM(CASE WHEN p.status = 'pendente' THEN p.valor ELSE 0 END) as total_pendente,
-                SUM(CASE WHEN p.status = 'recusado' THEN p.valor ELSE 0 END) as total_recusado
-                FROM pagamentos p
-                JOIN jogador j ON p.jogador_id = j.id
-                LEFT JOIN boloes b ON p.bolao_id = b.id
-                JOIN transacoes t ON p.transacao_id = t.id
-                WHERE 1 $dateClause $searchClause";
+                SUM(CASE WHEN t.status = 'aprovado' AND t.tipo = 'deposito' THEN t.valor ELSE 0 END) as total_depositos,
+                SUM(CASE WHEN t.status = 'aprovado' AND t.tipo = 'saque' THEN t.valor ELSE 0 END) as total_saques,
+                SUM(CASE WHEN t.status = 'pendente' THEN t.valor ELSE 0 END) as total_pendente,
+                SUM(CASE WHEN t.status = 'rejeitado' THEN t.valor ELSE 0 END) as total_rejeitado
+                FROM transacoes t
+                JOIN contas c ON t.conta_id = c.id
+                JOIN jogador j ON c.jogador_id = j.id
+                WHERE t.tipo IN ('deposito', 'saque') $dateClause $searchClause";
 
 $totals = dbFetchOne($totalsQuery, $searchParams);
 
 // Page title
-$pageTitle = 'Gerenciar Pagamentos';
+$pageTitle = 'Gerenciar Transações Financeiras';
 
 // Include admin header
 include '../templates/admin/header.php';
@@ -104,8 +108,8 @@ include '../templates/admin/header.php';
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><?= $pageTitle ?></h1>
     <div>
-        <a href="<?= APP_URL ?>/admin/novo-pagamento.php" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Registrar Pagamento
+        <a href="<?= APP_URL ?>/admin/nova-transacao.php" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Nova Transação
         </a>
     </div>
 </div>
@@ -164,8 +168,8 @@ include '../templates/admin/header.php';
     <div class="col-md-3 mb-3">
         <div class="card h-100 text-center">
             <div class="card-body">
-                <h4 class="display-6 text-secondary"><?= formatMoney($totals['total_recusado'] ?? 0) ?></h4>
-                <p class="card-text">Recusados</p>
+                <h4 class="display-6 text-secondary"><?= formatMoney($totals['total_rejeitado'] ?? 0) ?></h4>
+                <p class="card-text">Rejeitados</p>
                 <small class="text-muted">Transações negadas</small>
             </div>
         </div>
@@ -178,7 +182,7 @@ include '../templates/admin/header.php';
         <form action="" method="get" class="row g-3">
             <div class="col-md-4">
                 <div class="input-group">
-                    <input type="text" name="search" class="form-control" placeholder="Buscar por jogador ou bolão" value="<?= sanitize($search) ?>">
+                    <input type="text" name="search" class="form-control" placeholder="Buscar por jogador ou descrição" value="<?= sanitize($search) ?>">
                     <button class="btn btn-primary" type="submit">
                         <i class="bi bi-search"></i> Buscar
                     </button>
@@ -199,7 +203,7 @@ include '../templates/admin/header.php';
                     <a href="?status=todos<?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= !empty($startDate) ? '&start_date=' . $startDate : '' ?><?= !empty($endDate) ? '&end_date=' . $endDate : '' ?>" class="btn btn-outline-secondary <?= $status === 'todos' ? 'active' : '' ?>">Todos</a>
                     <a href="?status=pendente<?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= !empty($startDate) ? '&start_date=' . $startDate : '' ?><?= !empty($endDate) ? '&end_date=' . $endDate : '' ?>" class="btn btn-outline-warning <?= $status === 'pendente' ? 'active' : '' ?>">Pendentes</a>
                     <a href="?status=aprovado<?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= !empty($startDate) ? '&start_date=' . $startDate : '' ?><?= !empty($endDate) ? '&end_date=' . $endDate : '' ?>" class="btn btn-outline-success <?= $status === 'aprovado' ? 'active' : '' ?>">Aprovados</a>
-                    <a href="?status=recusado<?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= !empty($startDate) ? '&start_date=' . $startDate : '' ?><?= !empty($endDate) ? '&end_date=' . $endDate : '' ?>" class="btn btn-outline-danger <?= $status === 'recusado' ? 'active' : '' ?>">Recusados</a>
+                    <a href="?status=rejeitado<?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= !empty($startDate) ? '&start_date=' . $startDate : '' ?><?= !empty($endDate) ? '&end_date=' . $endDate : '' ?>" class="btn btn-outline-danger <?= $status === 'rejeitado' ? 'active' : '' ?>">Rejeitados</a>
                 </div>
             </div>
         </form>
@@ -209,86 +213,84 @@ include '../templates/admin/header.php';
 <!-- Pagamentos List -->
 <div class="card">
     <div class="card-body">
-        <?php if (count($pagamentos) > 0): ?>
+        <?php if (count($transacoes) > 0): ?>
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Jogador</th>
-                            <th>Bolão</th>
+                            <th>Descrição</th>
                             <th>Tipo</th>
                             <th>Valor</th>
                             <th>Método</th>
                             <th>Status</th>
                             <th>Data</th>
-                            <th>Transação</th>
+                            <th>TXID</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($pagamentos as $pagamento): ?>
+                        <?php foreach ($transacoes as $transacao): ?>
                             <tr>
-                                <td><?= $pagamento['id'] ?></td>
+                                <td><?= $transacao['id'] ?></td>
                                 <td>
-                                    <a href="<?= APP_URL ?>/admin/jogador.php?id=<?= $pagamento['jogador_id'] ?>" title="Ver jogador">
-                                        <?= sanitize($pagamento['jogador_nome']) ?>
+                                    <a href="<?= APP_URL ?>/admin/jogador.php?id=<?= $transacao['conta_id'] ?>" title="Ver jogador">
+                                        <?= sanitize($transacao['jogador_nome']) ?>
                                     </a>
                                 </td>
                                 <td>
-                                    <?php if ($pagamento['bolao_id']): ?>
-                                        <a href="<?= APP_URL ?>/admin/bolao.php?id=<?= $pagamento['bolao_id'] ?>" title="Ver bolão">
-                                            <?= sanitize($pagamento['bolao_nome']) ?>
-                                        </a>
+                                    <?php if ($transacao['descricao']): ?>
+                                        <small><?= sanitize($transacao['descricao']) ?></small>
                                     <?php else: ?>
                                         <span class="text-muted">N/A</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if ($pagamento['transacao_tipo'] === 'deposito'): ?>
+                                    <?php if ($transacao['tipo'] === 'deposito'): ?>
                                         <span class="badge bg-success"><i class="bi bi-plus-circle me-1"></i>Depósito</span>
-                                    <?php elseif ($pagamento['transacao_tipo'] === 'saque'): ?>
+                                    <?php elseif ($transacao['tipo'] === 'saque'): ?>
                                         <span class="badge bg-danger"><i class="bi bi-dash-circle me-1"></i>Saque</span>
                                     <?php else: ?>
-                                        <span class="badge bg-secondary"><?= ucfirst($pagamento['transacao_tipo'] ?? 'N/A') ?></span>
+                                        <span class="badge bg-secondary"><?= ucfirst($transacao['tipo'] ?? 'N/A') ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if ($pagamento['transacao_tipo'] === 'deposito'): ?>
-                                        <span class="text-success">+<?= formatMoney($pagamento['valor']) ?></span>
-                                    <?php elseif ($pagamento['transacao_tipo'] === 'saque'): ?>
-                                        <span class="text-danger">-<?= formatMoney($pagamento['valor']) ?></span>
+                                    <?php if ($transacao['tipo'] === 'deposito'): ?>
+                                        <span class="text-success">+<?= formatMoney($transacao['valor']) ?></span>
+                                    <?php elseif ($transacao['tipo'] === 'saque'): ?>
+                                        <span class="text-danger">-<?= formatMoney($transacao['valor']) ?></span>
                                     <?php else: ?>
-                                        <?= formatMoney($pagamento['valor']) ?>
+                                        <?= formatMoney($transacao['valor']) ?>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= sanitize($pagamento['metodo']) ?></td>
+                                <td><?= sanitize($transacao['metodo']) ?></td>
                                 <td>
-                                    <?php if ($pagamento['status'] === 'aprovado'): ?>
+                                    <?php if ($transacao['status'] === 'aprovado'): ?>
                                         <span class="badge bg-success">Aprovado</span>
-                                    <?php elseif ($pagamento['status'] === 'pendente'): ?>
+                                    <?php elseif ($transacao['status'] === 'pendente'): ?>
                                         <span class="badge bg-warning">Pendente</span>
-                                    <?php elseif ($pagamento['status'] === 'recusado'): ?>
-                                        <span class="badge bg-danger">Recusado</span>
+                                    <?php elseif ($transacao['status'] === 'rejeitado'): ?>
+                                        <span class="badge bg-danger">Rejeitado</span>
                                     <?php else: ?>
-                                        <span class="badge bg-secondary">Reembolsado</span>
+                                        <span class="badge bg-secondary"><?= ucfirst($transacao['status']) ?></span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= formatDateTime($pagamento['data_pagamento']) ?></td>
+                                <td><?= formatDateTime($transacao['data_pagamento']) ?></td>
                                 <td>
-                                    <small><?= $pagamento['transacao_id'] ? sanitize($pagamento['transacao_id']) : 'N/A' ?></small>
+                                    <small><?= $transacao['txid'] ? sanitize($transacao['txid']) : 'N/A' ?></small>
                                 </td>
                                 <td>
                                     <div class="btn-group">
-                                        <a href="<?= APP_URL ?>/admin/editar-pagamento.php?id=<?= $pagamento['id'] ?>" class="btn btn-sm btn-warning" title="Editar">
+                                        <a href="<?= APP_URL ?>/admin/editar-transacao.php?id=<?= $transacao['id'] ?>" class="btn btn-sm btn-warning" title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         
-                                        <?php if ($pagamento['status'] === 'pendente'): ?>
-                                            <button type="button" class="btn btn-sm btn-success approver" data-id="<?= $pagamento['id'] ?>" title="Aprovar">
+                                        <?php if ($transacao['status'] === 'pendente'): ?>
+                                            <button type="button" class="btn btn-sm btn-success approver" data-id="<?= $transacao['id'] ?>" title="Aprovar">
                                                 <i class="bi bi-check-lg"></i>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-danger rejecter" data-id="<?= $pagamento['id'] ?>" title="Recusar">
+                                            <button type="button" class="btn btn-sm btn-danger rejecter" data-id="<?= $transacao['id'] ?>" title="Recusar">
                                                 <i class="bi bi-x-lg"></i>
                                             </button>
                                         <?php endif; ?>
@@ -331,7 +333,7 @@ include '../templates/admin/header.php';
             
         <?php else: ?>
             <div class="alert alert-info">
-                Nenhum pagamento encontrado<?= !empty($search) ? ' para a busca "' . sanitize($search) . '"' : '' ?>.
+                Nenhuma transação encontrada<?= !empty($search) ? ' para a busca "' . sanitize($search) . '"' : '' ?>.
             </div>
         <?php endif; ?>
     </div>
@@ -342,17 +344,17 @@ include '../templates/admin/header.php';
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Aprovar Pagamento</h5>
+                <h5 class="modal-title">Aprovar Transação</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <div class="modal-body">
-                <p>Tem certeza que deseja aprovar este pagamento?</p>
+                <p>Tem certeza que deseja aprovar esta transação?</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form action="<?= APP_URL ?>/admin/acao-pagamento.php" method="post">
+                <form action="<?= APP_URL ?>/admin/acao-transacao.php" method="post">
                     <input type="hidden" name="action" value="approve">
-                    <input type="hidden" name="pagamento_id" id="approve_id" value="">
+                    <input type="hidden" name="transacao_id" id="approve_id" value="">
                     <button type="submit" class="btn btn-success">Aprovar</button>
                 </form>
             </div>
@@ -365,11 +367,11 @@ include '../templates/admin/header.php';
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Recusar Pagamento</h5>
+                <h5 class="modal-title">Recusar Transação</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <div class="modal-body">
-                <p>Tem certeza que deseja recusar este pagamento?</p>
+                <p>Tem certeza que deseja recusar esta transação?</p>
                 <div class="form-group">
                     <label for="reject_reason">Motivo da recusa (opcional):</label>
                     <textarea id="reject_reason" name="reject_reason" class="form-control" rows="3"></textarea>
@@ -377,9 +379,9 @@ include '../templates/admin/header.php';
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form action="<?= APP_URL ?>/admin/acao-pagamento.php" method="post">
+                <form action="<?= APP_URL ?>/admin/acao-transacao.php" method="post">
                     <input type="hidden" name="action" value="reject">
-                    <input type="hidden" name="pagamento_id" id="reject_id" value="">
+                    <input type="hidden" name="transacao_id" id="reject_id" value="">
                     <input type="hidden" name="motivo" id="reject_reason_hidden" value="">
                     <button type="submit" class="btn btn-danger">Recusar</button>
                 </form>
