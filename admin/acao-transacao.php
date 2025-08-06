@@ -86,11 +86,12 @@ try {
         }
         error_log("DEBUG TRANSACAO: AdminId = $adminId, NovoStatus = $novoStatus");
         
-        // Update transaction status
+        // Update transaction status and afeta_saldo in a single query to avoid constraint violation
         $updateSql = "UPDATE transacoes SET 
                      status = ?, 
                      data_processamento = NOW(), 
-                     processado_por = ?
+                     processado_por = ?,
+                     afeta_saldo = 1
                      WHERE id = ?";
         
         error_log("DEBUG TRANSACAO: SQL = $updateSql");
@@ -130,12 +131,11 @@ try {
                     $novoSaldo = $saldoAnterior - $transacao['valor'];
                 }
                 
-                // Update transaction with balance info
+                // Update transaction with balance info (afeta_saldo already set to 1 in previous update)
                 dbExecute(
                     "UPDATE transacoes SET 
                      saldo_anterior = ?, 
-                     saldo_posterior = ?,
-                     afeta_saldo = TRUE
+                     saldo_posterior = ?
                      WHERE id = ?",
                     [$saldoAnterior, $novoSaldo, $transacaoId]
                 );
