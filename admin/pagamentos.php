@@ -283,15 +283,15 @@ include '../templates/admin/header.php';
                                 <td>
                                     <div class="btn-group">
                                         <a href="<?= APP_URL ?>/admin/editar-transacao.php?id=<?= $transacao['id'] ?>" class="btn btn-sm btn-warning" title="Editar">
-                                            <i class="bi bi-pencil"></i>
+                                            <i class="bi bi-pencil me-1"></i>Editar
                                         </a>
                                         
                                         <?php if ($transacao['status'] === 'pendente'): ?>
                                             <button type="button" class="btn btn-sm btn-success approver" data-id="<?= $transacao['id'] ?>" title="Aprovar">
-                                                <i class="bi bi-check-lg"></i>
+                                                <i class="bi bi-check-lg me-1"></i>Aprovar
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-danger rejecter" data-id="<?= $transacao['id'] ?>" title="Recusar">
-                                                <i class="bi bi-x-lg"></i>
+                                            <button type="button" class="btn btn-sm btn-danger rejecter" data-id="<?= $transacao['id'] ?>" title="Rejeitar">
+                                                <i class="bi bi-x-lg me-1"></i>Rejeitar
                                             </button>
                                         <?php endif; ?>
                                     </div>
