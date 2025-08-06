@@ -90,14 +90,13 @@ try {
         $updateSql = "UPDATE transacoes SET 
                      status = ?, 
                      data_processamento = NOW(), 
-                     processado_por = ?,
                      afeta_saldo = 1
                      WHERE id = ?";
         
         error_log("DEBUG TRANSACAO: SQL = $updateSql");
-        error_log("DEBUG TRANSACAO: Params = " . json_encode([$novoStatus, $adminId, $transacaoId]));
+        error_log("DEBUG TRANSACAO: Params = " . json_encode([$novoStatus, $transacaoId]));
         
-        $result = dbExecute($updateSql, [$novoStatus, $adminId, $transacaoId]);
+        $result = dbExecute($updateSql, [$novoStatus, $transacaoId]);
         
         error_log("DEBUG TRANSACAO: Update result = " . ($result ? 'SUCCESS' : 'FAILED'));
         
@@ -185,12 +184,11 @@ try {
         $updateSql = "UPDATE transacoes SET 
                      status = ?, 
                      data_processamento = NOW(), 
-                     processado_por = ?,
                      descricao = CONCAT(COALESCE(descricao, ''), ?),
                      afeta_saldo = ?
                      WHERE id = ?";
         
-        $params = [$novoStatus, $adminId, $rejeicaoTexto, $novoAfetaSaldo, $transacaoId];
+        $params = [$novoStatus, $rejeicaoTexto, $novoAfetaSaldo, $transacaoId];
         error_log("DEBUG TRANSACAO REJECT: SQL = $updateSql");
         error_log("DEBUG TRANSACAO REJECT: Params = " . json_encode($params));
         
@@ -237,7 +235,7 @@ try {
             'Transação #%d %s por admin #%d - %s de %s do jogador %s (status anterior: %s)',
             $transacaoId,
             $acaoTexto,
-            getCurrentAdminId(),
+            $adminId,
             $transacao['tipo'],
             formatMoney($transacao['valor']),
             $transacao['jogador_nome'],
@@ -245,7 +243,7 @@ try {
         );
         
         $logManager->registrarOperacao(
-            getCurrentAdminId(),
+            $adminId,
             'admin_' . $action,
             $descricaoLog,
             [

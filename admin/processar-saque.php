@@ -103,14 +103,12 @@ try {
                     comprovante_url = ?,
                     descricao = ?,
                     data_processamento = NOW(),
-                    afeta_saldo = 1,
-                    processado_por = ?
+                    afeta_saldo = 1
                 WHERE id = ?
             ");
             $stmt->execute([
                 $comprovante,
                 $_POST['observacoes'] ?? null,
-                getCurrentAdminId(),
                 $saqueId
             ]);
 
@@ -153,13 +151,11 @@ try {
                 SET status = 'rejeitado',
                     descricao = ?,
                     data_processamento = NOW(),
-                    afeta_saldo = 0,
-                    processado_por = ?
+                    afeta_saldo = 0
                 WHERE id = ?
             ");
             $stmt->execute([
                 $_POST['motivo'],
-                getCurrentAdminId(),
                 $saqueId
             ]);
 
