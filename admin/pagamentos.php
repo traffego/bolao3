@@ -281,20 +281,18 @@ include '../templates/admin/header.php';
                                     <small><?= $transacao['txid'] ? sanitize($transacao['txid']) : 'N/A' ?></small>
                                 </td>
                                 <td>
-                                    <div class="btn-group">
-                                        <a href="<?= APP_URL ?>/admin/editar-transacao.php?id=<?= $transacao['id'] ?>" class="btn btn-sm btn-warning" title="Editar">
-                                            <i class="bi bi-pencil me-1"></i>Editar
-                                        </a>
-                                        
-                                        <?php if ($transacao['status'] === 'pendente'): ?>
+                                    <?php if ($transacao['status'] === 'pendente'): ?>
+                                        <div class="btn-group">
                                             <button type="button" class="btn btn-sm btn-success approver" data-id="<?= $transacao['id'] ?>" title="Aprovar">
                                                 <i class="bi bi-check-lg me-1"></i>Aprovar
                                             </button>
                                             <button type="button" class="btn btn-sm btn-danger rejecter" data-id="<?= $transacao['id'] ?>" title="Rejeitar">
                                                 <i class="bi bi-x-lg me-1"></i>Rejeitar
                                             </button>
-                                        <?php endif; ?>
-                                    </div>
+                                        </div>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
