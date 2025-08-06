@@ -780,28 +780,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // Função para atualizar visibilidade do botão flutuante
     function updateFloatingButton() {
         const floatingBtn = document.querySelector('.fixed-bottom-btn');
+        console.log('updateFloatingButton chamada, botão encontrado:', !!floatingBtn);
+        
         if (!floatingBtn) return;
         
         const selectedPalpites = document.querySelectorAll('input[type="radio"]:checked').length;
         const totalJogos = <?= count($jogos) ?>;
         
+        console.log('Palpites selecionados:', selectedPalpites, 'de', totalJogos);
+        
         if (selectedPalpites > 0) {
+            floatingBtn.classList.add('show');
             floatingBtn.style.display = 'block';
             
             // Atualizar texto do botão com progresso
             const btnText = document.querySelector('#btnSalvarPalpites');
-            if (selectedPalpites === totalJogos) {
-                btnText.innerHTML = '<i class="bi bi-check-circle me-2"></i>Salvar Palpites (' + selectedPalpites + '/' + totalJogos + ')';
-            } else {
-                btnText.innerHTML = '<i class="bi bi-clock me-2"></i>Palpites (' + selectedPalpites + '/' + totalJogos + ')';
+            if (btnText) {
+                if (selectedPalpites === totalJogos) {
+                    btnText.innerHTML = '<i class="bi bi-check-circle me-2"></i>Salvar Palpites (' + selectedPalpites + '/' + totalJogos + ')';
+                } else {
+                    btnText.innerHTML = '<i class="bi bi-clock me-2"></i>Palpites (' + selectedPalpites + '/' + totalJogos + ')';
+                }
             }
+            console.log('Botão deve estar visível agora');
         } else {
+            floatingBtn.classList.remove('show');
             floatingBtn.style.display = 'none';
+            console.log('Botão ocultado');
         }
     }
     
     // Inicializar estado do botão flutuante
-    updateFloatingButton();
+    setTimeout(() => {
+        updateFloatingButton();
+    }, 100); // Pequeno delay para garantir que todos os elementos foram carregados
 });
 
 function gerarPalpitesAleatorios(button) {
@@ -1295,15 +1307,15 @@ function gerarPalpitesAleatorios(button) {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1050;
+    z-index: 9999; /* Aumentado para garantir que fique acima de tudo */
     display: none; /* Inicialmente oculto */
     animation: slideUpBounce 0.8s ease-out;
 }
 
 .btn-floating-save {
-    background: var(--gradient-success, linear-gradient(135deg, #27ae60 0%, #2ecc71 100%));
-    color: white;
-    border: none;
+    background: var(--gradient-success, linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)) !important;
+    color: white !important;
+    border: none !important;
     font-family: 'Open Sans', Arial, sans-serif;
     font-weight: 600;
     padding: 12px 30px;
@@ -1311,6 +1323,8 @@ function gerarPalpitesAleatorios(button) {
     box-shadow: 0 4px 20px rgba(39, 174, 96, 0.4);
     transition: all 0.3s ease;
     min-width: 200px;
+    position: relative;
+    z-index: 10000;
 }
 
 .btn-floating-save:hover {
@@ -1341,19 +1355,26 @@ function gerarPalpitesAleatorios(button) {
     }
 }
 
+/* Garantir visibilidade do botão */
+.fixed-bottom-btn.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 /* Responsivo para mobile */
 @media (max-width: 576px) {
     .fixed-bottom-btn {
-        left: 15px;
-        right: 15px;
-        transform: none;
-        width: auto;
+        left: 15px !important;
+        right: 15px !important;
+        transform: none !important;
+        width: auto !important;
     }
     
     .btn-floating-save {
-        width: 100%;
-        min-width: auto;
-        padding: 15px 20px;
+        width: 100% !important;
+        min-width: auto !important;
+        padding: 15px 20px !important;
     }
 }
 </style>
