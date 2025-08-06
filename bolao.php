@@ -225,12 +225,20 @@ include TEMPLATE_DIR . '/header.php';
     <div class="col-md-4 mb-4">
         <div class="card shadow-sm border-0">
             <div class="card-header text-white" style="background: var(--gradient-primary, linear-gradient(135deg, #1e3c72 0%, #3498db 100%));">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-trophy-fill me-2" style="font-size: 1.2rem;"></i>
-                    <h5 class="card-title mb-0 fw-bold" style="font-family: 'Open Sans', Arial, sans-serif;">Informações do Bolão</h5>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-trophy-fill me-2" style="font-size: 1.2rem;"></i>
+                        <div>
+                            <h5 class="card-title mb-0 fw-bold" style="font-family: 'Open Sans', Arial, sans-serif;">Informações do Bolão</h5>
+                            <small class="d-md-none" id="bolaoSummary" style="opacity: 0.8;">Toque para ver detalhes</small>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm text-white d-md-none" id="toggleBolaoInfo" type="button" style="border: none; background: transparent;">
+                        <i class="bi bi-chevron-up" id="toggleIcon" style="font-size: 1.2rem;"></i>
+                    </button>
                 </div>
             </div>
-            <div class="card-body p-4">
+            <div class="card-body p-4" id="bolaoInfoContent">
                 <!-- Título do Bolão -->
                 <div class="text-center mb-4">
                     <h3 class="fw-bold mb-2" style="color: var(--globo-azul-principal, #1e3c72); font-family: 'Open Sans', Arial, sans-serif;"><?= htmlspecialchars($bolao['nome']) ?></h3>
@@ -781,6 +789,57 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar estado do botão flutuante
     updateFloatingButton();
+    
+    // Toggle para informações do bolão no mobile
+    const toggleBtn = document.getElementById('toggleBolaoInfo');
+    const bolaoInfoContent = document.getElementById('bolaoInfoContent');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const bolaoSummary = document.getElementById('bolaoSummary');
+    
+    if (toggleBtn && bolaoInfoContent && toggleIcon) {
+        // Iniciar com o conteúdo recolhido no mobile
+        if (window.innerWidth <= 767) {
+            bolaoInfoContent.classList.add('collapsed');
+            toggleIcon.classList.add('rotated');
+            if (bolaoSummary) bolaoSummary.textContent = 'Toque para ver detalhes';
+        }
+        
+        toggleBtn.addEventListener('click', function() {
+            const isCollapsed = bolaoInfoContent.classList.contains('collapsed');
+            
+            bolaoInfoContent.classList.toggle('collapsed');
+            toggleIcon.classList.toggle('rotated');
+            
+            // Atualizar texto do resumo
+            if (bolaoSummary) {
+                if (isCollapsed) {
+                    bolaoSummary.textContent = 'Toque para ocultar';
+                } else {
+                    bolaoSummary.textContent = 'Toque para ver detalhes';
+                }
+            }
+            
+            // Feedback visual no botão
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 150);
+        });
+        
+        // Verificar redimensionamento da janela
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 767) {
+                // Desktop: sempre mostrar
+                bolaoInfoContent.classList.remove('collapsed');
+                toggleIcon.classList.remove('rotated');
+            } else if (!bolaoInfoContent.classList.contains('collapsed')) {
+                // Mobile: manter estado atual se já estiver expandido
+                if (bolaoSummary) bolaoSummary.textContent = 'Toque para ocultar';
+            } else {
+                if (bolaoSummary) bolaoSummary.textContent = 'Toque para ver detalhes';
+            }
+        });
+    }
 });
 
 function gerarPalpitesAleatorios(button) {
@@ -1322,6 +1381,44 @@ function gerarPalpitesAleatorios(button) {
 
 .btn-floating-save.btn-success:hover {
     box-shadow: 0 6px 25px rgba(39, 174, 96, 0.5) !important;
+}
+
+/* Toggle de informações do bolão no mobile */
+@media (max-width: 767.98px) {
+    #bolaoInfoContent {
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    #bolaoInfoContent.collapsed {
+        max-height: 0;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        opacity: 0;
+    }
+    
+    #bolaoInfoContent:not(.collapsed) {
+        max-height: 1000px; /* Altura máxima para a animação */
+        opacity: 1;
+    }
+    
+    #toggleIcon {
+        transition: transform 0.3s ease;
+    }
+    
+    #toggleIcon.rotated {
+        transform: rotate(180deg);
+    }
+    
+    /* Estilo do botão toggle */
+    #toggleBolaoInfo {
+        transition: all 0.2s ease;
+    }
+    
+    #toggleBolaoInfo:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 50%;
+    }
 }
 
 @keyframes slideUpBounce {
