@@ -51,6 +51,7 @@ if (!empty($search)) {
 $countQuery = "SELECT COUNT(*) as total FROM pagamentos p 
                JOIN jogador j ON p.jogador_id = j.id 
                LEFT JOIN boloes b ON p.bolao_id = b.id 
+               JOIN transacoes t ON p.transacao_id = t.id
                WHERE $statusClause $dateClause $searchClause";
 
 $totalResult = dbFetchOne($countQuery, $searchParams);
@@ -63,10 +64,11 @@ if ($page > $totalPages && $totalPages > 0) $page = $totalPages;
 
 // Get pagamentos with pagination
 $pagamentos = dbFetchAll(
-    "SELECT p.*, j.nome as jogador_nome, j.email as jogador_email, b.nome as bolao_nome 
+    "SELECT p.*, j.nome as jogador_nome, j.email as jogador_email, b.nome as bolao_nome, t.tipo as transacao_tipo 
      FROM pagamentos p
      JOIN jogador j ON p.jogador_id = j.id
      LEFT JOIN boloes b ON p.bolao_id = b.id
+     JOIN transacoes t ON p.transacao_id = t.id
      WHERE $statusClause $dateClause $searchClause
      ORDER BY p.data_pagamento DESC
      LIMIT ? OFFSET ?", 
@@ -75,12 +77,19 @@ $pagamentos = dbFetchAll(
 
 // Calculate totals
 $totalsQuery = "SELECT 
-                SUM(CASE WHEN p.status = 'aprovado' THEN p.valor ELSE 0 END) as total_aprovado,
+                SUM(CASE 
+                    WHEN p.status = 'aprovado' AND t.tipo = 'deposito' THEN p.valor
+                    WHEN p.status = 'aprovado' AND t.tipo = 'saque' THEN -p.valor
+                    ELSE 0 
+                END) as balanco_total,
+                SUM(CASE WHEN p.status = 'aprovado' AND t.tipo = 'deposito' THEN p.valor ELSE 0 END) as total_depositos,
+                SUM(CASE WHEN p.status = 'aprovado' AND t.tipo = 'saque' THEN p.valor ELSE 0 END) as total_saques,
                 SUM(CASE WHEN p.status = 'pendente' THEN p.valor ELSE 0 END) as total_pendente,
                 SUM(CASE WHEN p.status = 'recusado' THEN p.valor ELSE 0 END) as total_recusado
                 FROM pagamentos p
                 JOIN jogador j ON p.jogador_id = j.id
                 LEFT JOIN boloes b ON p.bolao_id = b.id
+                JOIN transacoes t ON p.transacao_id = t.id
                 WHERE 1 $dateClause $searchClause";
 
 $totals = dbFetchOne($totalsQuery, $searchParams);
@@ -107,47 +116,57 @@ include '../templates/admin/header.php';
     <div class="col-md-12 mb-3">
         <div class="card border-primary">
             <div class="card-body text-center">
-                <h2 class="display-3 text-primary mb-2">
+                <h2 class="display-3 <?= ($totals['balanco_total'] ?? 0) >= 0 ? 'text-success' : 'text-danger' ?> mb-2">
                     <i class="bi bi-cash-stack me-2"></i>
-                    <?= formatMoney($totals['total_aprovado'] ?? 0) ?>
+                    <?= formatMoney($totals['balanco_total'] ?? 0) ?>
                 </h2>
-                <p class="card-text fs-5 fw-bold text-primary">Balanço Total das Transações</p>
+                <p class="card-text fs-5 fw-bold text-primary">Balanço Total do Sistema</p>
                 <small class="text-muted">
-                    Valor total de todas as transações aprovadas no sistema
+                    Depósitos - Saques (apenas transações aprovadas)
                 </small>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Detalhamento por Status -->
+<!-- Detalhamento por Tipo -->
 <div class="row mb-4">
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
         <div class="card h-100 text-center">
             <div class="card-body">
-                <h4 class="display-6 text-success"><?= formatMoney($totals['total_aprovado'] ?? 0) ?></h4>
-                <p class="card-text">Total Aprovado</p>
-                <small class="text-muted">Pagamentos confirmados</small>
+                <h4 class="display-6 text-success"><?= formatMoney($totals['total_depositos'] ?? 0) ?></h4>
+                <p class="card-text">Total Depósitos</p>
+                <small class="text-muted">Entradas aprovadas</small>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <h4 class="display-6 text-danger"><?= formatMoney($totals['total_saques'] ?? 0) ?></h4>
+                <p class="card-text">Total Saques</p>
+                <small class="text-muted">Saídas aprovadas</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
         <div class="card h-100 text-center">
             <div class="card-body">
                 <h4 class="display-6 text-warning"><?= formatMoney($totals['total_pendente'] ?? 0) ?></h4>
-                <p class="card-text">Total Pendente</p>
-                <small class="text-muted">Aguardando confirmação</small>
+                <p class="card-text">Pendentes</p>
+                <small class="text-muted">Aguardando aprovação</small>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 mb-3">
         <div class="card h-100 text-center">
             <div class="card-body">
-                <h4 class="display-6 text-danger"><?= formatMoney($totals['total_recusado'] ?? 0) ?></h4>
-                <p class="card-text">Total Recusado</p>
-                <small class="text-muted">Pagamentos negados</small>
+                <h4 class="display-6 text-secondary"><?= formatMoney($totals['total_recusado'] ?? 0) ?></h4>
+                <p class="card-text">Recusados</p>
+                <small class="text-muted">Transações negadas</small>
             </div>
         </div>
     </div>
@@ -198,6 +217,7 @@ include '../templates/admin/header.php';
                             <th>ID</th>
                             <th>Jogador</th>
                             <th>Bolão</th>
+                            <th>Tipo</th>
                             <th>Valor</th>
                             <th>Método</th>
                             <th>Status</th>
@@ -224,7 +244,24 @@ include '../templates/admin/header.php';
                                         <span class="text-muted">N/A</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= formatMoney($pagamento['valor']) ?></td>
+                                <td>
+                                    <?php if ($pagamento['transacao_tipo'] === 'deposito'): ?>
+                                        <span class="badge bg-success"><i class="bi bi-plus-circle me-1"></i>Depósito</span>
+                                    <?php elseif ($pagamento['transacao_tipo'] === 'saque'): ?>
+                                        <span class="badge bg-danger"><i class="bi bi-dash-circle me-1"></i>Saque</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary"><?= ucfirst($pagamento['transacao_tipo'] ?? 'N/A') ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($pagamento['transacao_tipo'] === 'deposito'): ?>
+                                        <span class="text-success">+<?= formatMoney($pagamento['valor']) ?></span>
+                                    <?php elseif ($pagamento['transacao_tipo'] === 'saque'): ?>
+                                        <span class="text-danger">-<?= formatMoney($pagamento['valor']) ?></span>
+                                    <?php else: ?>
+                                        <?= formatMoney($pagamento['valor']) ?>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?= sanitize($pagamento['metodo']) ?></td>
                                 <td>
                                     <?php if ($pagamento['status'] === 'aprovado'): ?>
