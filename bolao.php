@@ -777,38 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Função para atualizar visibilidade do botão flutuante
-    function updateFloatingButton() {
-        const floatingBtn = document.querySelector('.fixed-bottom-btn');
-        console.log('updateFloatingButton chamada, botão encontrado:', !!floatingBtn);
-        
-        if (!floatingBtn) return;
-        
-        const selectedPalpites = document.querySelectorAll('input[type="radio"]:checked').length;
-        const totalJogos = <?= count($jogos) ?>;
-        
-        console.log('Palpites selecionados:', selectedPalpites, 'de', totalJogos);
-        
-        if (selectedPalpites > 0) {
-            floatingBtn.classList.add('show');
-            floatingBtn.style.display = 'block';
-            
-            // Atualizar texto do botão com progresso
-            const btnText = document.querySelector('#btnSalvarPalpites');
-            if (btnText) {
-                if (selectedPalpites === totalJogos) {
-                    btnText.innerHTML = '<i class="bi bi-check-circle me-2"></i>Salvar Palpites (' + selectedPalpites + '/' + totalJogos + ')';
-                } else {
-                    btnText.innerHTML = '<i class="bi bi-clock me-2"></i>Palpites (' + selectedPalpites + '/' + totalJogos + ')';
-                }
-            }
-            console.log('Botão deve estar visível agora');
-        } else {
-            floatingBtn.classList.remove('show');
-            floatingBtn.style.display = 'none';
-            console.log('Botão ocultado');
-        }
-    }
+
     
     // Inicializar estado do botão flutuante
     setTimeout(() => {
@@ -1381,6 +1350,38 @@ function gerarPalpitesAleatorios(button) {
 
 <script>
 
+// Função global para atualizar visibilidade do botão flutuante
+function updateFloatingButton() {
+    const floatingBtn = document.querySelector('.fixed-bottom-btn');
+    console.log('updateFloatingButton chamada, botão encontrado:', !!floatingBtn);
+    
+    if (!floatingBtn) return;
+    
+    const selectedPalpites = document.querySelectorAll('input[type="radio"]:checked').length;
+    const totalJogos = <?= count($jogos) ?>;
+    
+    console.log('Palpites selecionados:', selectedPalpites, 'de', totalJogos);
+    
+    if (selectedPalpites > 0) {
+        floatingBtn.classList.add('show');
+        floatingBtn.style.display = 'block';
+        
+        // Atualizar texto do botão com progresso
+        const btnText = document.querySelector('#btnSalvarPalpites');
+        if (btnText) {
+            if (selectedPalpites === totalJogos) {
+                btnText.innerHTML = '<i class="bi bi-check-circle me-2"></i>Salvar Palpites (' + selectedPalpites + '/' + totalJogos + ')';
+            } else {
+                btnText.innerHTML = '<i class="bi bi-clock me-2"></i>Palpites (' + selectedPalpites + '/' + totalJogos + ')';
+            }
+        }
+        console.log('Botão deve estar visível agora');
+    } else {
+        floatingBtn.classList.remove('show');
+        floatingBtn.style.display = 'none';
+        console.log('Botão ocultado');
+    }
+}
 
 // Função para atualizar o contador regressivo
 function updateCountdown(element, targetDate) {
