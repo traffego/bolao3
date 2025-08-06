@@ -1,6 +1,167 @@
 /**
- * Custom styles for Bolão Vitimba
+ * Custom styles for Bolão Vitimba - Identidade Visual Globo Esporte
  */
+
+/* ========================================
+   VARIÁVEIS CSS - GLOBO ESPORTE
+   ======================================== */
+:root {
+  /* Cores Primárias */
+  --globo-azul-principal: #1e3c72;
+  --globo-vermelho-destaque: #e74c3c;
+  
+  /* Cores Secundárias */
+  --globo-azul-claro: #3498db;
+  --globo-verde-futebol: #27ae60;
+  --globo-laranja-energia: #f39c12;
+  
+  /* Cores de Apoio */
+  --globo-cinza-escuro: #2c3e50;
+  --globo-cinza-medio: #7f8c8d;
+  --globo-cinza-claro: #ecf0f1;
+  --globo-branco: #ffffff;
+  
+  /* Tipografia */
+  --font-primary: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  --font-mono: 'Roboto Mono', 'Source Code Pro', Courier New, monospace;
+  
+  /* Gradientes */
+  --gradient-primary: linear-gradient(135deg, var(--globo-azul-principal) 0%, var(--globo-azul-claro) 100%);
+  --gradient-success: linear-gradient(135deg, var(--globo-verde-futebol) 0%, #2ecc71 100%);
+  --gradient-warning: linear-gradient(135deg, var(--globo-laranja-energia) 0%, #e67e22 100%);
+  --gradient-danger: linear-gradient(135deg, var(--globo-vermelho-destaque) 0%, #c0392b 100%);
+}
+
+/* ========================================
+   TIPOGRAFIA GLOBAL
+   ======================================== */
+body {
+  font-family: var(--font-primary);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--globo-cinza-escuro);
+  background-color: var(--globo-cinza-claro);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  color: var(--globo-azul-principal);
+}
+
+h1 { font-size: 2.5rem; font-weight: 800; }
+h2 { font-size: 2rem; font-weight: 700; }
+h3 { font-size: 1.5rem; font-weight: 600; }
+h4 { font-size: 1.25rem; font-weight: 600; }
+h5 { font-size: 1.1rem; font-weight: 600; }
+h6 { font-size: 1rem; font-weight: 600; }
+
+/* Números e dados */
+.data-display, .score, .stats {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+/* ========================================
+   COMPONENTES PRINCIPAIS
+   ======================================== */
+
+/* Botões */
+.btn-primary {
+  background: var(--gradient-primary);
+  border: none;
+  font-weight: 600;
+  font-family: var(--font-primary);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: var(--globo-azul-principal);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+}
+
+.btn-danger, .btn-success.btn-cta {
+  background: var(--gradient-danger);
+  border: none;
+  font-weight: 600;
+  font-family: var(--font-primary);
+}
+
+.btn-success {
+  background: var(--gradient-success);
+  border: none;
+  font-weight: 600;
+}
+
+.btn-warning {
+  background: var(--gradient-warning);
+  border: none;
+  font-weight: 600;
+  color: var(--globo-branco);
+}
+
+/* Cards */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+/* Header do Card */
+.card-header {
+  background: var(--gradient-primary);
+  color: var(--globo-branco);
+  border: none;
+  font-weight: 600;
+}
+
+/* Navegação */
+.navbar {
+  background: var(--globo-azul-principal) !important;
+  box-shadow: 0 2px 10px rgba(30, 60, 114, 0.3);
+}
+
+.navbar-brand, .nav-link {
+  color: var(--globo-branco) !important;
+  font-weight: 600;
+}
+
+.nav-link:hover {
+  color: var(--globo-vermelho-destaque) !important;
+  transition: color 0.3s ease;
+}
+
+/* Alerts */
+.alert-success {
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.1) 0%, rgba(46, 204, 113, 0.1) 100%);
+  border: 1px solid var(--globo-verde-futebol);
+  color: var(--globo-verde-futebol);
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(192, 57, 43, 0.1) 100%);
+  border: 1px solid var(--globo-vermelho-destaque);
+  color: var(--globo-vermelho-destaque);
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, rgba(243, 156, 18, 0.1) 0%, rgba(230, 126, 34, 0.1) 100%);
+  border: 1px solid var(--globo-laranja-energia);
+  color: #d68910;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(41, 128, 185, 0.1) 100%);
+  border: 1px solid var(--globo-azul-claro);
+  color: var(--globo-azul-claro);
+}
 
 /* Payment Success Animations */
 @keyframes confetti-fall {

@@ -224,18 +224,18 @@ include TEMPLATE_DIR . '/header.php';
     <!-- Informações do Bolão -->
     <div class="col-md-4 mb-4">
         <div class="card shadow-sm border-0">
-            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-header text-white" style="background: var(--gradient-primary, linear-gradient(135deg, #1e3c72 0%, #3498db 100%));">
                 <div class="d-flex align-items-center">
-                    <i class="bi bi-info-circle-fill me-2" style="font-size: 1.2rem;"></i>
-                    <h5 class="card-title mb-0 fw-bold">Informações do Bolão</h5>
+                    <i class="bi bi-trophy-fill me-2" style="font-size: 1.2rem;"></i>
+                    <h5 class="card-title mb-0 fw-bold" style="font-family: 'Open Sans', Arial, sans-serif;">Informações do Bolão</h5>
                 </div>
             </div>
             <div class="card-body p-4">
                 <!-- Título do Bolão -->
                 <div class="text-center mb-4">
-                    <h3 class="fw-bold text-primary mb-2"><?= htmlspecialchars($bolao['nome']) ?></h3>
+                    <h3 class="fw-bold mb-2" style="color: var(--globo-azul-principal, #1e3c72); font-family: 'Open Sans', Arial, sans-serif;"><?= htmlspecialchars($bolao['nome']) ?></h3>
                     <?php if (!empty($bolao['descricao'])): ?>
-                        <p class="text-muted small"><?= nl2br(htmlspecialchars($bolao['descricao'])) ?></p>
+                        <p class="text-muted small" style="font-family: 'Open Sans', Arial, sans-serif;"><?= nl2br(htmlspecialchars($bolao['descricao'])) ?></p>
                     <?php endif; ?>
                 </div>
                 
@@ -243,14 +243,14 @@ include TEMPLATE_DIR . '/header.php';
                 <div class="row g-2 mb-3">
                     <!-- Período -->
                     <div class="col-12">
-                        <div class="info-card p-3 rounded-3" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                        <div class="info-card p-3 rounded-3" style="background: var(--gradient-primary, linear-gradient(135deg, #1e3c72 0%, #3498db 100%)); color: white;">
                             <div class="d-flex align-items-center">
                                 <div class="info-icon me-3">
                                     <i class="bi bi-calendar-range" style="font-size: 1.5rem;"></i>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <div class="info-label fw-semibold">Período</div>
-                                    <div class="info-value"><?= formatDate($bolao['data_inicio']) ?> a <?= formatDate($bolao['data_fim']) ?></div>
+                                    <div class="info-label fw-semibold" style="font-family: 'Open Sans', Arial, sans-serif;">Período</div>
+                                    <div class="info-value" style="font-family: 'Open Sans', Arial, sans-serif;"><?= formatDate($bolao['data_inicio']) ?> a <?= formatDate($bolao['data_fim']) ?></div>
                                 </div>
                             </div>
                         </div>
@@ -293,27 +293,27 @@ include TEMPLATE_DIR . '/header.php';
                 <!-- Prêmios -->
                 <?php if ($bolao['premio_total'] > 0 || $bolao['premio_rodada'] > 0): ?>
                 <div class="mb-3">
-                    <h6 class="fw-bold text-success mb-2">
+                    <h6 class="fw-bold mb-2" style="color: var(--globo-vermelho-destaque, #e74c3c); font-family: 'Open Sans', Arial, sans-serif;">
                         <i class="bi bi-trophy-fill me-1"></i>
                         Prêmios
                     </h6>
                     <div class="row g-2">
                         <?php if ($bolao['premio_total'] > 0): ?>
                         <div class="col-6">
-                            <div class="prize-card text-center p-3 rounded-3" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
-                                <i class="bi bi-trophy text-warning" style="font-size: 1.8rem;"></i>
-                                <div class="fw-bold text-dark mt-1">Prêmio Total</div>
-                                <div class="h5 fw-bold text-success mb-0"><?= formatMoney($bolao['premio_total']) ?></div>
+                            <div class="prize-card text-center p-3 rounded-3" style="background: var(--gradient-warning, linear-gradient(135deg, #f39c12 0%, #e67e22 100%)); color: white;">
+                                <i class="bi bi-trophy" style="font-size: 1.8rem; color: white;"></i>
+                                <div class="fw-bold mt-1" style="font-family: 'Open Sans', Arial, sans-serif;">Prêmio Total</div>
+                                <div class="h5 fw-bold mb-0" style="font-family: 'Roboto Mono', monospace; color: white;"><?= formatMoney($bolao['premio_total']) ?></div>
                             </div>
                         </div>
                         <?php endif; ?>
                         
                         <?php if ($bolao['premio_rodada'] > 0): ?>
                         <div class="col-6">
-                            <div class="prize-card text-center p-3 rounded-3" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
-                                <i class="bi bi-award text-info" style="font-size: 1.8rem;"></i>
-                                <div class="fw-bold text-dark mt-1">Por Rodada</div>
-                                <div class="h5 fw-bold text-info mb-0"><?= formatMoney($bolao['premio_rodada']) ?></div>
+                            <div class="prize-card text-center p-3 rounded-3" style="background: var(--gradient-success, linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)); color: white;">
+                                <i class="bi bi-award" style="font-size: 1.8rem; color: white;"></i>
+                                <div class="fw-bold mt-1" style="font-family: 'Open Sans', Arial, sans-serif;">Por Rodada</div>
+                                <div class="h5 fw-bold mb-0" style="font-family: 'Roboto Mono', monospace; color: white;"><?= formatMoney($bolao['premio_rodada']) ?></div>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -440,12 +440,12 @@ include TEMPLATE_DIR . '/header.php';
                 
                 <!-- Aviso de prazo encerrado -->
                 <?php if ($prazoEncerrado): ?>
-                    <div class="card mb-4 border-warning">
-                        <div class="card-body">
+                    <div class="card mb-4" style="border: 2px solid var(--globo-laranja-energia, #f39c12);">
+                        <div class="card-body" style="background: linear-gradient(135deg, rgba(243, 156, 18, 0.1) 0%, rgba(230, 126, 34, 0.1) 100%);">
                             <div class="d-flex align-items-start">
-                                <i class="bi bi-clock-history text-warning me-3" style="font-size: 2rem; margin-top: 0.25rem;"></i>
+                                <i class="bi bi-clock-history me-3" style="font-size: 2rem; margin-top: 0.25rem; color: var(--globo-laranja-energia, #f39c12);"></i>
                                 <div class="flex-grow-1">
-                                    <h5 class="card-title text-warning mb-2">
+                                    <h5 class="card-title mb-2" style="color: var(--globo-laranja-energia, #f39c12); font-family: 'Open Sans', Arial, sans-serif; font-weight: 700;">
                                         <strong>⏰ Oops! Você perdeu o prazo</strong>
                                     </h5>
                                     <p class="card-text mb-2">
@@ -476,11 +476,12 @@ include TEMPLATE_DIR . '/header.php';
                                 </p>
                             </div>
                             <button type="button" 
-                                    class="btn btn-primary btn-lg" 
+                                    class="btn btn-lg" 
                                     onclick="gerarPalpitesAleatorios(this)"
                                     data-bs-toggle="tooltip" 
                                     data-bs-placement="top" 
-                                    title="Gera resultados aleatórios para todos os jogos">
+                                    title="Gera resultados aleatórios para todos os jogos"
+                                    style="background: var(--gradient-danger, linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)); color: white; border: none; font-family: 'Open Sans', Arial, sans-serif; font-weight: 600;">
                                 <i class="bi bi-shuffle me-2"></i>
                                 Gerar Palpites
                             </button>
@@ -587,8 +588,8 @@ include TEMPLATE_DIR . '/header.php';
                         <i class="bi bi-arrow-left"></i> Voltar para Bolões
                     </a>
                     <?php if (!$prazoEncerrado): ?>
-                        <button type="submit" class="btn btn-success btn-lg">
-                            <i class="bi bi-check-circle"></i> Salvar Palpites
+                        <button type="submit" class="btn btn-lg" style="background: var(--gradient-success, linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)); color: white; border: none; font-family: 'Open Sans', Arial, sans-serif; font-weight: 600;">
+                            <i class="bi bi-check-circle me-1"></i> Salvar Palpites
                         </button>
                     <?php else: ?>
                         <div class="text-muted d-flex align-items-center">

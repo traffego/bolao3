@@ -12,6 +12,11 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     
+    <!-- Google Fonts - Open Sans & Roboto Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= APP_URL ?>/public/css/styles.css">
     
@@ -22,10 +27,10 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-green">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--globo-azul-principal, #1e3c72) !important; box-shadow: 0 2px 10px rgba(30, 60, 114, 0.3);">
     <div class="container">
-        <a class="navbar-brand" href="<?= APP_URL ?>">
-            <i class="bi bi-trophy-fill"></i> <?= APP_NAME ?>
+        <a class="navbar-brand" href="<?= APP_URL ?>" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: 700; color: white !important;">
+            <i class="bi bi-trophy-fill me-2"></i><?= APP_NAME ?>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
             <span class="navbar-toggler-icon"></span>

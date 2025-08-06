@@ -1,0 +1,106 @@
+## **Orientações para Manual de Marca - Globo Esporte**
+
+### **Cores Primárias**
+**Azul Globo (Principal)**
+- HEX: #1e3c72
+- RGB: 30, 60, 114
+- Uso: Cabeçalhos principais, navegação, elementos corporativos
+
+**Vermelho Esportivo (Destaque)**
+- HEX: #e74c3c
+- RGB: 231, 76, 60
+- Uso: CTAs, notícias urgentes, placar ao vivo, destaques
+
+### **Cores Secundárias**
+**Azul Claro**
+- HEX: #3498db
+- RGB: 52, 152, 219
+- Uso: Links, elementos interativos secundários
+
+**Verde Futebol**
+- HEX: #27ae60
+- RGB: 39, 174, 96
+- Uso: Resultados positivos, vitórias, informações de sucesso
+
+**Laranja Energia**
+- HEX: #f39c12
+- RGB: 243, 156, 18
+- Uso: Transmissões ao vivo, alertas importantes
+
+### **Cores de Apoio**
+**Cinza Escuro (Texto)**
+- HEX: #2c3e50
+- RGB: 44, 62, 80
+
+**Cinza Médio**
+- HEX: #7f8c8d
+- RGB: 127, 140, 141
+
+**Cinza Claro (Fundos)**
+- HEX: #ecf0f1
+- RGB: 236, 240, 241
+
+**Branco**
+- HEX: #ffffff
+- RGB: 255, 255, 255
+
+### **Tipografia**
+
+#### **Fonte Primária - Títulos e Manchetes**
+**Open Sans Bold/Extra Bold**
+- Uso: Títulos principais, manchetes, cabeçalhos
+- Tamanhos: 24px a 48px
+- Peso: 700-800
+- Alternativa web-safe: Arial Black, Helvetica Bold
+
+#### **Fonte Secundária - Subtítulos**
+**Open Sans Semibold**
+- Uso: Subtítulos, categorias, menus
+- Tamanhos: 16px a 24px
+- Peso: 600
+- Alternativa: Arial Bold
+
+#### **Fonte Corpo de Texto**
+**Open Sans Regular**
+- Uso: Textos longos, parágrafos, conteúdo editorial
+- Tamanhos: 14px a 16px
+- Peso: 400
+- Line-height: 1.5-1.6
+- Alternativa: Arial, Helvetica
+
+#### **Fonte Dados/Números**
+**Roboto Mono ou Source Code Pro**
+- Uso: Placares, estatísticas, horários, dados numéricos
+- Tamanhos: 12px a 20px
+- Peso: 400-500
+- Alternativa: Courier New, monospace
+
+### **Hierarquia Tipográfica**
+1. **H1 (Manchete)**: Open Sans Bold, 32-48px
+2. **H2 (Título Seção)**: Open Sans Semibold, 24-28px
+3. **H3 (Subtítulo)**: Open Sans Semibold, 18-22px
+4. **Corpo**: Open Sans Regular, 14-16px
+5. **Caption/Legenda**: Open Sans Regular, 12-14px
+6. **Dados**: Roboto Mono, 14-18px
+
+### **Diretrizes de Uso**
+1. **Hierarquia**: Azul principal para identidade, vermelho para ação
+2. **Contraste**: Sempre garantir legibilidade (mínimo 4.5:1)
+3. **Proporção**: 60% azul, 30% neutros, 10% cores de destaque
+4. **Acessibilidade**: Testar com daltonismo e leitores de tela
+5. **Consistência**: Manter mesmos tons e fontes em todas as plataformas
+
+### **Aplicações Específicas**
+- **Cabeçalho**: Azul Globo + Open Sans Bold + texto branco
+- **Menu**: Open Sans Semibold + hover em vermelho
+- **Manchetes**: Open Sans Bold + cor azul ou preta
+- **Corpo de notícias**: Open Sans Regular + cinza escuro
+- **Placares/Stats**: Roboto Mono + cores temáticas dos times
+- **CTAs**: Open Sans Semibold + fundo vermelho + texto branco
+
+### **Fallbacks para Fontes**
+```css
+font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+```
+
+Essa estrutura garante consistência visual e tipográfica mantendo a identidade forte do Globo Esporte.
