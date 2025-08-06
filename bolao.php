@@ -71,10 +71,11 @@ usort($jogos, function($a, $b) {
     return strtotime($dateA) - strtotime($dateB);
 });
 
-// Verificar se já passou do prazo para palpites
+// Calcular prazo limite automaticamente: 5 minutos antes do primeiro jogo
 $prazoEncerrado = false;
-if (!empty($bolao['data_limite_palpitar'])) {
-    $dataLimite = new DateTime($bolao['data_limite_palpitar']);
+$dataLimite = calcularPrazoLimitePalpites($jogos, $bolao['data_limite_palpitar']);
+
+if ($dataLimite) {
     $agora = new DateTime();
     $prazoEncerrado = $agora > $dataLimite;
 }
@@ -241,15 +242,27 @@ include TEMPLATE_DIR . '/header.php';
                         </div>
                     </div>
 
-                    <?php if (!empty($bolao['data_limite_palpitar'])): ?>
+                    <?php if ($dataLimite): ?>
                     <div class="info-item">
                         <i class="bi bi-alarm text-warning"></i>
                         <div class="info-content">
                             <label>Prazo para Palpites:</label>
-                            <span><?= formatDateTime($bolao['data_limite_palpitar']) ?>
-                            <?php if ($prazoEncerrado): ?>
-                                <span class="badge bg-danger">Encerrado</span>
-                            <?php endif; ?></span>
+                            <div>
+                                <span><?= $dataLimite->format('d/m/Y H:i') ?></span>
+                                <small class="text-muted d-block">(5 min antes do 1º jogo)</small>
+                                <?php if ($prazoEncerrado): ?>
+                                    <span class="badge bg-danger">Encerrado</span>
+                                <?php else: ?>
+                                    <div class="countdown-timer mt-2" data-target="<?= $dataLimite->format('Y-m-d H:i:s') ?>">
+                                        <div class="countdown-display">
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-clock"></i>
+                                                <span class="countdown-text">Carregando...</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                     <?php endif; ?>
@@ -337,8 +350,32 @@ include TEMPLATE_DIR . '/header.php';
                 <input type="hidden" name="bolao_id" value="<?= $bolao['id'] ?>">
                 <input type="hidden" name="bolao_slug" value="<?= $bolao['slug'] ?>">
                 
-                <!-- Card de palpites aleatórios -->
-                <?php if (!$prazoEncerrado): ?>
+                <!-- Aviso de prazo encerrado -->
+                <?php if ($prazoEncerrado): ?>
+                    <div class="card mb-4 border-warning">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-clock-history text-warning me-3" style="font-size: 2rem; margin-top: 0.25rem;"></i>
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title text-warning mb-2">
+                                        <strong>Prazo para Palpites Encerrado</strong>
+                                    </h5>
+                                    <p class="card-text mb-2">
+                                        O prazo para envio de palpites encerrou em <strong><?= $dataLimite->format('d/m/Y \u00e0\s H:i') ?></strong> 
+                                        (5 minutos antes do primeiro jogo).
+                                    </p>
+                                    <p class="card-text text-muted mb-0">
+                                        <small>
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Você ainda pode visualizar os jogos e acompanhar os resultados, mas não é mais possível enviar novos palpites.
+                                        </small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <!-- Card de palpites aleatórios -->
                     <div class="card mb-4 border-primary">
                         <div class="card-body d-flex align-items-center justify-content-between">
                             <div>
@@ -369,8 +406,14 @@ include TEMPLATE_DIR . '/header.php';
                     $palpiteJogo = $palpites[$jogoId] ?? $palpitesSessao[$jogoId] ?? null;
                     $disabled = $prazoEncerrado ? 'disabled' : '';
                     ?>
-                    <div class="card mb-3">
-                        <div class="card-body">
+                    <div class="card mb-3 <?= $prazoEncerrado ? 'border-secondary' : '' ?>">
+                        <div class="card-body <?= $prazoEncerrado ? 'bg-light' : '' ?>">
+                            <?php if ($prazoEncerrado): ?>
+                                <div class="position-relative">
+                                    <div class="position-absolute top-0 end-0 p-2">
+                                        <i class="bi bi-lock-fill text-muted" title="Palpites não são mais permitidos"></i>
+                                    </div>
+                            <?php endif; ?>
                             <div class="row align-items-center">
                                 <div class="col-md-12">
                                     <div class="palpites-container text-center">
@@ -444,6 +487,9 @@ include TEMPLATE_DIR . '/header.php';
                                     </div>
                                 </div>
                             </div>
+                            <?php if ($prazoEncerrado): ?>
+                                </div> <!-- Fecha position-relative -->
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -452,9 +498,16 @@ include TEMPLATE_DIR . '/header.php';
                     <a href="<?= APP_URL ?>/boloes.php" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left"></i> Voltar para Bolões
                     </a>
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="bi bi-check-circle"></i> Salvar Palpites
-                    </button>
+                    <?php if (!$prazoEncerrado): ?>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle"></i> Salvar Palpites
+                        </button>
+                    <?php else: ?>
+                        <div class="text-muted">
+                            <i class="bi bi-lock-fill me-1"></i>
+                            <small>Palpites não são mais permitidos</small>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </form>
         <?php else: ?>
@@ -1029,5 +1082,91 @@ function gerarPalpitesAleatorios(button) {
     }
 }
 </style>
+
+<script>
+// Função para gerar palpites aleatórios
+function gerarPalpitesAleatorios() {
+    const opcoes = ['casa', 'empate', 'visitante'];
+    const radios = document.querySelectorAll('input[type="radio"][name^="resultado_"]');
+    
+    // Agrupar por jogo
+    const jogos = {};
+    radios.forEach(radio => {
+        const nomeJogo = radio.name;
+        if (!jogos[nomeJogo]) {
+            jogos[nomeJogo] = [];
+        }
+        jogos[nomeJogo].push(radio);
+    });
+    
+    // Selecionar uma opção aleatória para cada jogo
+    Object.keys(jogos).forEach(nomeJogo => {
+        const opcaoAleatoria = opcoes[Math.floor(Math.random() * opcoes.length)];
+        const radioEscolhido = jogos[nomeJogo].find(radio => radio.value === opcaoAleatoria);
+        if (radioEscolhido && !radioEscolhido.disabled) {
+            radioEscolhido.checked = true;
+        }
+    });
+}
+
+// Função para atualizar o contador regressivo
+function updateCountdown(element, targetDate) {
+    const now = new Date();
+    const difference = targetDate - now;
+    
+    const countdownText = element.querySelector('.countdown-text');
+    const badge = element.querySelector('.badge');
+    
+    if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        
+        let displayText = '';
+        if (days > 0) {
+            displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        } else if (hours > 0) {
+            displayText = `${hours}h ${minutes}m ${seconds}s`;
+        } else if (minutes > 0) {
+            displayText = `${minutes}m ${seconds}s`;
+        } else {
+            displayText = `${seconds}s`;
+        }
+        
+        countdownText.textContent = displayText;
+        badge.className = 'badge bg-success';
+    } else {
+        countdownText.textContent = 'Prazo encerrado!';
+        badge.className = 'badge bg-danger';
+        
+        // Recarregar a página para atualizar o status após 2 segundos
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    }
+}
+
+// Inicializar quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    // Botões de palpites aleatórios
+    const botoes = document.querySelectorAll('#gerarPalpitesAleatorios, #gerarPalpitesAleatorios2');
+    botoes.forEach(botao => {
+        botao.addEventListener('click', gerarPalpitesAleatorios);
+    });
+    
+    // Inicializar contador regressivo
+    const countdownElements = document.querySelectorAll('.countdown-timer');
+    countdownElements.forEach(element => {
+        const targetDate = new Date(element.dataset.target);
+        updateCountdown(element, targetDate);
+        
+        // Atualizar a cada segundo
+        setInterval(() => {
+            updateCountdown(element, targetDate);
+        }, 1000);
+    });
+});
+</script>
 
 <?php include TEMPLATE_DIR . '/footer.php'; ?> 

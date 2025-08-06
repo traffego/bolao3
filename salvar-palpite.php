@@ -24,10 +24,14 @@ if (!$bolao) {
     redirect(APP_URL . '/boloes.php');
 }
 
-// Verificar se já passou do prazo para palpites
+// Decodificar jogos para calcular prazo limite
+$jogos = json_decode($bolao['jogos'], true) ?: [];
+
+// Calcular prazo limite automaticamente: 5 minutos antes do primeiro jogo
 $prazoEncerrado = false;
-if (!empty($bolao['data_limite_palpitar'])) {
-    $dataLimite = new DateTime($bolao['data_limite_palpitar']);
+$dataLimite = calcularPrazoLimitePalpites($jogos, $bolao['data_limite_palpitar']);
+
+if ($dataLimite) {
     $agora = new DateTime();
     $prazoEncerrado = $agora > $dataLimite;
 }

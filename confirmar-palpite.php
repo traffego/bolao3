@@ -80,10 +80,14 @@ if (!$bolao) {
     redirect(APP_URL . '/boloes.php');
 }
 
-// Verificar se já passou do prazo para palpites
+// Decodificar jogos do bolão
+$jogos = json_decode($bolao['jogos'], true) ?: [];
+
+// Calcular prazo limite automaticamente: 5 minutos antes do primeiro jogo
 $prazoEncerrado = false;
-if (!empty($bolao['data_limite_palpitar'])) {
-    $dataLimite = new DateTime($bolao['data_limite_palpitar']);
+$dataLimite = calcularPrazoLimitePalpites($jogos, $bolao['data_limite_palpitar']);
+
+if ($dataLimite) {
     $agora = new DateTime();
     $prazoEncerrado = $agora > $dataLimite;
 }
@@ -92,9 +96,6 @@ if ($prazoEncerrado) {
     setFlashMessage('danger', 'O prazo para envio de palpites já foi encerrado.');
     redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
 }
-
-// Decodificar jogos do bolão
-$jogos = json_decode($bolao['jogos'], true) ?: [];
 
 // Se não for um palpite pendente, verificar se todos os jogos foram palpitados
 if (!isset($_SESSION['palpite_pendente'])) {

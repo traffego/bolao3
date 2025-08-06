@@ -855,4 +855,54 @@ function checkDatabaseStatus() {
  */
 function getConfiguracao($name, $default = null) {
     return getConfig($name, $default);
+}
+
+/**
+ * Calcular prazo limite para palpites (5 minutos antes do primeiro jogo)
+ * 
+ * @param array $jogos Array de jogos do bolão
+ * @param string|null $dataLimiteFallback Data limite manual como fallback
+ * @return DateTime|null Data limite ou null se não conseguir calcular
+ */
+function calcularPrazoLimitePalpites($jogos, $dataLimiteFallback = null) {
+    if (empty($jogos) || !is_array($jogos)) {
+        // Se não há jogos, usar fallback
+        if ($dataLimiteFallback) {
+            return new DateTime($dataLimiteFallback);
+        }
+        return null;
+    }
+    
+    // Ordenar jogos por data para pegar o primeiro
+    usort($jogos, function($a, $b) {
+        $dateA = isset($a['data_iso']) ? $a['data_iso'] : $a['data'];
+        $dateB = isset($b['data_iso']) ? $b['data_iso'] : $b['data'];
+        return strtotime($dateA) - strtotime($dateB);
+    });
+    
+    $primeiroJogo = $jogos[0];
+    
+    // Determinar a data do primeiro jogo
+    $dataInicialJogo = null;
+    if (!empty($primeiroJogo['data_formatada'])) {
+        // Se temos data_formatada (formato brasileiro "dd/mm/yyyy HH:mm")
+        $dataInicialJogo = DateTime::createFromFormat('d/m/Y H:i', $primeiroJogo['data_formatada']);
+    } elseif (!empty($primeiroJogo['data'])) {
+        // Se temos data (formato ISO "yyyy-mm-dd HH:mm:ss")
+        $dataInicialJogo = new DateTime($primeiroJogo['data']);
+    }
+    
+    if ($dataInicialJogo) {
+        // Subtrair 5 minutos para criar o prazo limite
+        $dataLimite = clone $dataInicialJogo;
+        $dataLimite->sub(new DateInterval('PT5M')); // PT5M = 5 minutos
+        return $dataLimite;
+    }
+    
+    // Se não conseguiu calcular, usar fallback
+    if ($dataLimiteFallback) {
+        return new DateTime($dataLimiteFallback);
+    }
+    
+    return null;
 } 
