@@ -223,93 +223,181 @@ include TEMPLATE_DIR . '/header.php';
 <div class="row">
     <!-- Informações do Bolão -->
     <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Informações do Bolão</h5>
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill me-2" style="font-size: 1.2rem;"></i>
+                    <h5 class="card-title mb-0 fw-bold">Informações do Bolão</h5>
+                </div>
             </div>
-            <div class="card-body">
-                <h2 class="mb-3"><?= htmlspecialchars($bolao['nome']) ?></h2>
-                <?php if (!empty($bolao['descricao'])): ?>
-                    <p class="text-muted"><?= nl2br(htmlspecialchars($bolao['descricao'])) ?></p>
-                <?php endif; ?>
+            <div class="card-body p-4">
+                <!-- Título do Bolão -->
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold text-primary mb-2"><?= htmlspecialchars($bolao['nome']) ?></h3>
+                    <?php if (!empty($bolao['descricao'])): ?>
+                        <p class="text-muted small"><?= nl2br(htmlspecialchars($bolao['descricao'])) ?></p>
+                    <?php endif; ?>
+                </div>
                 
-                <div class="bolao-info">
-                    <div class="info-item">
-                        <i class="bi bi-calendar-range text-primary"></i>
-                        <div class="info-content">
-                            <label>Período:</label>
-                            <span><?= formatDate($bolao['data_inicio']) ?> a <?= formatDate($bolao['data_fim']) ?></span>
+                <!-- Informações em Cards Pequenos -->
+                <div class="row g-2 mb-3">
+                    <!-- Período -->
+                    <div class="col-12">
+                        <div class="info-card p-3 rounded-3" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                            <div class="d-flex align-items-center">
+                                <div class="info-icon me-3">
+                                    <i class="bi bi-calendar-range" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="info-label fw-semibold">Período</div>
+                                    <div class="info-value"><?= formatDate($bolao['data_inicio']) ?> a <?= formatDate($bolao['data_fim']) ?></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Prazo para Palpites -->
                     <?php if ($dataLimite): ?>
-                    <div class="info-item">
-                        <i class="bi bi-alarm text-warning"></i>
-                        <div class="info-content">
-                            <label>Prazo para Palpites:</label>
-                            <div>
-                                <span><?= $dataLimite->format('d/m/Y H:i') ?></span>
-                                <small class="text-muted d-block">(5 min antes do 1º jogo)</small>
-                                <?php if ($prazoEncerrado): ?>
-                                    <span class="badge bg-danger">Encerrado</span>
-                                <?php else: ?>
-                                    <div class="countdown-timer mt-2" data-target="<?= $dataLimite->format('Y-m-d H:i:s') ?>">
-                                        <div class="countdown-display">
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-clock"></i>
-                                                <span class="countdown-text">Carregando...</span>
-                                            </span>
-                                        </div>
+                    <div class="col-12">
+                        <div class="info-card p-3 rounded-3 <?= $prazoEncerrado ? 'bg-light border border-warning' : '' ?>" style="<?= !$prazoEncerrado ? 'background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;' : 'color: #856404;' ?>">
+                            <div class="d-flex align-items-center">
+                                <div class="info-icon me-3">
+                                    <i class="bi bi-<?= $prazoEncerrado ? 'clock-history' : 'alarm' ?>" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="info-label fw-semibold"><?= $prazoEncerrado ? 'Prazo Encerrado' : 'Prazo para Palpites' ?></div>
+                                    <div class="info-value">
+                                        <?= $dataLimite->format('d/m/Y H:i') ?>
+                                        <small class="d-block opacity-75">(5 min antes do 1º jogo)</small>
+                                        <?php if ($prazoEncerrado): ?>
+                                            <span class="badge bg-danger mt-1">Encerrado</span>
+                                        <?php else: ?>
+                                            <div class="countdown-timer mt-2" data-target="<?= $dataLimite->format('Y-m-d H:i:s') ?>">
+                                                <div class="countdown-display">
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-clock me-1"></i>
+                                                        <span class="countdown-text">Carregando...</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
-                                <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <?php endif; ?>
 
+                </div>
+                
+                <!-- Prêmios -->
+                <?php if ($bolao['premio_total'] > 0 || $bolao['premio_rodada'] > 0): ?>
+                <div class="mb-3">
+                    <h6 class="fw-bold text-success mb-2">
+                        <i class="bi bi-trophy-fill me-1"></i>
+                        Prêmios
+                    </h6>
+                    <div class="row g-2">
+                        <?php if ($bolao['premio_total'] > 0): ?>
+                        <div class="col-6">
+                            <div class="prize-card text-center p-3 rounded-3" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                                <i class="bi bi-trophy text-warning" style="font-size: 1.8rem;"></i>
+                                <div class="fw-bold text-dark mt-1">Prêmio Total</div>
+                                <div class="h5 fw-bold text-success mb-0"><?= formatMoney($bolao['premio_total']) ?></div>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($bolao['premio_rodada'] > 0): ?>
+                        <div class="col-6">
+                            <div class="prize-card text-center p-3 rounded-3" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                                <i class="bi bi-award text-info" style="font-size: 1.8rem;"></i>
+                                <div class="fw-bold text-dark mt-1">Por Rodada</div>
+                                <div class="h5 fw-bold text-info mb-0"><?= formatMoney($bolao['premio_rodada']) ?></div>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Informações Financeiras -->
+                <div class="row g-2 mb-3">
                     <?php if ($bolao['valor_participacao'] > 0): ?>
-                    <div class="info-item">
-                        <i class="bi bi-coin text-success"></i>
-                        <div class="info-content">
-                            <label>Valor de Participação:</label>
-                            <span><?= formatMoney($bolao['valor_participacao']) ?></span>
-                        </div>
-                    </div>
-
-                    <?php if (isLoggedIn() && getModeloPagamento() === 'conta_saldo'): ?>
-                    <div class="info-item">
-                        <i class="bi bi-wallet2 <?= $podeApostar ? 'text-success' : 'text-danger' ?>"></i>
-                        <div class="info-content">
-                            <label>Seu Saldo:</label>
-                            <span>
-                                <?= formatMoney($saldoInfo['saldo_atual']) ?>
-                                <?php if (!$podeApostar): ?>
-                                    <span class="badge bg-danger">Saldo Insuficiente</span>
-                                <?php endif; ?>
-                            </span>
+                    <div class="col-12">
+                        <div class="info-card p-3 rounded-3" style="background: linear-gradient(135deg, #a8e6cf 0%, #dcedc8 100%);">
+                            <div class="d-flex align-items-center">
+                                <div class="info-icon me-3">
+                                    <i class="bi bi-currency-dollar text-success" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="info-label fw-semibold text-success">Valor de Participação</div>
+                                    <div class="info-value text-success h6 mb-0"><?= formatMoney($bolao['valor_participacao']) ?></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <?php endif; ?>
-                    <?php endif; ?>
-
-                    <?php if ($bolao['premio_total'] > 0): ?>
-                    <div class="info-item">
-                        <i class="bi bi-trophy text-warning"></i>
-                        <div class="info-content">
-                            <label>Prêmio Total:</label>
-                            <span><?= formatMoney($bolao['premio_total']) ?></span>
+                    
+                    <?php if (isLoggedIn() && getModeloPagamento() === 'conta_saldo' && $saldoInfo): ?>
+                    <div class="col-12">
+                        <div class="info-card p-3 rounded-3" style="background: <?= $podeApostar ? 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)' : 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)' ?>;">
+                            <div class="d-flex align-items-center">
+                                <div class="info-icon me-3">
+                                    <i class="bi bi-wallet2 <?= $podeApostar ? 'text-success' : 'text-danger' ?>" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="info-label fw-semibold <?= $podeApostar ? 'text-success' : 'text-danger' ?>">Seu Saldo</div>
+                                    <div class="info-value <?= $podeApostar ? 'text-success' : 'text-danger' ?> h6 mb-0">
+                                        <?= formatMoney($saldoInfo['saldo_atual']) ?>
+                                        <?php if (!$podeApostar): ?>
+                                            <span class="badge bg-danger ms-2">Insuficiente</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <?php endif; ?>
                 </div>
-
+                
+                <!-- Informações Adicionais -->
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="stat-card text-center p-2 rounded-3 bg-light">
+                            <i class="bi bi-joystick text-primary" style="font-size: 1.2rem;"></i>
+                            <div class="small fw-semibold text-muted">Total de Jogos</div>
+                            <div class="h6 fw-bold text-primary mb-0"><?= count($jogos) ?></div>
+                        </div>
+                    </div>
+                    
+                    <?php if ($bolao['max_participantes'] > 0): ?>
+                    <div class="col-6">
+                        <div class="stat-card text-center p-2 rounded-3 bg-light">
+                            <i class="bi bi-people text-info" style="font-size: 1.2rem;"></i>
+                            <div class="small fw-semibold text-muted">Máx. Participantes</div>
+                            <div class="h6 fw-bold text-info mb-0"><?= $bolao['max_participantes'] ?></div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Aviso de Saldo Insuficiente -->
                 <?php if (isLoggedIn() && !$podeApostar && getModeloPagamento() === 'conta_saldo'): ?>
-                <div class="alert alert-warning mt-3">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    Saldo insuficiente para participar deste bolão.
-                    <a href="<?= APP_URL ?>/minha-conta.php" class="alert-link">
-                        Clique aqui para depositar
-                    </a>
+                <div class="alert alert-warning border-0 rounded-3 mt-3" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill text-warning me-3" style="font-size: 1.5rem;"></i>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-warning">Saldo Insuficiente</div>
+                            <small class="text-muted">Você precisa depositar mais para participar deste bolão.</small>
+                            <div class="mt-2">
+                                <a href="<?= APP_URL ?>/minha-conta.php" class="btn btn-warning btn-sm">
+                                    <i class="bi bi-plus-circle me-1"></i>
+                                    Depositar Agora
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <?php endif; ?>
             </div>
@@ -1082,8 +1170,95 @@ function gerarPalpitesAleatorios(button) {
 
     .badge {
         font-size: 0.7rem;
-        padding: 0.2em 0.4em;
-    }
+            padding: 0.2em 0.4em;
+}
+}
+
+/* Estilos para a seção de informações do bolão */
+.info-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.prize-card {
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.prize-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.stat-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.stat-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background: #f8f9fa !important;
+}
+
+.info-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+}
+
+.info-label {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin-bottom: 2px;
+}
+
+.info-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+/* Animação para o contador regressivo */
+.countdown-timer .badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Gradiente animado para o header */
+.card-header.bg-gradient {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header.bg-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% { left: -100%; }
+    100% { left: 100%; }
 }
 </style>
 
