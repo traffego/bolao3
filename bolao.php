@@ -781,6 +781,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function gerarPalpitesAleatorios(button) {
+    console.log('Função gerarPalpitesAleatorios chamada', button);
+    
     // Desabilitar o botão e mostrar loading
     button.disabled = true;
     const originalText = button.innerHTML;
@@ -807,18 +809,22 @@ function gerarPalpitesAleatorios(button) {
                 
                 // Encontrar o radio button e sua label
                 const radio = document.querySelector(`input[name="resultado_${jogoId}"][value="${resultado}"]`);
-                const label = document.querySelector(`label[for="${radio.id}"]`);
                 
-                if (radio && label) {
+                if (radio) {
+                    const label = document.querySelector(`label[for="${radio.id}"]`);
+                    
                     // Marcar o radio e adicionar classe ativa
                     radio.checked = true;
-                    label.classList.add('active');
+                    if (label) {
+                        label.classList.add('active');
+                    }
                     
-                    // Adicionar animação de seleção
-                    label.classList.add('selecting');
-                    setTimeout(() => {
-                        label.classList.remove('selecting');
-                    }, 500);
+                        // Adicionar animação de seleção
+                        label.classList.add('selecting');
+                        setTimeout(() => {
+                            label.classList.remove('selecting');
+                        }, 500);
+                    }
                 }
             }, index * 200); // Delay maior entre cada seleção
         });
@@ -1264,29 +1270,13 @@ function gerarPalpitesAleatorios(button) {
 </style>
 
 <script>
-// Função para gerar palpites aleatórios
-function gerarPalpitesAleatorios() {
-    const opcoes = ['casa', 'empate', 'visitante'];
-    const radios = document.querySelectorAll('input[type="radio"][name^="resultado_"]');
-    
-    // Agrupar por jogo
-    const jogos = {};
-    radios.forEach(radio => {
-        const nomeJogo = radio.name;
-        if (!jogos[nomeJogo]) {
-            jogos[nomeJogo] = [];
-        }
-        jogos[nomeJogo].push(radio);
-    });
-    
-    // Selecionar uma opção aleatória para cada jogo
-    Object.keys(jogos).forEach(nomeJogo => {
-        const opcaoAleatoria = opcoes[Math.floor(Math.random() * opcoes.length)];
-        const radioEscolhido = jogos[nomeJogo].find(radio => radio.value === opcaoAleatoria);
-        if (radioEscolhido && !radioEscolhido.disabled) {
-            radioEscolhido.checked = true;
-        }
-    });
+// Função auxiliar para gerar palpites aleatórios sem parâmetro
+function gerarPalpitesAleatoriosSimples() {
+    // Encontrar o botão para passar como parâmetro
+    const botao = document.querySelector('button[onclick*="gerarPalpitesAleatorios"]');
+    if (botao) {
+        gerarPalpitesAleatorios(botao);
+    }
 }
 
 // Função para atualizar o contador regressivo
@@ -1329,11 +1319,8 @@ function updateCountdown(element, targetDate) {
 
 // Inicializar quando a página carregar
 document.addEventListener('DOMContentLoaded', function() {
-    // Botões de palpites aleatórios
-    const botoes = document.querySelectorAll('#gerarPalpitesAleatorios, #gerarPalpitesAleatorios2');
-    botoes.forEach(botao => {
-        botao.addEventListener('click', gerarPalpitesAleatorios);
-    });
+    // Botões de palpites aleatórios - garantir que funcionem
+    // Não precisamos fazer nada aqui, pois o onclick já está definido no HTML
     
     // Inicializar contador regressivo
     const countdownElements = document.querySelectorAll('.countdown-timer');
