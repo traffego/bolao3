@@ -220,10 +220,42 @@ $pageTitle = $bolao['nome'];
 include TEMPLATE_DIR . '/header.php';
 ?>
 
+<!-- Hero Banner Mobile -->
+<div class="mobile-hero d-md-none <?= empty($bolao['imagem']) ? 'mobile-hero-no-image' : '' ?>" <?= !empty($bolao['imagem']) ? 'style="background-image: url(\'' . $bolao['imagem'] . '\');"' : '' ?>>
+    <div class="mobile-hero-overlay">
+        <div class="mobile-hero-content">
+            <h2 class="mobile-hero-title"><?= htmlspecialchars($bolao['nome']) ?></h2>
+            <div class="mobile-hero-info">
+                <span class="mobile-hero-badge">
+                    <i class="bi bi-joystick me-1"></i>
+                    <?= count($jogos) ?> jogos
+                </span>
+                <?php if ($bolao['valor_participacao'] > 0): ?>
+                <span class="mobile-hero-badge">
+                    <i class="bi bi-currency-dollar me-1"></i>
+                    <?= formatMoney($bolao['valor_participacao']) ?>
+                </span>
+                <?php endif; ?>
+                <?php if ($dataLimite && !$prazoEncerrado): ?>
+                <span class="mobile-hero-badge mobile-hero-deadline">
+                    <i class="bi bi-clock me-1"></i>
+                    <?= $dataLimite->format('d/m H:i') ?>
+                </span>
+                <?php elseif ($prazoEncerrado): ?>
+                <span class="mobile-hero-badge mobile-hero-expired">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Encerrado
+                </span>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <!-- Informações do Bolão -->
     <div class="col-md-4 mb-4">
-        <div class="card shadow-sm border-0">
+        <div class="card shadow-sm border-0 mobile-info-card">
             <div class="card-header text-white" style="background: var(--gradient-primary, linear-gradient(135deg, #1e3c72 0%, #3498db 100%));">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
@@ -1418,6 +1450,143 @@ function gerarPalpitesAleatorios(button) {
     #toggleBolaoInfo:hover {
         background: rgba(255, 255, 255, 0.1) !important;
         border-radius: 50%;
+    }
+}
+
+/* Hero Banner Mobile */
+@media (max-width: 767.98px) {
+    .mobile-hero {
+        position: relative;
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        margin: -1.5rem -15px 2rem -15px; /* Expande para as bordas */
+        border-radius: 0 0 20px 20px;
+        overflow: hidden;
+    }
+    
+    .mobile-hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            135deg,
+            rgba(30, 60, 114, 0.85) 0%,
+            rgba(52, 152, 219, 0.75) 50%,
+            rgba(30, 60, 114, 0.85) 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .mobile-hero-content {
+        color: white;
+        z-index: 2;
+    }
+    
+    .mobile-hero-title {
+        font-family: 'Open Sans', Arial, sans-serif;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        line-height: 1.2;
+    }
+    
+    .mobile-hero-info {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .mobile-hero-badge {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mobile-hero-deadline {
+        background: rgba(255, 193, 7, 0.3) !important;
+        border-color: rgba(255, 193, 7, 0.5) !important;
+        animation: pulseWarning 2s infinite;
+    }
+    
+    .mobile-hero-expired {
+        background: rgba(220, 53, 69, 0.3) !important;
+        border-color: rgba(220, 53, 69, 0.5) !important;
+    }
+    
+    @keyframes pulseWarning {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+    }
+    
+    /* Fallback quando não há imagem */
+    .mobile-hero-no-image {
+        background: linear-gradient(135deg, 
+            #1e3c72 0%, 
+            #3498db 30%, 
+            #2ecc71 60%, 
+            #1e3c72 100%);
+        background-size: 300% 300%;
+        animation: gradientShift 8s ease infinite, heroFloat 6s ease-in-out infinite;
+    }
+    
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* Efeito parallax sutil */
+    .mobile-hero {
+        background-attachment: scroll; /* Para compatibilidade mobile */
+        animation: heroFloat 6s ease-in-out infinite;
+    }
+    
+    @keyframes heroFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    
+    /* Ajustar margem do container principal no mobile */
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    /* Ajustes para o card de informações no mobile */
+    .mobile-info-card {
+        margin-top: -1rem; /* Aproxima do hero banner */
+        border-radius: 15px 15px 0 0;
+        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mobile-info-card .card-header {
+        border-radius: 15px 15px 0 0 !important;
+        padding: 0.75rem 1rem;
+    }
+    
+    .mobile-info-card .card-title {
+        font-size: 1rem !important;
+    }
+    
+    .mobile-info-card #bolaoSummary {
+        font-size: 0.75rem;
     }
 }
 
