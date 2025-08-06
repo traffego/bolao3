@@ -13,7 +13,7 @@ Um sistema completo para gerenciar bolões de futebol, permitindo a criação de
 - **Sistema de Pagamentos**: Controle de pagamentos dos participantes
 - **Área de Afiliados**: Sistema de indicações e comissões
 
-## Requisitos
+## Requisitos gerais
 
 - PHP 7.4 ou superior
 - MySQL 5.7 ou superior
