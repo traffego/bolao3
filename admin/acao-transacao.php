@@ -33,6 +33,9 @@ if (!in_array($action, ['approve', 'reject'])) {
     redirect(APP_URL . '/admin/pagamentos.php');
 }
 
+// Debug log
+error_log("DEBUG TRANSACAO: Action = $action, TransacaoId = $transacaoId");
+
 try {
     // Get transaction details
     $transacao = dbFetchOne(
@@ -43,6 +46,8 @@ try {
          WHERE t.id = ? AND t.tipo IN ('deposito', 'saque')",
         [$transacaoId]
     );
+    
+    error_log("DEBUG TRANSACAO: Transacao encontrada = " . ($transacao ? 'SIM' : 'NAO'));
 
     if (!$transacao) {
         $_SESSION['error'] = 'Transação não encontrada.';
@@ -63,15 +68,33 @@ try {
         $novoStatus = 'aprovado';
         $mensagem = 'Transação aprovada com sucesso!';
         
+        // Get current admin user ID
+        $adminId = getCurrentAdminId();
+        if (!$adminId) {
+            throw new Exception('Admin ID não encontrado na sessão');
+        }
+        error_log("DEBUG TRANSACAO: AdminId = $adminId, NovoStatus = $novoStatus");
+        
         // Update transaction status
-        dbExecute(
-            "UPDATE transacoes SET 
-             status = ?, 
-             data_processamento = NOW(), 
-             processado_por = ?
-             WHERE id = ?",
-            [$novoStatus, getCurrentUserId(), $transacaoId]
+        $updateSql = "UPDATE transacoes SET 
+                     status = ?, 
+                     data_processamento = NOW(), 
+                     processado_por = ?
+                     WHERE id = ?";
+        
+        error_log("DEBUG TRANSACAO: SQL = $updateSql");
+        error_log("DEBUG TRANSACAO: Params = " . json_encode([$novoStatus, $adminId, $transacaoId]));
+        
+        $result = dbExecute($updateSql, [$novoStatus, $adminId, $transacaoId]);
+        
+        error_log("DEBUG TRANSACAO: Update result = " . ($result ? 'SUCCESS' : 'FAILED'));
+        
+        // Verificar se a transação foi realmente atualizada
+        $verificacao = dbFetchOne(
+            "SELECT status FROM transacoes WHERE id = ?",
+            [$transacaoId]
         );
+        error_log("DEBUG TRANSACAO: Status após update = " . ($verificacao['status'] ?? 'NULL'));
 
         // If it's a deposit or withdrawal that affects balance, update it
         if ($transacao['tipo'] === 'deposito' || $transacao['tipo'] === 'saque') {
@@ -127,16 +150,36 @@ try {
         $novoStatus = 'rejeitado';
         $mensagem = 'Transação rejeitada com sucesso!';
         
+        // Get current admin user ID
+        $adminId = getCurrentAdminId();
+        if (!$adminId) {
+            throw new Exception('Admin ID não encontrado na sessão');
+        }
+        error_log("DEBUG TRANSACAO REJECT: AdminId = $adminId, NovoStatus = $novoStatus, Motivo = $motivo");
+        
         // Update transaction status
-        dbExecute(
-            "UPDATE transacoes SET 
-             status = ?, 
-             data_processamento = NOW(), 
-             processado_por = ?,
-             descricao = CONCAT(COALESCE(descricao, ''), ' [REJEITADO" . (!empty($motivo) ? ": " . addslashes($motivo) : "") . "]')
-             WHERE id = ?",
-            [$novoStatus, getCurrentUserId(), $transacaoId]
+        $motivoTexto = !empty($motivo) ? ": " . $motivo : "";
+        $updateSql = "UPDATE transacoes SET 
+                     status = ?, 
+                     data_processamento = NOW(), 
+                     processado_por = ?,
+                     descricao = CONCAT(COALESCE(descricao, ''), ?)
+                     WHERE id = ?";
+        
+        $params = [$novoStatus, $adminId, " [REJEITADO$motivoTexto]", $transacaoId];
+        error_log("DEBUG TRANSACAO REJECT: SQL = $updateSql");
+        error_log("DEBUG TRANSACAO REJECT: Params = " . json_encode($params));
+        
+        $result = dbExecute($updateSql, $params);
+        
+        error_log("DEBUG TRANSACAO REJECT: Update result = " . ($result ? 'SUCCESS' : 'FAILED'));
+        
+        // Verificar se a transação foi realmente atualizada
+        $verificacao = dbFetchOne(
+            "SELECT status FROM transacoes WHERE id = ?",
+            [$transacaoId]
         );
+        error_log("DEBUG TRANSACAO REJECT: Status após update = " . ($verificacao['status'] ?? 'NULL'));
         
         // Create notification for user
         if (class_exists('NotificacaoManager')) {
@@ -170,7 +213,7 @@ try {
         );
         
         $logManager->registrarOperacao(
-            getCurrentUserId(),
+            getCurrentAdminId(),
             'admin_' . $action,
             $descricaoLog,
             [
