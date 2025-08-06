@@ -90,8 +90,6 @@ try {
             conta_id,
             tipo,
             valor,
-            saldo_anterior,
-            saldo_posterior,
             status,
             metodo_pagamento,
             afeta_saldo,
@@ -102,11 +100,9 @@ try {
             ?,
             'saque',
             ?,
-            ?,
-            ?,
             'pendente',
             'pix',
-            1,
+            0,
             ?,
             'Solicitação de saque via PIX',
             ?
@@ -121,8 +117,6 @@ try {
     $stmt->execute([
         $conta['id'],
         $valor,
-        $saldo,
-        $saldo - $valor,
         $referencia,
         $dados_adicionais
     ]);

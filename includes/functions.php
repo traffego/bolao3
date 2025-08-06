@@ -651,8 +651,6 @@ function criarTransacaoPalpite($conta_id, $valor, $palpite_id) {
             'conta_id' => $conta_id,
             'tipo' => 'aposta',
             'valor' => $valor,
-            'saldo_anterior' => $saldoAtual,
-            'saldo_posterior' => $saldoAtual - $valor,
             'status' => 'aprovado',
             'metodo_pagamento' => null,
             'afeta_saldo' => true,

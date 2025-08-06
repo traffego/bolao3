@@ -130,14 +130,8 @@ try {
                     $novoSaldo = $saldoAnterior - $transacao['valor'];
                 }
                 
-                // Update transaction with balance info (afeta_saldo already set to 1 in previous update)
-                dbExecute(
-                    "UPDATE transacoes SET 
-                     saldo_anterior = ?, 
-                     saldo_posterior = ?
-                     WHERE id = ?",
-                    [$saldoAnterior, $novoSaldo, $transacaoId]
-                );
+                // Note: saldo_anterior and saldo_posterior columns don't exist in current DB structure
+                // The balance is managed by triggers on the contas table when afeta_saldo = 1
             }
         }
         
