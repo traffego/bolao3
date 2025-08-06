@@ -377,11 +377,27 @@ include TEMPLATE_DIR . '/header.php';
                                         <div class="mb-3 game-datetime">
                                             <span class="date-badge">
                                                 <i class="bi bi-calendar-event me-1"></i>
-                                                <?= date('d/m/Y', strtotime($jogo['data_formatada'] ?? $jogo['data'])) ?>
+                                                <?php 
+                                                // Se temos data_formatada (formato brasileiro), usar diretamente a parte da data
+                                                if (!empty($jogo['data_formatada'])) {
+                                                    echo substr($jogo['data_formatada'], 0, 10); // Pega apenas "dd/mm/yyyy"
+                                                } else {
+                                                    // Se só temos 'data' (formato ISO), converter corretamente
+                                                    echo date('d/m/Y', strtotime($jogo['data']));
+                                                }
+                                                ?>
                                             </span>
                                             <span class="time-badge ms-2">
                                                 <i class="bi bi-clock me-1"></i>
-                                                <?= date('H:i', strtotime($jogo['data_formatada'] ?? $jogo['data'])) ?>
+                                                <?php 
+                                                // Se temos data_formatada (formato brasileiro), usar diretamente a parte do horário
+                                                if (!empty($jogo['data_formatada'])) {
+                                                    echo substr($jogo['data_formatada'], 11, 5); // Pega apenas "HH:mm"
+                                                } else {
+                                                    // Se só temos 'data' (formato ISO), converter corretamente
+                                                    echo date('H:i', strtotime($jogo['data']));
+                                                }
+                                                ?>
                                             </span>
                                         </div>
                                         <div class="d-flex align-items-center justify-content-center">
