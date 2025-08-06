@@ -103,11 +103,31 @@ include '../templates/admin/header.php';
 
 <!-- Financial Summary -->
 <div class="row mb-4">
+    <!-- Balanço Total -->
+    <div class="col-md-12 mb-3">
+        <div class="card border-primary">
+            <div class="card-body text-center">
+                <h2 class="display-3 text-primary mb-2">
+                    <i class="bi bi-cash-stack me-2"></i>
+                    <?= formatMoney($totals['total_aprovado'] ?? 0) ?>
+                </h2>
+                <p class="card-text fs-5 fw-bold text-primary">Balanço Total das Transações</p>
+                <small class="text-muted">
+                    Valor total de todas as transações aprovadas no sistema
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detalhamento por Status -->
+<div class="row mb-4">
     <div class="col-md-4 mb-3">
         <div class="card h-100 text-center">
             <div class="card-body">
-                <h3 class="display-4 text-success"><?= formatMoney($totals['total_aprovado'] ?? 0) ?></h3>
+                <h4 class="display-6 text-success"><?= formatMoney($totals['total_aprovado'] ?? 0) ?></h4>
                 <p class="card-text">Total Aprovado</p>
+                <small class="text-muted">Pagamentos confirmados</small>
             </div>
         </div>
     </div>
@@ -115,8 +135,9 @@ include '../templates/admin/header.php';
     <div class="col-md-4 mb-3">
         <div class="card h-100 text-center">
             <div class="card-body">
-                <h3 class="display-4 text-warning"><?= formatMoney($totals['total_pendente'] ?? 0) ?></h3>
+                <h4 class="display-6 text-warning"><?= formatMoney($totals['total_pendente'] ?? 0) ?></h4>
                 <p class="card-text">Total Pendente</p>
+                <small class="text-muted">Aguardando confirmação</small>
             </div>
         </div>
     </div>
@@ -124,8 +145,9 @@ include '../templates/admin/header.php';
     <div class="col-md-4 mb-3">
         <div class="card h-100 text-center">
             <div class="card-body">
-                <h3 class="display-4 text-danger"><?= formatMoney($totals['total_recusado'] ?? 0) ?></h3>
+                <h4 class="display-6 text-danger"><?= formatMoney($totals['total_recusado'] ?? 0) ?></h4>
                 <p class="card-text">Total Recusado</p>
+                <small class="text-muted">Pagamentos negados</small>
             </div>
         </div>
     </div>
