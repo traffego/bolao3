@@ -1264,30 +1264,7 @@ function gerarPalpitesAleatorios(button) {
 </style>
 
 <script>
-// Função para gerar palpites aleatórios
-function gerarPalpitesAleatorios() {
-    const opcoes = ['casa', 'empate', 'visitante'];
-    const radios = document.querySelectorAll('input[type="radio"][name^="resultado_"]');
-    
-    // Agrupar por jogo
-    const jogos = {};
-    radios.forEach(radio => {
-        const nomeJogo = radio.name;
-        if (!jogos[nomeJogo]) {
-            jogos[nomeJogo] = [];
-        }
-        jogos[nomeJogo].push(radio);
-    });
-    
-    // Selecionar uma opção aleatória para cada jogo
-    Object.keys(jogos).forEach(nomeJogo => {
-        const opcaoAleatoria = opcoes[Math.floor(Math.random() * opcoes.length)];
-        const radioEscolhido = jogos[nomeJogo].find(radio => radio.value === opcaoAleatoria);
-        if (radioEscolhido && !radioEscolhido.disabled) {
-            radioEscolhido.checked = true;
-        }
-    });
-}
+
 
 // Função para atualizar o contador regressivo
 function updateCountdown(element, targetDate) {
@@ -1329,12 +1306,6 @@ function updateCountdown(element, targetDate) {
 
 // Inicializar quando a página carregar
 document.addEventListener('DOMContentLoaded', function() {
-    // Botões de palpites aleatórios
-    const botoes = document.querySelectorAll('#gerarPalpitesAleatorios, #gerarPalpitesAleatorios2');
-    botoes.forEach(botao => {
-        botao.addEventListener('click', gerarPalpitesAleatorios);
-    });
-    
     // Inicializar contador regressivo
     const countdownElements = document.querySelectorAll('.countdown-timer');
     countdownElements.forEach(element => {
