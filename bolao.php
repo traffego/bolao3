@@ -358,16 +358,16 @@ include TEMPLATE_DIR . '/header.php';
                                 <i class="bi bi-clock-history text-warning me-3" style="font-size: 2rem; margin-top: 0.25rem;"></i>
                                 <div class="flex-grow-1">
                                     <h5 class="card-title text-warning mb-2">
-                                        <strong>Prazo para Palpites Encerrado</strong>
+                                        <strong>⏰ Oops! Você perdeu o prazo</strong>
                                     </h5>
                                     <p class="card-text mb-2">
-                                        O prazo para envio de palpites encerrou em <strong><?= $dataLimite->format('d/m/Y \u00e0\s H:i') ?></strong> 
-                                        (5 minutos antes do primeiro jogo).
+                                        Os palpites foram encerrados em <strong><?= $dataLimite->format('d/m/Y') ?> às <?= $dataLimite->format('H:i') ?></strong>, 
+                                        que foi exatamente 5 minutos antes do primeiro jogo começar.
                                     </p>
                                     <p class="card-text text-muted mb-0">
                                         <small>
-                                            <i class="bi bi-info-circle me-1"></i>
-                                            Você ainda pode visualizar os jogos e acompanhar os resultados, mas não é mais possível enviar novos palpites.
+                                            <i class="bi bi-eye me-1"></i>
+                                            Mas não se preocupe! Você ainda pode acompanhar todos os jogos e torcer pelos resultados aqui mesmo.
                                         </small>
                                     </p>
                                 </div>
@@ -411,7 +411,7 @@ include TEMPLATE_DIR . '/header.php';
                             <?php if ($prazoEncerrado): ?>
                                 <div class="position-relative">
                                     <div class="position-absolute top-0 end-0 p-2">
-                                        <i class="bi bi-lock-fill text-muted" title="Palpites não são mais permitidos"></i>
+                                        <i class="bi bi-lock-fill text-muted" title="Prazo encerrado - não é mais possível palpitar neste jogo"></i>
                                     </div>
                             <?php endif; ?>
                             <div class="row align-items-center">
@@ -503,9 +503,13 @@ include TEMPLATE_DIR . '/header.php';
                             <i class="bi bi-check-circle"></i> Salvar Palpites
                         </button>
                     <?php else: ?>
-                        <div class="text-muted">
-                            <i class="bi bi-lock-fill me-1"></i>
-                            <small>Palpites não são mais permitidos</small>
+                        <div class="text-muted d-flex align-items-center">
+                            <i class="bi bi-hourglass-bottom me-2"></i>
+                            <div>
+                                <small class="fw-bold">Tempo esgotado!</small>
+                                <br>
+                                <small>Os palpites já foram encerrados</small>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </div>
