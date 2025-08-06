@@ -114,6 +114,23 @@ include '../templates/admin/header.php';
     </div>
 </div>
 
+<!-- Mensagens de feedback -->
+<?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <?= sanitize($_SESSION['success']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <?php unset($_SESSION['success']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <?= sanitize($_SESSION['error']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
 <!-- Financial Summary -->
 <div class="row mb-4">
     <!-- Balanço Total -->
@@ -348,61 +365,66 @@ include '../templates/admin/header.php';
 <!-- Aprovar Modal -->
 <div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Aprovar Transação</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja aprovar esta transação?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form action="<?= APP_URL ?>/admin/acao-transacao.php" method="post">
+        <form action="<?= APP_URL ?>/admin/acao-transacao.php" method="post" id="approveForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Aprovar Transação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja aprovar esta transação?</p>
                     <input type="hidden" name="action" value="approve">
                     <input type="hidden" name="transacao_id" id="approve_id" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-success">Aprovar</button>
-                </form>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
 <!-- Recusar Modal -->
 <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Recusar Transação</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja recusar esta transação?</p>
-                <div class="form-group">
-                    <label for="reject_reason">Motivo da recusa (opcional):</label>
-                    <textarea id="reject_reason" name="reject_reason" class="form-control" rows="3"></textarea>
+        <form action="<?= APP_URL ?>/admin/acao-transacao.php" method="post" id="rejectForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Recusar Transação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form action="<?= APP_URL ?>/admin/acao-transacao.php" method="post">
+                <div class="modal-body">
+                    <p>Tem certeza que deseja recusar esta transação?</p>
+                    <div class="form-group">
+                        <label for="reject_reason">Motivo da recusa (opcional):</label>
+                        <textarea id="reject_reason" name="reject_reason" class="form-control" rows="3"></textarea>
+                    </div>
                     <input type="hidden" name="action" value="reject">
                     <input type="hidden" name="transacao_id" id="reject_id" value="">
                     <input type="hidden" name="motivo" id="reject_reason_hidden" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-danger">Recusar</button>
-                </form>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('JavaScript carregado!');
+    
     // Handle approve buttons
     const approveButtons = document.querySelectorAll('.approver');
+    console.log('Botões de aprovar encontrados:', approveButtons.length);
+    
     approveButtons.forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
+            console.log('Clicou em aprovar, ID:', id);
             document.getElementById('approve_id').value = id;
             
             const modal = new bootstrap.Modal(document.getElementById('approveModal'));
@@ -412,9 +434,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle reject buttons
     const rejectButtons = document.querySelectorAll('.rejecter');
+    console.log('Botões de rejeitar encontrados:', rejectButtons.length);
+    
     rejectButtons.forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
+            console.log('Clicou em rejeitar, ID:', id);
             document.getElementById('reject_id').value = id;
             
             const modal = new bootstrap.Modal(document.getElementById('rejectModal'));
@@ -422,10 +447,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Update hidden field before form submission
-    document.getElementById('rejectModal').addEventListener('submit', function() {
-        const reason = document.getElementById('reject_reason').value;
-        document.getElementById('reject_reason_hidden').value = reason;
+    // Handle form submissions
+    const approveForm = document.getElementById('approveForm');
+    const rejectForm = document.getElementById('rejectForm');
+
+    if (approveForm) {
+        approveForm.addEventListener('submit', function(e) {
+            console.log('Formulário de aprovação enviado');
+        });
+    }
+
+    if (rejectForm) {
+        rejectForm.addEventListener('submit', function(e) {
+            console.log('Formulário de rejeição enviado');
+            const reason = document.getElementById('reject_reason').value;
+            document.getElementById('reject_reason_hidden').value = reason;
+        });
+    }
+
+    // Debug: listar todos os formulários
+    const forms = document.querySelectorAll('form');
+    console.log('Formulários encontrados:', forms.length);
+    forms.forEach((form, index) => {
+        console.log('Form', index, ':', form.action);
     });
 });
 </script>
