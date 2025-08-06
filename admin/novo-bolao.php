@@ -265,7 +265,7 @@ function saveBolao() {
     $slug = slugify($formData['nome']);
     
     // Check for duplicate slug
-    $existingSlug = dbFetchOne("SELECT id FROM boloes WHERE slug = ?", [$slug]);
+    $existingSlug = dbFetchOne("SELECT id FROM dados_boloes WHERE slug = ?", [$slug]);
     if ($existingSlug) {
         $slug = $slug . '-' . time();
     }
@@ -275,16 +275,21 @@ function saveBolao() {
     $formData['data_criacao'] = date('Y-m-d H:i:s');
     $formData['admin_id'] = getCurrentAdminId();
     
+    // Ensure status is active by default if not set
+    if (!isset($formData['status']) || $formData['status'] == 0) {
+        $formData['status'] = 1;
+    }
+    
     // Start transaction
     dbBeginTransaction();
     
     try {
-        // Remove jogos_selecionados from formData before inserting into boloes table
+        // Remove jogos_selecionados from formData before inserting into dados_boloes table
         $jogosSelecionados = $formData['jogos_selecionados'];
         unset($formData['jogos_selecionados']);
         
         // Insert into database
-        $bolaoId = dbInsert('boloes', $formData);
+        $bolaoId = dbInsert('dados_boloes', $formData);
         
         if ($bolaoId) {
             // Process selected games
