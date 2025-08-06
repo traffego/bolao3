@@ -780,9 +780,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     
     // Inicializar estado do botão flutuante
-    setTimeout(() => {
-        updateFloatingButton();
-    }, 100); // Pequeno delay para garantir que todos os elementos foram carregados
+    updateFloatingButton();
 });
 
 function gerarPalpitesAleatorios(button) {
@@ -1277,7 +1275,7 @@ function gerarPalpitesAleatorios(button) {
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999; /* Aumentado para garantir que fique acima de tudo */
-    display: none; /* Inicialmente oculto */
+    display: block; /* Sempre visível */
     animation: slideUpBounce 0.8s ease-out;
 }
 
@@ -1305,6 +1303,25 @@ function gerarPalpitesAleatorios(button) {
 .btn-floating-save:active {
     transform: translateY(0);
     box-shadow: 0 2px 15px rgba(39, 174, 96, 0.3);
+}
+
+/* Estados do botão flutuante */
+.btn-floating-save.btn-warning {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
+    box-shadow: 0 4px 20px rgba(243, 156, 18, 0.4) !important;
+}
+
+.btn-floating-save.btn-warning:hover {
+    box-shadow: 0 6px 25px rgba(243, 156, 18, 0.5) !important;
+}
+
+.btn-floating-save.btn-success {
+    background: var(--gradient-success, linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)) !important;
+    box-shadow: 0 4px 20px rgba(39, 174, 96, 0.4) !important;
+}
+
+.btn-floating-save.btn-success:hover {
+    box-shadow: 0 6px 25px rgba(39, 174, 96, 0.5) !important;
 }
 
 @keyframes slideUpBounce {
@@ -1350,7 +1367,7 @@ function gerarPalpitesAleatorios(button) {
 
 <script>
 
-// Função global para atualizar visibilidade do botão flutuante
+// Função global para atualizar texto do botão flutuante
 function updateFloatingButton() {
     const floatingBtn = document.querySelector('.fixed-bottom-btn');
     console.log('updateFloatingButton chamada, botão encontrado:', !!floatingBtn);
@@ -1362,25 +1379,27 @@ function updateFloatingButton() {
     
     console.log('Palpites selecionados:', selectedPalpites, 'de', totalJogos);
     
-    if (selectedPalpites > 0) {
-        floatingBtn.classList.add('show');
-        floatingBtn.style.display = 'block';
-        
-        // Atualizar texto do botão com progresso
-        const btnText = document.querySelector('#btnSalvarPalpites');
-        if (btnText) {
-            if (selectedPalpites === totalJogos) {
-                btnText.innerHTML = '<i class="bi bi-check-circle me-2"></i>Salvar Palpites (' + selectedPalpites + '/' + totalJogos + ')';
-            } else {
-                btnText.innerHTML = '<i class="bi bi-clock me-2"></i>Palpites (' + selectedPalpites + '/' + totalJogos + ')';
-            }
+    // Botão sempre visível, apenas muda o texto e estilo
+    floatingBtn.classList.add('show');
+    
+    // Atualizar texto do botão com progresso
+    const btnText = document.querySelector('#btnSalvarPalpites');
+    if (btnText) {
+        if (selectedPalpites === 0) {
+            btnText.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>Selecione os Palpites (0/' + totalJogos + ')';
+            btnText.classList.add('btn-warning');
+            btnText.classList.remove('btn-success');
+        } else if (selectedPalpites === totalJogos) {
+            btnText.innerHTML = '<i class="bi bi-check-circle me-2"></i>Salvar Palpites (' + selectedPalpites + '/' + totalJogos + ')';
+            btnText.classList.add('btn-success');
+            btnText.classList.remove('btn-warning');
+        } else {
+            btnText.innerHTML = '<i class="bi bi-clock me-2"></i>Palpites (' + selectedPalpites + '/' + totalJogos + ')';
+            btnText.classList.add('btn-warning');
+            btnText.classList.remove('btn-success');
         }
-        console.log('Botão deve estar visível agora');
-    } else {
-        floatingBtn.classList.remove('show');
-        floatingBtn.style.display = 'none';
-        console.log('Botão ocultado');
     }
+    console.log('Botão atualizado - sempre visível');
 }
 
 // Função para atualizar o contador regressivo
