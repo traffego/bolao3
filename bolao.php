@@ -496,7 +496,7 @@ include TEMPLATE_DIR . '/header.php';
                     $disabled = $prazoEncerrado ? 'disabled' : '';
                     ?>
                     <div class="card mb-3 <?= $prazoEncerrado ? 'border-secondary' : '' ?>">
-                        <div class="card-body <?= $prazoEncerrado ? 'bg-light' : '' ?>">
+                        <div class="card-body py-2 <?= $prazoEncerrado ? 'bg-light' : '' ?>">
                             <?php if ($prazoEncerrado): ?>
                                 <div class="position-relative">
                                     <div class="position-absolute top-0 end-0 p-2">
@@ -583,25 +583,20 @@ include TEMPLATE_DIR . '/header.php';
                     </div>
                 <?php endforeach; ?>
                 
-                <div class="d-flex justify-content-between align-items-center mt-4">
+                <div class="d-flex justify-content-start align-items-center mt-4 mb-5">
                     <a href="<?= APP_URL ?>/boloes.php" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left"></i> Voltar para Bolões
                     </a>
-                    <?php if (!$prazoEncerrado): ?>
-                        <button type="submit" class="btn btn-lg" style="background: var(--gradient-success, linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)); color: white; border: none; font-family: 'Open Sans', Arial, sans-serif; font-weight: 600;">
-                            <i class="bi bi-check-circle me-1"></i> Salvar Palpites
-                        </button>
-                    <?php else: ?>
-                        <div class="text-muted d-flex align-items-center">
-                            <i class="bi bi-hourglass-bottom me-2"></i>
-                            <div>
-                                <small class="fw-bold">Tempo esgotado!</small>
-                                <br>
-                                <small>Os palpites já foram encerrados</small>
-                            </div>
-                        </div>
-                    <?php endif; ?>
                 </div>
+                
+                <!-- Botão Flutuante para Salvar Palpites -->
+                <?php if (!$prazoEncerrado): ?>
+                <div class="fixed-bottom-btn">
+                    <button type="submit" class="btn btn-lg btn-floating-save" id="btnSalvarPalpites">
+                        <i class="bi bi-check-circle me-2"></i> Salvar Palpites
+                    </button>
+                </div>
+                <?php endif; ?>
             </form>
         <?php else: ?>
             <div class="alert alert-info">
@@ -776,8 +771,37 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             // Adicionar classe active apenas ao botão clicado
             this.classList.add('active');
+            
+            // Verificar se há palpites selecionados para mostrar/ocultar botão flutuante
+            updateFloatingButton();
         });
     });
+    
+    // Função para atualizar visibilidade do botão flutuante
+    function updateFloatingButton() {
+        const floatingBtn = document.querySelector('.fixed-bottom-btn');
+        if (!floatingBtn) return;
+        
+        const selectedPalpites = document.querySelectorAll('input[type="radio"]:checked').length;
+        const totalJogos = <?= count($jogos) ?>;
+        
+        if (selectedPalpites > 0) {
+            floatingBtn.style.display = 'block';
+            
+            // Atualizar texto do botão com progresso
+            const btnText = document.querySelector('#btnSalvarPalpites');
+            if (selectedPalpites === totalJogos) {
+                btnText.innerHTML = '<i class="bi bi-check-circle me-2"></i>Salvar Palpites (' + selectedPalpites + '/' + totalJogos + ')';
+            } else {
+                btnText.innerHTML = '<i class="bi bi-clock me-2"></i>Palpites (' + selectedPalpites + '/' + totalJogos + ')';
+            }
+        } else {
+            floatingBtn.style.display = 'none';
+        }
+    }
+    
+    // Inicializar estado do botão flutuante
+    updateFloatingButton();
 });
 
 function gerarPalpitesAleatorios(button) {
@@ -828,6 +852,9 @@ function gerarPalpitesAleatorios(button) {
             button.disabled = false;
             button.innerHTML = originalText;
             button.classList.remove('btn-generating');
+            
+            // Atualizar botão flutuante
+            updateFloatingButton();
             
             // Mostrar toast de sucesso
             const toastContainer = document.createElement('div');
@@ -893,16 +920,16 @@ function gerarPalpitesAleatorios(button) {
 .palpites-buttons .btn-palpite {
     flex: 1 1 0; /* Distribuição igual do espaço */
     min-width: 0; /* Permite que os botões encolham */
-    height: 100px;
+    height: 70px; /* Reduzido de 100px para 70px */
     transition: all 0.3s ease;
     border-radius: 0;
     margin: 0;
-    padding: 3px;
+    padding: 2px; /* Reduzido de 3px para 2px */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 1px; /* Reduzido de 2px para 1px */
     border: 2px solid #6c757d;
     opacity: 0.9;
     color: #495057;
@@ -958,16 +985,16 @@ function gerarPalpitesAleatorios(button) {
 
 /* Mantém os outros estilos... */
 .team-logo-btn {
-    width: 45px;
-    height: 45px;
+    width: 35px; /* Reduzido de 45px para 35px */
+    height: 35px; /* Reduzido de 45px para 35px */
     object-fit: contain;
-    margin-bottom: 2px;
+    margin-bottom: 1px; /* Reduzido de 2px para 1px */
 }
 
 .team-name-btn {
-    font-size: 10px;
+    font-size: 9px; /* Reduzido de 10px para 9px */
     text-align: center;
-    line-height: 1.1;
+    line-height: 1.0; /* Reduzido de 1.1 para 1.0 */
     font-weight: bold;
     margin-top: 1px;
     color: inherit;
@@ -1052,7 +1079,7 @@ function gerarPalpitesAleatorios(button) {
 }
 
 .btn-palpite.btn-outline-warning i {
-    font-size: 32px; /* Aumentado de 18px */
+    font-size: 24px; /* Reduzido de 32px para 24px */
     margin: 0; /* Remove margem */
 }
 
@@ -1260,6 +1287,74 @@ function gerarPalpitesAleatorios(button) {
 @keyframes shine {
     0% { left: -100%; }
     100% { left: 100%; }
+}
+
+/* Botão Flutuante de Salvar Palpites */
+.fixed-bottom-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050;
+    display: none; /* Inicialmente oculto */
+    animation: slideUpBounce 0.8s ease-out;
+}
+
+.btn-floating-save {
+    background: var(--gradient-success, linear-gradient(135deg, #27ae60 0%, #2ecc71 100%));
+    color: white;
+    border: none;
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(39, 174, 96, 0.4);
+    transition: all 0.3s ease;
+    min-width: 200px;
+}
+
+.btn-floating-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(39, 174, 96, 0.5);
+    color: white;
+}
+
+.btn-floating-save:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 15px rgba(39, 174, 96, 0.3);
+}
+
+@keyframes slideUpBounce {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(100px);
+    }
+    60% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    80% {
+        transform: translateX(-50%) translateY(5px);
+    }
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Responsivo para mobile */
+@media (max-width: 576px) {
+    .fixed-bottom-btn {
+        left: 15px;
+        right: 15px;
+        transform: none;
+        width: auto;
+    }
+    
+    .btn-floating-save {
+        width: 100%;
+        min-width: auto;
+        padding: 15px 20px;
+    }
 }
 </style>
 
