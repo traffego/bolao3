@@ -62,15 +62,22 @@ foreach ($campeonatosIds as $campeonatoId) {
         $data = json_decode($response, true);
         if (isset($data['response']) && !empty($data['response'])) {
             foreach ($data['response'] as $jogo) {
-                $jogos[] = [
-                    'id' => $jogo['fixture']['id'],
-                    'campeonato' => $jogo['league']['name'],
-                    'campeonato_id' => $jogo['league']['id'],
-                    'time_casa' => $jogo['teams']['home']['name'],
-                    'time_visitante' => $jogo['teams']['away']['name'],
-                    'data' => date('d/m/Y H:i', strtotime($jogo['fixture']['date'])),
-                    'status' => $jogo['fixture']['status']['short']
-                ];
+                // Verificar se a data é válida antes de processar
+                $fixtureDate = $jogo['fixture']['date'] ?? '';
+                $timestamp = strtotime($fixtureDate);
+                
+                // Só adicionar jogos com horários válidos (não indefinidos)
+                if ($timestamp && $timestamp > 0) {
+                    $jogos[] = [
+                        'id' => $jogo['fixture']['id'],
+                        'campeonato' => $jogo['league']['name'],
+                        'campeonato_id' => $jogo['league']['id'],
+                        'time_casa' => $jogo['teams']['home']['name'],
+                        'time_visitante' => $jogo['teams']['away']['name'],
+                        'data' => date('d/m/Y H:i', $timestamp),
+                        'status' => $jogo['fixture']['status']['short']
+                    ];
+                }
             }
         }
     } else {

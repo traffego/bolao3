@@ -61,15 +61,22 @@ try {
 
         if ($response && isset($response['response'])) {
             foreach ($response['response'] as $jogo) {
-                $dataBr = date('d/m/Y H:i', strtotime($jogo['fixture']['date']));
-                $jogos[] = [
-                    'id' => $jogo['fixture']['id'],
-                    'data' => $dataBr,
-                    'campeonato' => $nome,
-                    'time_casa' => $jogo['teams']['home']['name'],
-                    'time_visitante' => $jogo['teams']['away']['name'],
-                    'status' => $jogo['fixture']['status']['short']
-                ];
+                // Verificar se a data é válida antes de processar
+                $fixtureDate = $jogo['fixture']['date'] ?? '';
+                $timestamp = strtotime($fixtureDate);
+                
+                // Só adicionar jogos com horários válidos (não indefinidos)
+                if ($timestamp && $timestamp > 0) {
+                    $dataBr = date('d/m/Y H:i', $timestamp);
+                    $jogos[] = [
+                        'id' => $jogo['fixture']['id'],
+                        'data' => $dataBr,
+                        'campeonato' => $nome,
+                        'time_casa' => $jogo['teams']['home']['name'],
+                        'time_visitante' => $jogo['teams']['away']['name'],
+                        'status' => $jogo['fixture']['status']['short']
+                    ];
+                }
             }
         }
     }
