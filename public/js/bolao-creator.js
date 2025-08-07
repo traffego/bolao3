@@ -66,15 +66,39 @@ function aplicarToggleJogosEmUso() {
     }
 }
 
+// Função para atualizar o estilo do toggle baseado no estado
+function atualizarEstiloToggle(mostrarJogosEmUso) {
+    const icon = document.querySelector('.toggle-icon');
+    const badge = document.querySelector('.toggle-badge');
+    
+    if (icon && badge) {
+        if (mostrarJogosEmUso) {
+            // Estado: Mostrando jogos em uso
+            icon.className = 'fa-solid fa-eye toggle-icon';
+            badge.textContent = 'Visíveis';
+            badge.style.background = 'rgba(76, 175, 80, 0.9)';
+            badge.style.color = '#fff';
+        } else {
+            // Estado: Ocultando jogos em uso
+            icon.className = 'fa-solid fa-eye-slash toggle-icon';
+            badge.textContent = 'Ocultos';
+            badge.style.background = 'rgba(255,255,255,0.9)';
+            badge.style.color = '#ff5722';
+        }
+    }
+}
+
 // Função para configurar o toggle
 function configurarToggleJogosEmUso() {
     const toggle = document.getElementById('toggle-jogos-em-uso');
     if (toggle) {
         // Por padrão, ocultar jogos em uso
         toggle.checked = false;
+        atualizarEstiloToggle(false); // Aplicar estilo inicial
         
         toggle.addEventListener('change', function() {
             aplicarToggleJogosEmUso();
+            atualizarEstiloToggle(this.checked);
             console.log(`Toggle jogos em uso: ${this.checked ? 'Mostrar' : 'Ocultar'}`);
         });
     }

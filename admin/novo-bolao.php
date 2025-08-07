@@ -690,6 +690,105 @@ tbody tr.jogo-selecionado {
     background-color: #c8e6c9 !important;
     border-left: 4px solid #43a047;
 }
+
+/* ESTILO DESTACADO PARA O TOGGLE DE JOGOS EM USO */
+.toggle-jogos-em-uso-container {
+    position: relative;
+    background: linear-gradient(135deg, #ff9800, #ff5722);
+    border-radius: 20px;
+    padding: 12px 20px;
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+    border: 2px solid #ff6f00;
+}
+
+.toggle-jogos-destacado {
+    margin: 0 !important;
+}
+
+.toggle-switch-custom {
+    width: 50px !important;
+    height: 25px !important;
+    background-color: #e53935 !important;
+    border: 2px solid #fff !important;
+    transition: all 0.3s ease !important;
+}
+
+.toggle-switch-custom:checked {
+    background-color: #4caf50 !important;
+    border-color: #fff !important;
+}
+
+.toggle-switch-custom:focus {
+    box-shadow: 0 0 0 0.25rem rgba(255, 152, 0, 0.5) !important;
+}
+
+.toggle-label-custom {
+    font-weight: bold !important;
+    color: #fff !important;
+    font-size: 1rem !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-left: 10px !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3) !important;
+}
+
+.toggle-icon {
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.toggle-text {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.toggle-badge {
+    background: rgba(255,255,255,0.9);
+    color: #ff5722;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-left: 5px;
+    transition: all 0.3s ease;
+}
+
+/* Animação pulsante para chamar atenção */
+.toggle-jogos-em-uso-container::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, #ff9800, #ff5722, #ff9800);
+    border-radius: 23px;
+    z-index: -1;
+    animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.02); opacity: 1; }
+}
+
+/* Hover effect */
+.toggle-jogos-em-uso-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(255, 152, 0, 0.4);
+}
+
+/* Estado quando marcado */
+.toggle-switch-custom:checked + .toggle-label-custom .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.toggle-switch-custom:checked + .toggle-label-custom .toggle-badge {
+    background: rgba(76, 175, 80, 0.9);
+    color: #fff;
+}
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
@@ -798,14 +897,18 @@ tbody tr.jogo-selecionado {
                 </div>
 
                 <div class="table-responsive mt-4" id="jogos-table-container" style="display:none;">
-                    <!-- Toggle para mostrar/ocultar jogos em uso -->
+                    <!-- Toggle para mostrar/ocultar jogos em uso - COM DESTAQUE -->
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">Jogos Disponíveis</h5>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="toggle-jogos-em-uso">
-                            <label class="form-check-label" for="toggle-jogos-em-uso">
-                                <small>Mostrar jogos em uso em outros bolões</small>
-                            </label>
+                        <div class="toggle-jogos-em-uso-container">
+                            <div class="form-check form-switch toggle-jogos-destacado">
+                                <input class="form-check-input toggle-switch-custom" type="checkbox" id="toggle-jogos-em-uso">
+                                <label class="form-check-label toggle-label-custom" for="toggle-jogos-em-uso">
+                                    <i class="fa-solid fa-eye-slash toggle-icon"></i>
+                                    <span class="toggle-text">Mostrar jogos em uso em outros bolões</span>
+                                    <span class="toggle-badge">Ocultos</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                     
