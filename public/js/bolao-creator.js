@@ -447,15 +447,64 @@ function mostrarAlertaHorarios(alertas) {
         
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         modal = document.getElementById('alertaHorarioModal');
+        
+        // Adicionar event listeners para os botões do modal
+        modal.querySelector('.btn-secondary').addEventListener('click', function() {
+            const bootstrapModal = bootstrap.Modal.getInstance(modal);
+            if (bootstrapModal) {
+                bootstrapModal.hide();
+            }
+        });
+        
+        modal.querySelector('.btn-warning').addEventListener('click', function() {
+            const bootstrapModal = bootstrap.Modal.getInstance(modal);
+            if (bootstrapModal) {
+                bootstrapModal.hide();
+            }
+        });
     }
     
     // Atualizar conteúdo do modal
     document.getElementById('alertaHorarioModalBody').innerHTML = conteudoModal;
     
     // Mostrar modal
-    const bootstrapModal = new bootstrap.Modal(modal);
+    const bootstrapModal = new bootstrap.Modal(modal, {
+        backdrop: 'static',
+        keyboard: false
+    });
     bootstrapModal.show();
+    
+    // Garantir que o modal seja limpo corretamente quando fechado
+    modal.addEventListener('hidden.bs.modal', function () {
+        // Remover backdrop manualmente se ainda existir
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+        // Remover classe modal-open do body
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+    });
+}
+
+// Função para limpar qualquer backdrop residual
+function limparBackdropResidual() {
+    // Remover qualquer backdrop que possa ter ficado na página
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(backdrop => backdrop.remove());
+    
+    // Limpar classes do body
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
 }
 
 // Inicializar quando o DOM estiver pronto
-document.addEventListener('DOMContentLoaded', initBolaoCreator); 
+document.addEventListener('DOMContentLoaded', function() {
+    // Limpar qualquer backdrop residual primeiro
+    limparBackdropResidual();
+    
+    // Inicializar o criador de bolão
+    initBolaoCreator();
+}); 
