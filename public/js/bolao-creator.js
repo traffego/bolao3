@@ -205,10 +205,7 @@ async function carregarJogos() {
                 selecionarJogosAutomaticamente();
             }
             
-            // Mostrar estatísticas se disponíveis
-            if (data.estatisticas) {
-                mostrarEstatisticasJogos(data.estatisticas);
-            }
+
             
             jogosTableContainer.style.display = state.todosJogos.length > 0 ? 'block' : 'none';
         } else {
@@ -256,7 +253,7 @@ function atualizarTabelaJogos() {
             <td>${jogo.data}</td>
             <td>${jogo.campeonato}</td>
             <td>${jogo.time_casa}</td>
-            <td>${jogo.time_visitante}${jaUtilizado ? '<br><small class="text-danger"><i class="fa-solid fa-exclamation-triangle"></i> Já usado em: ' + jogo.bolao_nome + '</small>' : ''}</td>
+            <td>${jogo.time_visitante}</td>
         `;
 
         tbody.appendChild(tr);
@@ -319,7 +316,6 @@ function handleJogoSelection(event) {
         // Verificar se o jogo já está sendo usado em outro bolão
         if (jogo && jogo.ja_utilizado) {
             event.target.checked = false;
-            alert(`Este jogo já está sendo usado no bolão: "${jogo.bolao_nome}". Selecione outro jogo.`);
             return;
         }
         
@@ -348,38 +344,7 @@ function handleJogoSelection(event) {
     atualizarTabelaJogos();
 }
 
-// Função para mostrar estatísticas dos jogos
-function mostrarEstatisticasJogos(estatisticas) {
-    // Procurar por um container existente ou criar um novo
-    let statsContainer = document.querySelector('#stats-jogos');
-    if (!statsContainer) {
-        statsContainer = document.createElement('div');
-        statsContainer.id = 'stats-jogos';
-        statsContainer.className = 'alert alert-info mt-3';
-        
-        // Inserir antes da tabela de jogos
-        const jogosTableContainer = document.getElementById('jogos-table-container');
-        jogosTableContainer.parentNode.insertBefore(statsContainer, jogosTableContainer);
-    }
-    
-    statsContainer.innerHTML = `
-        <h5><i class="fa-solid fa-chart-bar"></i> Estatísticas dos Jogos</h5>
-        <div class="row">
-            <div class="col-md-4">
-                <strong>Total de Jogos:</strong> ${estatisticas.total_jogos}
-            </div>
-            <div class="col-md-4">
-                <strong>Jogos Disponíveis:</strong> <span class="text-success">${estatisticas.jogos_disponiveis}</span>
-            </div>
-            <div class="col-md-4">
-                <strong>Já Utilizados:</strong> <span class="text-danger">${estatisticas.jogos_ja_utilizados}</span>
-            </div>
-        </div>
-        ${estatisticas.jogos_ja_utilizados > 0 ? 
-            '<small class="text-muted"><i class="fa-solid fa-info-circle"></i> Jogos já utilizados em outros bolões não podem ser selecionados.</small>' : 
-            ''}
-    `;
-}
+
 
 // Adicionar inputs hidden dos jogos selecionados antes do submit
 const form = document.querySelector('form');
