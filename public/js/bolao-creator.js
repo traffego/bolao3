@@ -190,7 +190,7 @@ async function carregarJogos() {
         console.log('Resposta da API:', data);
 
         if (data.success) {
-            // Limitar a 20 jogos
+            // Limitar a 20 jogos na busca inicial
             state.todosJogos = data.jogos.slice(0, 20);
             console.log('Jogos carregados:', state.todosJogos);
             
@@ -225,7 +225,29 @@ function atualizarTabelaJogos() {
     const tbody = document.querySelector('#jogos-table tbody');
     tbody.innerHTML = '';
 
-    state.todosJogos.forEach((jogo, index) => {
+    // Determinar quantos jogos mostrar na tabela
+    let jogosParaMostrar = state.todosJogos;
+    
+    // Na busca inicial, limitar a 20
+    // Na busca ampliada, mostrar pelo menos a quantidade necessária
+    const quantidadeDesejada = state.maxJogos || 11;
+    const jogosSelecionados = state.jogosSelecionados.size;
+    const minJogosNecessarios = Math.max(quantidadeDesejada, jogosSelecionados + 5); // +5 margem
+    
+    // Se temos poucos jogos selecionados e muitos jogos disponíveis, mostrar mais
+    if (jogosSelecionados < quantidadeDesejada && state.todosJogos.length > 20) {
+        // Mostrar até o necessário para completar + margem
+        jogosParaMostrar = state.todosJogos.slice(0, Math.min(minJogosNecessarios, state.todosJogos.length));
+        console.log(`Mostrando ${jogosParaMostrar.length} jogos (necessários: ${minJogosNecessarios})`);
+    } else if (state.todosJogos.length <= 20) {
+        // Busca inicial - mostrar todos até 20
+        jogosParaMostrar = state.todosJogos;
+    } else {
+        // Limitar a 20 na busca inicial
+        jogosParaMostrar = state.todosJogos.slice(0, 20);
+    }
+
+    jogosParaMostrar.forEach((jogo, index) => {
         const tr = document.createElement('tr');
         const isSelected = state.jogosSelecionados.has(jogo.id);
         const isDisabled = !isSelected && state.jogosSelecionados.size >= state.maxJogos;
@@ -334,7 +356,15 @@ function completarSelecaoJogos() {
     const quantidadeDesejada = state.maxJogos;
     const faltam = quantidadeDesejada - jogosSelecionadosAtualmente;
     
+    console.log('Completar seleção:', {
+        jogosSelecionadosAtualmente,
+        quantidadeDesejada,
+        faltam,
+        totalJogosDisponiveis: state.todosJogos.length
+    });
+    
     if (faltam <= 0) {
+        console.log('Já temos jogos suficientes');
         return; // Já temos jogos suficientes
     }
     
@@ -358,10 +388,18 @@ function completarSelecaoJogos() {
         return new Date(dataISO) > agora;
     });
     
+    console.log('Jogos disponíveis para seleção:', jogosDisponiveis.length);
+    
     // Selecionar apenas os jogos que faltam
-    jogosDisponiveis.slice(0, faltam).forEach(jogo => {
+    const jogosParaSelecionar = jogosDisponiveis.slice(0, faltam);
+    console.log('Selecionando jogos:', jogosParaSelecionar.length);
+    
+    jogosParaSelecionar.forEach(jogo => {
         state.jogosSelecionados.add(jogo.id);
+        console.log('Selecionado jogo:', jogo.id, jogo.time_casa, 'x', jogo.time_visitante);
     });
+    
+    console.log('Total selecionado após completar:', state.jogosSelecionados.size);
 }
 
 // Função para buscar mais jogos quando não há suficientes
@@ -403,14 +441,20 @@ async function buscarMaisJogos() {
         const data = await response.json();
         
         if (data.success && data.jogos) {
-            // Atualizar com os novos jogos encontrados
+            // Atualizar com os novos jogos encontrados - sem limitação na busca ampliada
             state.todosJogos = data.jogos;
+            console.log('Jogos após busca ampliada:', state.todosJogos.length);
             
             // Completar a seleção apenas com os jogos que faltam
             completarSelecaoJogos();
             
             // Atualizar a tabela
             atualizarTabelaJogos();
+            
+            // Verificar novamente a quantidade após completar
+            setTimeout(() => {
+                verificarQuantidadeJogos();
+            }, 100);
             
             // Verificar quantos jogos foram realmente selecionados após a busca
             const jogosAposBusca = state.jogosSelecionados.size;
