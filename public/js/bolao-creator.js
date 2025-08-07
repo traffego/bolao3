@@ -390,9 +390,28 @@ function atualizarTabelaJogos() {
     });
 
     // Adicionar event listeners aos checkboxes
-    document.querySelectorAll('.jogo-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', handleJogoSelection);
+    const checkboxes = document.querySelectorAll('.jogo-checkbox');
+    console.log(`Configurando event listeners para ${checkboxes.length} checkboxes`);
+    
+    checkboxes.forEach((checkbox, index) => {
+        // Remover listener anterior se existir (evitar duplicação)
+        checkbox.removeEventListener('change', handleJogoSelection);
+        
+        // Verificar se o checkbox não está desabilitado antes de adicionar listener
+        if (!checkbox.disabled) {
+            // Adicionar novo listener
+            checkbox.addEventListener('change', handleJogoSelection);
+            console.log(`✅ Checkbox ${index + 1} configurado e HABILITADO (ID: ${checkbox.value})`);
+        } else {
+            console.log(`❌ Checkbox ${index + 1} DESABILITADO (ID: ${checkbox.value})`);
+        }
     });
+    
+    // Teste adicional: verificar se os listeners foram aplicados
+    setTimeout(() => {
+        const checkboxesAtivos = document.querySelectorAll('.jogo-checkbox:not(:disabled)');
+        console.log(`🔍 Verificação: ${checkboxesAtivos.length} checkboxes ativos de ${checkboxes.length} total`);
+    }, 100);
     
     // Aplicar estado atual do toggle
     aplicarToggleJogosEmUso();
@@ -596,13 +615,15 @@ async function buscarMaisJogos() {
             // Completar a seleção apenas com os jogos que faltam
             completarSelecaoJogos();
             
-            // Atualizar a tabela
+            // Atualizar a tabela - IMPORTANTE: isso vai recriar os checkboxes
             atualizarTabelaJogos();
             
             // Verificar novamente a quantidade após completar
             setTimeout(() => {
                 verificarQuantidadeJogos();
             }, 100);
+            
+            console.log('✅ Novos jogos carregados e checkboxes configurados!');
             
             // Verificar quantos jogos foram realmente selecionados após a busca
             const jogosAposBusca = state.jogosSelecionados.size;
@@ -669,6 +690,8 @@ function handleDataOrCampeonatoChange() {
 function handleJogoSelection(event) {
     const jogoId = parseInt(event.target.value);
     const jogo = state.todosJogos.find(j => j.id === jogoId);
+    
+    console.log(`🎯 Checkbox clicado - Jogo ID: ${jogoId}, Marcado: ${event.target.checked}`);
     
     if (event.target.checked) {
         // Verificar se o jogo já está sendo usado em outro bolão
@@ -862,6 +885,34 @@ function mostrarAlertaHorarios(alertas) {
         document.body.style.paddingRight = '';
     });
 }
+
+// Função de diagnóstico para testar checkboxes (pode ser chamada no console)
+function diagnosticarCheckboxes() {
+    const checkboxes = document.querySelectorAll('.jogo-checkbox');
+    console.log('=== DIAGNÓSTICO CHECKBOXES ===');
+    console.log(`Total de checkboxes: ${checkboxes.length}`);
+    
+    checkboxes.forEach((checkbox, index) => {
+        const tr = checkbox.closest('tr');
+        const isDisabled = checkbox.disabled;
+        const isVisible = tr.style.display !== 'none';
+        const hasListener = checkbox.onclick || checkbox.onchange;
+        
+        console.log(`Checkbox ${index + 1}:`, {
+            id: checkbox.value,
+            disabled: isDisabled,
+            visible: isVisible,
+            hasListener: !!hasListener,
+            checked: checkbox.checked
+        });
+    });
+    
+    console.log('=== FIM DIAGNÓSTICO ===');
+    return checkboxes.length;
+}
+
+// Tornar função disponível globalmente para debug
+window.diagnosticarCheckboxes = diagnosticarCheckboxes;
 
 // Função para limpar qualquer backdrop residual
 function limparBackdropResidual() {
