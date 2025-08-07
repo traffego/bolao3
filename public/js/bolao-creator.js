@@ -286,7 +286,122 @@ function selecionarJogosAutomaticamente() {
     jogosFuturos.slice(0, state.maxJogos).forEach(jogo => {
         state.jogosSelecionados.add(jogo.id);
     });
+    
+    // Verificar se a quantidade selecionada é menor que a desejada
+    verificarQuantidadeJogos();
+    
     atualizarTabelaJogos();
+}
+
+// Função para verificar se a quantidade de jogos selecionados é suficiente
+function verificarQuantidadeJogos() {
+    const jogosSelecionadosCount = state.jogosSelecionados.size;
+    const quantidadeDesejada = state.maxJogos;
+    
+    // Remover alerta anterior se existir
+    const alertaAnterior = document.querySelector('#alerta-quantidade-jogos');
+    if (alertaAnterior) {
+        alertaAnterior.remove();
+    }
+    
+    if (jogosSelecionadosCount < quantidadeDesejada) {
+        const faltam = quantidadeDesejada - jogosSelecionadosCount;
+        const jogosTableContainer = document.getElementById('jogos-table-container');
+        
+        const alertaDiv = document.createElement('div');
+        alertaDiv.id = 'alerta-quantidade-jogos';
+        alertaDiv.className = 'alert alert-warning mt-3';
+        alertaDiv.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6><i class="fa-solid fa-exclamation-triangle"></i> Jogos Insuficientes</h6>
+                    <p class="mb-0">Foram selecionados apenas <strong>${jogosSelecionadosCount}</strong> jogos, mas você quer <strong>${quantidadeDesejada}</strong>. 
+                    Faltam <strong>${faltam}</strong> jogos.</p>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="buscarMaisJogos()">
+                    <i class="fa-solid fa-search-plus"></i> Buscar Mais Jogos
+                </button>
+            </div>
+        `;
+        
+        jogosTableContainer.parentNode.insertBefore(alertaDiv, jogosTableContainer.nextSibling);
+    }
+}
+
+// Função para buscar mais jogos quando não há suficientes
+async function buscarMaisJogos() {
+    const alertaDiv = document.querySelector('#alerta-quantidade-jogos');
+    if (alertaDiv) {
+        // Mostrar loading no botão
+        const botao = alertaDiv.querySelector('button');
+        const textoOriginal = botao.innerHTML;
+        botao.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando...';
+        botao.disabled = true;
+    }
+    
+    try {
+        // Ampliar o período de busca para encontrar mais jogos
+        const dataInicio = document.getElementById('data-inicio').value;
+        const dataFimOriginal = document.getElementById('data-fim').value;
+        
+        // Estender a data fim em mais 30 dias
+        const dataFimEstendida = new Date(dataFimOriginal);
+        dataFimEstendida.setDate(dataFimEstendida.getDate() + 30);
+        const dataFimNova = dataFimEstendida.toISOString().split('T')[0];
+        
+        // Buscar jogos com período estendido
+        const campeonatosSelecionados = getCampeonatosSelecionados();
+        if (campeonatosSelecionados.length === 0) {
+            alert('Por favor, selecione pelo menos um campeonato antes de buscar mais jogos.');
+            return;
+        }
+        
+        const campeonatosParam = campeonatosSelecionados.join(',');
+        const url = `${APP_URL}/admin/api/jogos.php?inicio=${dataInicio}&fim=${dataFimNova}&campeonatos=${campeonatosParam}&limit=40`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success && data.jogos) {
+            // Atualizar com os novos jogos encontrados
+            state.todosJogos = data.jogos;
+            
+            // Tentar pré-selecionar novamente com mais jogos disponíveis
+            if (preSelecionarJogos) {
+                selecionarJogosAutomaticamente();
+            }
+            
+            // Atualizar a tabela
+            atualizarTabelaJogos();
+            
+            // Mostrar mensagem de sucesso
+            if (alertaDiv) {
+                alertaDiv.className = 'alert alert-success mt-3';
+                alertaDiv.innerHTML = `
+                    <h6><i class="fa-solid fa-check-circle"></i> Busca Ampliada</h6>
+                    <p class="mb-0">Período de busca estendido até <strong>${dataFimNova}</strong>. 
+                    Encontrados <strong>${data.jogos.length}</strong> jogos no total.</p>
+                `;
+                
+                // Remover o alerta após 5 segundos
+                setTimeout(() => {
+                    if (alertaDiv) alertaDiv.remove();
+                }, 5000);
+            }
+        } else {
+            throw new Error(data.message || 'Erro ao buscar mais jogos');
+        }
+    } catch (error) {
+        console.error('Erro ao buscar mais jogos:', error);
+        alert('Erro ao buscar mais jogos. Tente novamente.');
+        
+        // Restaurar o botão
+        if (alertaDiv) {
+            const botao = alertaDiv.querySelector('button');
+            botao.innerHTML = textoOriginal;
+            botao.disabled = false;
+        }
+    }
 }
 
 // Handlers de eventos
@@ -339,6 +454,9 @@ function handleJogoSelection(event) {
             atualizarTabelaJogos();
         }
     }
+    
+    // Verificar se a quantidade selecionada é suficiente
+    verificarQuantidadeJogos();
     
     // Atualizar visual das linhas selecionadas
     atualizarTabelaJogos();

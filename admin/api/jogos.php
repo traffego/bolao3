@@ -133,8 +133,9 @@ try {
     }
     unset($jogo); // Quebrar a referência
     
-    // Limitar a 20 jogos DEPOIS da verificação
-    $jogos = array_slice($jogos, 0, 20);
+    // Limitar jogos com base no parâmetro limit (padrão 20, máximo 50)
+    $limit = isset($_GET['limit']) ? min((int)$_GET['limit'], 50) : 20;
+    $jogos = array_slice($jogos, 0, $limit);
     
     // Detectar horários suspeitos APENAS nos jogos que serão exibidos (máximo 20)
     $horariosCount = [];
