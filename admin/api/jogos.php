@@ -99,7 +99,41 @@ try {
         return $ordA - $ordB;
     });
     
-    // Limitar a 20 jogos PRIMEIRO
+    // VERIFICAR JOGOS JÁ UTILIZADOS EM OUTROS BOLÕES
+    $jogosUtilizados = [];
+    
+    // Buscar todos os bolões ativos
+    $boloesAtivos = dbFetchAll("SELECT id, nome, jogos FROM dados_boloes WHERE status = 1");
+    
+    foreach ($boloesAtivos as $bolao) {
+        if (!empty($bolao['jogos'])) {
+            $jogosJSON = json_decode($bolao['jogos'], true);
+            if (is_array($jogosJSON)) {
+                foreach ($jogosJSON as $jogo) {
+                    if (isset($jogo['id'])) {
+                        $jogosUtilizados[$jogo['id']] = [
+                            'bolao_id' => $bolao['id'],
+                            'bolao_nome' => $bolao['nome']
+                        ];
+                    }
+                }
+            }
+        }
+    }
+    
+    // Marcar jogos como já utilizados
+    foreach ($jogos as &$jogo) {
+        if (isset($jogosUtilizados[$jogo['id']])) {
+            $jogo['ja_utilizado'] = true;
+            $jogo['bolao_nome'] = $jogosUtilizados[$jogo['id']]['bolao_nome'];
+            $jogo['bolao_id'] = $jogosUtilizados[$jogo['id']]['bolao_id'];
+        } else {
+            $jogo['ja_utilizado'] = false;
+        }
+    }
+    unset($jogo); // Quebrar a referência
+    
+    // Limitar a 20 jogos DEPOIS da verificação
     $jogos = array_slice($jogos, 0, 20);
     
     // Detectar horários suspeitos APENAS nos jogos que serão exibidos (máximo 20)
@@ -129,11 +163,21 @@ try {
         }
     }
 
+    // Contar jogos já utilizados para estatísticas
+    $totalJogosUtilizados = count(array_filter($jogos, function($jogo) {
+        return $jogo['ja_utilizado'];
+    }));
+    
     // Retornar resposta
     echo json_encode([
         'success' => true,
         'jogos' => $jogos,
-        'alertas_horario' => $alertasHorario
+        'alertas_horario' => $alertasHorario,
+        'estatisticas' => [
+            'total_jogos' => count($jogos),
+            'jogos_ja_utilizados' => $totalJogosUtilizados,
+            'jogos_disponiveis' => count($jogos) - $totalJogosUtilizados
+        ]
     ]);
 
 } catch (Exception $e) {

@@ -204,6 +204,12 @@ async function carregarJogos() {
             if (preSelecionarJogos) {
                 selecionarJogosAutomaticamente();
             }
+            
+            // Mostrar estatísticas se disponíveis
+            if (data.estatisticas) {
+                mostrarEstatisticasJogos(data.estatisticas);
+            }
+            
             jogosTableContainer.style.display = state.todosJogos.length > 0 ? 'block' : 'none';
         } else {
             console.error('Erro ao carregar jogos:', data.message);
@@ -226,6 +232,18 @@ function atualizarTabelaJogos() {
         const tr = document.createElement('tr');
         const isSelected = state.jogosSelecionados.has(jogo.id);
         const isDisabled = !isSelected && state.jogosSelecionados.size >= state.maxJogos;
+        const jaUtilizado = jogo.ja_utilizado || false;
+
+        // Se o jogo já foi utilizado, desabilitar completamente
+        const finalDisabled = jaUtilizado || isDisabled;
+        
+        // Adicionar classes CSS apropriadas
+        if (jaUtilizado) {
+            tr.classList.add('jogo-ja-utilizado');
+        }
+        if (isSelected) {
+            tr.classList.add('jogo-selecionado');
+        }
 
         tr.innerHTML = `
             <td>
@@ -233,12 +251,12 @@ function atualizarTabelaJogos() {
                        class="jogo-checkbox" 
                        value="${jogo.id}"
                        ${isSelected ? 'checked' : ''}
-                       ${isDisabled ? 'disabled' : ''}>
+                       ${finalDisabled ? 'disabled' : ''}>
             </td>
             <td>${jogo.data}</td>
             <td>${jogo.campeonato}</td>
             <td>${jogo.time_casa}</td>
-            <td>${jogo.time_visitante}</td>
+            <td>${jogo.time_visitante}${jaUtilizado ? '<br><small class="text-danger"><i class="fa-solid fa-exclamation-triangle"></i> Já usado em: ' + jogo.bolao_nome + '</small>' : ''}</td>
         `;
 
         tbody.appendChild(tr);
@@ -253,16 +271,21 @@ function atualizarTabelaJogos() {
 // Função para selecionar jogos automaticamente
 function selecionarJogosAutomaticamente() {
     state.jogosSelecionados.clear();
-    // Filtrar jogos que começam após o momento atual
+    // Filtrar jogos que começam após o momento atual E que não estão sendo usados em outros bolões
     const agora = new Date();
     const jogosFuturos = state.todosJogos.filter(jogo => {
+        // Verificar se o jogo não está sendo usado em outro bolão
+        if (jogo.ja_utilizado) {
+            return false;
+        }
+        
         // Considera que a data já está no formato brasileiro, então converte para ISO
         const [dia, mes, anoHora] = jogo.data.split('/');
         const [ano, hora] = anoHora.split(' ');
         const dataISO = `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}` + (hora ? `T${hora}` : '');
         return new Date(dataISO) > agora;
     });
-    // Selecionar os primeiros jogos até o limite máximo
+    // Selecionar os primeiros jogos disponíveis até o limite máximo
     jogosFuturos.slice(0, state.maxJogos).forEach(jogo => {
         state.jogosSelecionados.add(jogo.id);
     });
@@ -290,8 +313,16 @@ function handleDataOrCampeonatoChange() {
 
 function handleJogoSelection(event) {
     const jogoId = parseInt(event.target.value);
+    const jogo = state.todosJogos.find(j => j.id === jogoId);
     
     if (event.target.checked) {
+        // Verificar se o jogo já está sendo usado em outro bolão
+        if (jogo && jogo.ja_utilizado) {
+            event.target.checked = false;
+            alert(`Este jogo já está sendo usado no bolão: "${jogo.bolao_nome}". Selecione outro jogo.`);
+            return;
+        }
+        
         if (state.jogosSelecionados.size < state.maxJogos) {
             state.jogosSelecionados.add(jogoId);
         } else {
@@ -300,9 +331,10 @@ function handleJogoSelection(event) {
         }
     } else {
         state.jogosSelecionados.delete(jogoId);
-        // Selecionar o próximo jogo disponível
+        // Selecionar o próximo jogo disponível (que não esteja sendo usado)
         const proximoJogo = state.todosJogos.find(jogo => 
             !state.jogosSelecionados.has(jogo.id) && 
+            !jogo.ja_utilizado &&
             new Date(jogo.data) > new Date()
         );
         
@@ -311,6 +343,42 @@ function handleJogoSelection(event) {
             atualizarTabelaJogos();
         }
     }
+    
+    // Atualizar visual das linhas selecionadas
+    atualizarTabelaJogos();
+}
+
+// Função para mostrar estatísticas dos jogos
+function mostrarEstatisticasJogos(estatisticas) {
+    // Procurar por um container existente ou criar um novo
+    let statsContainer = document.querySelector('#stats-jogos');
+    if (!statsContainer) {
+        statsContainer = document.createElement('div');
+        statsContainer.id = 'stats-jogos';
+        statsContainer.className = 'alert alert-info mt-3';
+        
+        // Inserir antes da tabela de jogos
+        const jogosTableContainer = document.getElementById('jogos-table-container');
+        jogosTableContainer.parentNode.insertBefore(statsContainer, jogosTableContainer);
+    }
+    
+    statsContainer.innerHTML = `
+        <h5><i class="fa-solid fa-chart-bar"></i> Estatísticas dos Jogos</h5>
+        <div class="row">
+            <div class="col-md-4">
+                <strong>Total de Jogos:</strong> ${estatisticas.total_jogos}
+            </div>
+            <div class="col-md-4">
+                <strong>Jogos Disponíveis:</strong> <span class="text-success">${estatisticas.jogos_disponiveis}</span>
+            </div>
+            <div class="col-md-4">
+                <strong>Já Utilizados:</strong> <span class="text-danger">${estatisticas.jogos_ja_utilizados}</span>
+            </div>
+        </div>
+        ${estatisticas.jogos_ja_utilizados > 0 ? 
+            '<small class="text-muted"><i class="fa-solid fa-info-circle"></i> Jogos já utilizados em outros bolões não podem ser selecionados.</small>' : 
+            ''}
+    `;
 }
 
 // Adicionar inputs hidden dos jogos selecionados antes do submit
@@ -402,7 +470,7 @@ function mostrarAlertaHorarios(alertas) {
                         <!-- Conteúdo será inserido aqui -->
                     </div>
                     <div class="modal-footer">
-                        <a href="https://www.cbf.com.br/futebol-brasileiro/competicoes" target="_blank" class="btn btn-info me-auto">
+                        <a href="https://www.cbf.com.br/futebol-brasileiro/tabelas/campeonato-brasileiro/serie-a/2025" target="_blank" class="btn btn-info me-auto">
                             <i class="fas fa-external-link-alt"></i> Verificar na CBF
                         </a>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendi</button>

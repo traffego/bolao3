@@ -670,6 +670,55 @@ include '../templates/admin/header.php';
     color: #388e3c;
     letter-spacing: 0.5px;
 }
+
+/* Estilos para jogos já utilizados */
+.jogo-ja-utilizado {
+    background-color: #ffebee !important;
+    opacity: 0.7;
+}
+
+.jogo-ja-utilizado input[type="checkbox"] {
+    cursor: not-allowed;
+}
+
+.jogo-ja-utilizado td {
+    color: #999;
+    position: relative;
+}
+
+.jogo-ja-utilizado::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255, 0, 0, 0.1) 10px,
+        rgba(255, 0, 0, 0.1) 20px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Efeito hover para jogos disponíveis */
+tbody tr:not(.jogo-ja-utilizado):hover {
+    background-color: #e8f5e9;
+    cursor: pointer;
+}
+
+/* Destaque para linhas selecionadas */
+tbody tr.jogo-selecionado {
+    background-color: #c8e6c9 !important;
+    border-left: 4px solid #43a047;
+}
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
