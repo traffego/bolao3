@@ -328,6 +328,42 @@ function verificarQuantidadeJogos() {
     }
 }
 
+// Função para completar a seleção apenas com os jogos que faltam
+function completarSelecaoJogos() {
+    const jogosSelecionadosAtualmente = state.jogosSelecionados.size;
+    const quantidadeDesejada = state.maxJogos;
+    const faltam = quantidadeDesejada - jogosSelecionadosAtualmente;
+    
+    if (faltam <= 0) {
+        return; // Já temos jogos suficientes
+    }
+    
+    // Filtrar jogos disponíveis que não estão selecionados nem em uso
+    const agora = new Date();
+    const jogosDisponiveis = state.todosJogos.filter(jogo => {
+        // Não está selecionado
+        if (state.jogosSelecionados.has(jogo.id)) {
+            return false;
+        }
+        
+        // Não está em uso em outro bolão
+        if (jogo.ja_utilizado) {
+            return false;
+        }
+        
+        // É um jogo futuro
+        const [dia, mes, anoHora] = jogo.data.split('/');
+        const [ano, hora] = anoHora.split(' ');
+        const dataISO = `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}` + (hora ? `T${hora}` : '');
+        return new Date(dataISO) > agora;
+    });
+    
+    // Selecionar apenas os jogos que faltam
+    jogosDisponiveis.slice(0, faltam).forEach(jogo => {
+        state.jogosSelecionados.add(jogo.id);
+    });
+}
+
 // Função para buscar mais jogos quando não há suficientes
 async function buscarMaisJogos() {
     const alertaDiv = document.querySelector('#alerta-quantidade-jogos');
@@ -356,8 +392,12 @@ async function buscarMaisJogos() {
             return;
         }
         
+        // Calcular quantos jogos precisamos buscar (quantidade desejada + margem de segurança)
+        const jogosNecessarios = state.maxJogos + 10; // +10 como margem de segurança
+        const limiteBusca = Math.min(jogosNecessarios, 50); // Máximo 50
+        
         const campeonatosParam = campeonatosSelecionados.join(',');
-        const url = `${APP_URL}/admin/api/jogos.php?inicio=${dataInicio}&fim=${dataFimNova}&campeonatos=${campeonatosParam}&limit=40`;
+        const url = `${APP_URL}/admin/api/jogos.php?inicio=${dataInicio}&fim=${dataFimNova}&campeonatos=${campeonatosParam}&limit=${limiteBusca}`;
         
         const response = await fetch(url);
         const data = await response.json();
@@ -366,22 +406,33 @@ async function buscarMaisJogos() {
             // Atualizar com os novos jogos encontrados
             state.todosJogos = data.jogos;
             
-            // Tentar pré-selecionar novamente com mais jogos disponíveis
-            if (preSelecionarJogos) {
-                selecionarJogosAutomaticamente();
-            }
+            // Completar a seleção apenas com os jogos que faltam
+            completarSelecaoJogos();
             
             // Atualizar a tabela
             atualizarTabelaJogos();
             
+            // Verificar quantos jogos foram realmente selecionados após a busca
+            const jogosAposBusca = state.jogosSelecionados.size;
+            const quantidadeDesejada = state.maxJogos;
+            
             // Mostrar mensagem de sucesso
             if (alertaDiv) {
-                alertaDiv.className = 'alert alert-success mt-3';
-                alertaDiv.innerHTML = `
-                    <h6><i class="fa-solid fa-check-circle"></i> Busca Ampliada</h6>
-                    <p class="mb-0">Período de busca estendido até <strong>${dataFimNova}</strong>. 
-                    Encontrados <strong>${data.jogos.length}</strong> jogos no total.</p>
-                `;
+                if (jogosAposBusca >= quantidadeDesejada) {
+                    alertaDiv.className = 'alert alert-success mt-3';
+                    alertaDiv.innerHTML = `
+                        <h6><i class="fa-solid fa-check-circle"></i> Jogos Completados!</h6>
+                        <p class="mb-0">Sucesso! Agora você tem <strong>${jogosAposBusca}</strong> jogos selecionados 
+                        dos <strong>${quantidadeDesejada}</strong> desejados.</p>
+                    `;
+                } else {
+                    alertaDiv.className = 'alert alert-warning mt-3';
+                    alertaDiv.innerHTML = `
+                        <h6><i class="fa-solid fa-exclamation-triangle"></i> Jogos Limitados</h6>
+                        <p class="mb-0">Foram encontrados mais jogos, mas ainda faltam <strong>${quantidadeDesejada - jogosAposBusca}</strong> 
+                        para completar os <strong>${quantidadeDesejada}</strong> desejados. Considere reduzir a quantidade ou ampliar o período.</p>
+                    `;
+                }
                 
                 // Remover o alerta após 5 segundos
                 setTimeout(() => {
