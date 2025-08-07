@@ -248,20 +248,19 @@ function atualizarTabelaJogos() {
         faltamSelecionar
     });
     
-    // Se ainda faltam jogos para selecionar e temos mais de 20 jogos, mostrar mais
-    if (faltamSelecionar > 0 && state.todosJogos.length > 20) {
-        // Calcular quantos jogos mostrar: selecionados + que faltam + jogos em uso + margem
-        const jogosParaMostrarCount = jogosSelecionados + faltamSelecionar + jogosEmUso + 5;
-        jogosParaMostrar = state.todosJogos.slice(0, Math.min(jogosParaMostrarCount, state.todosJogos.length));
-        console.log(`Mostrando ${jogosParaMostrar.length} jogos (calculado: ${jogosParaMostrarCount})`);
+    // LÓGICA SIMPLIFICADA: Se faltam jogos, mostrar TODOS os jogos disponíveis
+    if (faltamSelecionar > 0) {
+        // Mostrar TODOS os jogos para garantir que temos opções suficientes
+        jogosParaMostrar = state.todosJogos;
+        console.log(`FALTAM JOGOS: Mostrando TODOS os ${jogosParaMostrar.length} jogos disponíveis`);
     } else if (state.todosJogos.length <= 20) {
         // Busca inicial - mostrar todos até 20
         jogosParaMostrar = state.todosJogos;
-        console.log(`Mostrando todos os ${jogosParaMostrar.length} jogos (≤20)`);
+        console.log(`Busca inicial: ${jogosParaMostrar.length} jogos`);
     } else {
         // Limitar a 20 na busca inicial quando já temos jogos suficientes
         jogosParaMostrar = state.todosJogos.slice(0, 20);
-        console.log(`Limitando a 20 jogos da busca inicial`);
+        console.log(`Limitando a 20 jogos (já completo)`);
     }
 
     jogosParaMostrar.forEach((jogo, index) => {
@@ -373,50 +372,74 @@ function completarSelecaoJogos() {
     const quantidadeDesejada = state.maxJogos;
     const faltam = quantidadeDesejada - jogosSelecionadosAtualmente;
     
-    console.log('Completar seleção:', {
-        jogosSelecionadosAtualmente,
-        quantidadeDesejada,
-        faltam,
-        totalJogosDisponiveis: state.todosJogos.length
-    });
+    console.log('=== COMPLETAR SELEÇÃO ===');
+    console.log('Jogos selecionados atualmente:', jogosSelecionadosAtualmente);
+    console.log('Quantidade desejada:', quantidadeDesejada);
+    console.log('Faltam:', faltam);
+    console.log('Total de jogos carregados:', state.todosJogos.length);
     
     if (faltam <= 0) {
-        console.log('Já temos jogos suficientes');
-        return; // Já temos jogos suficientes
+        console.log('✅ Já temos jogos suficientes');
+        return;
     }
     
-    // Filtrar jogos disponíveis que não estão selecionados nem em uso
+    // Analisar todos os jogos
     const agora = new Date();
-    const jogosDisponiveis = state.todosJogos.filter(jogo => {
-        // Não está selecionado
+    let jogosAnalisados = {
+        total: 0,
+        jaSelecionados: 0,
+        emUso: 0,
+        passados: 0,
+        disponiveis: 0
+    };
+    
+    const jogosDisponiveis = [];
+    
+    state.todosJogos.forEach(jogo => {
+        jogosAnalisados.total++;
+        
+        // Verificar se já está selecionado
         if (state.jogosSelecionados.has(jogo.id)) {
-            return false;
+            jogosAnalisados.jaSelecionados++;
+            return;
         }
         
-        // Não está em uso em outro bolão
+        // Verificar se está em uso
         if (jogo.ja_utilizado) {
-            return false;
+            jogosAnalisados.emUso++;
+            console.log(`❌ Jogo em uso: ${jogo.time_casa} x ${jogo.time_visitante}`);
+            return;
         }
         
-        // É um jogo futuro
+        // Verificar se é jogo futuro
         const [dia, mes, anoHora] = jogo.data.split('/');
         const [ano, hora] = anoHora.split(' ');
         const dataISO = `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}` + (hora ? `T${hora}` : '');
-        return new Date(dataISO) > agora;
+        if (new Date(dataISO) <= agora) {
+            jogosAnalisados.passados++;
+            return;
+        }
+        
+        // Jogo disponível
+        jogosAnalisados.disponiveis++;
+        jogosDisponiveis.push(jogo);
+        console.log(`✅ Jogo disponível: ${jogo.time_casa} x ${jogo.time_visitante}`);
     });
     
-    console.log('Jogos disponíveis para seleção:', jogosDisponiveis.length);
+    console.log('Análise dos jogos:', jogosAnalisados);
+    console.log(`Jogos disponíveis encontrados: ${jogosDisponiveis.length}`);
     
-    // Selecionar apenas os jogos que faltam
+    // Selecionar exatamente a quantidade que falta
     const jogosParaSelecionar = jogosDisponiveis.slice(0, faltam);
-    console.log('Selecionando jogos:', jogosParaSelecionar.length);
+    console.log(`Vou selecionar ${jogosParaSelecionar.length} dos ${jogosDisponiveis.length} disponíveis`);
     
-    jogosParaSelecionar.forEach(jogo => {
+    jogosParaSelecionar.forEach((jogo, index) => {
         state.jogosSelecionados.add(jogo.id);
-        console.log('Selecionado jogo:', jogo.id, jogo.time_casa, 'x', jogo.time_visitante);
+        console.log(`${index + 1}. Selecionado: ${jogo.time_casa} x ${jogo.time_visitante} (ID: ${jogo.id})`);
     });
     
-    console.log('Total selecionado após completar:', state.jogosSelecionados.size);
+    console.log(`✅ Total final selecionado: ${state.jogosSelecionados.size}/${quantidadeDesejada}`);
+    console.log('=== FIM COMPLETAR SELEÇÃO ===');
 }
 
 // Função para buscar mais jogos quando não há suficientes
@@ -447,26 +470,15 @@ async function buscarMaisJogos() {
             return;
         }
         
-        // Calcular quantos jogos precisamos buscar baseado em jogos já em uso
+        // SIMPLIFICADO: Buscar sempre 50 jogos para garantir que temos o suficiente
         const jogosSelecionadosAtual = state.jogosSelecionados.size;
         const faltam = state.maxJogos - jogosSelecionadosAtual;
-        const jogosEmUsoAtual = state.todosJogos.filter(jogo => jogo.ja_utilizado).length;
+        const limiteBusca = 50; // Sempre buscar o máximo para garantir
         
-        // Estimar que pode haver mais jogos em uso na busca ampliada (proporção similar)
-        const proporcaoEmUso = state.todosJogos.length > 0 ? jogosEmUsoAtual / state.todosJogos.length : 0.3;
-        const estimativaJogosEmUso = Math.ceil(faltam / (1 - proporcaoEmUso)) * proporcaoEmUso;
-        
-        // Calcular limite: jogos que faltam + estimativa de jogos em uso + margem
-        const jogosNecessarios = faltam + estimativaJogosEmUso + 15; // +15 margem de segurança
-        const limiteBusca = Math.min(jogosNecessarios, 50); // Máximo 50
-        
-        console.log('Cálculo para busca ampliada:', {
+        console.log('Busca ampliada - FORÇADA:', {
             jogosSelecionadosAtual,
+            quantidadeDesejada: state.maxJogos,
             faltam,
-            jogosEmUsoAtual,
-            proporcaoEmUso,
-            estimativaJogosEmUso,
-            jogosNecessarios,
             limiteBusca
         });
         
