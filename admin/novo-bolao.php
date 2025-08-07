@@ -798,6 +798,17 @@ tbody tr.jogo-selecionado {
                 </div>
 
                 <div class="table-responsive mt-4" id="jogos-table-container" style="display:none;">
+                    <!-- Toggle para mostrar/ocultar jogos em uso -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Jogos Disponíveis</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="toggle-jogos-em-uso">
+                            <label class="form-check-label" for="toggle-jogos-em-uso">
+                                <small>Mostrar jogos em uso em outros bolões</small>
+                            </label>
+                        </div>
+                    </div>
+                    
                     <table class="table table-striped align-middle" id="jogos-table">
                         <thead style="background: #388e3c; color: #fff;">
                             <tr>

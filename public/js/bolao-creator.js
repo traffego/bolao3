@@ -33,9 +33,59 @@ if (preSelecionarCheckbox) {
     });
 }
 
+// Função para aplicar o toggle de jogos em uso
+function aplicarToggleJogosEmUso() {
+    const toggle = document.getElementById('toggle-jogos-em-uso');
+    const jogosEmUso = document.querySelectorAll('.jogo-em-uso');
+    
+    if (toggle && jogosEmUso.length > 0) {
+        if (toggle.checked) {
+            // Mostrar jogos em uso
+            jogosEmUso.forEach(linha => {
+                linha.style.display = '';
+            });
+        } else {
+            // Ocultar jogos em uso
+            jogosEmUso.forEach(linha => {
+                linha.style.display = 'none';
+            });
+        }
+        
+        // Atualizar contador do título
+        const totalJogos = document.querySelectorAll('#jogos-table tbody tr').length;
+        const jogosVisiveis = document.querySelectorAll('#jogos-table tbody tr:not([style*="display: none"])').length;
+        const titulo = document.querySelector('#jogos-table-container h5');
+        
+        if (titulo) {
+            if (toggle.checked) {
+                titulo.textContent = `Jogos Disponíveis (${jogosVisiveis}/${totalJogos} - incluindo ${jogosEmUso.length} em uso)`;
+            } else {
+                titulo.textContent = `Jogos Disponíveis (${jogosVisiveis}/${totalJogos})`;
+            }
+        }
+    }
+}
+
+// Função para configurar o toggle
+function configurarToggleJogosEmUso() {
+    const toggle = document.getElementById('toggle-jogos-em-uso');
+    if (toggle) {
+        // Por padrão, ocultar jogos em uso
+        toggle.checked = false;
+        
+        toggle.addEventListener('change', function() {
+            aplicarToggleJogosEmUso();
+            console.log(`Toggle jogos em uso: ${this.checked ? 'Mostrar' : 'Ocultar'}`);
+        });
+    }
+}
+
 // Função para inicializar o componente
 function initBolaoCreator() {
     console.log('Iniciando BolaoCreator...');
+    
+    // Configurar toggle de jogos em uso
+    configurarToggleJogosEmUso();
     
     // Elementos do DOM
     const quantidadeInput = document.getElementById('quantidade-jogos');
@@ -292,6 +342,7 @@ function atualizarTabelaJogos() {
         // Adicionar classes CSS apropriadas
         if (jaUtilizado) {
             tr.classList.add('jogo-ja-utilizado');
+            tr.classList.add('jogo-em-uso'); // Classe para controle de visibilidade
         }
         if (isSelected) {
             tr.classList.add('jogo-selecionado');
@@ -318,6 +369,9 @@ function atualizarTabelaJogos() {
     document.querySelectorAll('.jogo-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', handleJogoSelection);
     });
+    
+    // Aplicar estado atual do toggle
+    aplicarToggleJogosEmUso();
 }
 
 // Função para selecionar jogos automaticamente
