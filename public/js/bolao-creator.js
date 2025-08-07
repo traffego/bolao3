@@ -251,7 +251,7 @@ function atualizarTabelaJogos() {
                        ${finalDisabled ? 'disabled' : ''}>
             </td>
             <td>${jogo.data}</td>
-            <td>${jogo.campeonato}</td>
+            <td>${jogo.campeonato}${jaUtilizado ? '<br><small class="text-muted"><i class="fa-solid fa-lock"></i> Em uso</small>' : ''}</td>
             <td>${jogo.time_casa}</td>
             <td>${jogo.time_visitante}</td>
         `;
