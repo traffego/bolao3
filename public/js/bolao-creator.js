@@ -16,7 +16,8 @@ let state = {
     campeonatos: [],
     jogosSelecionados: new Set(),
     todosJogos: [],
-    maxJogos: 0
+    maxJogos: 0,
+    buscaAmpliada: false  // Flag para indicar se estamos em busca ampliada
 };
 
 // Adicionar controle do checkbox de pré-seleção
@@ -190,9 +191,12 @@ async function carregarJogos() {
         console.log('Resposta da API:', data);
 
         if (data.success) {
+            // Resetar flag de busca ampliada na busca inicial
+            state.buscaAmpliada = false;
+            
             // Limitar a 20 jogos na busca inicial
             state.todosJogos = data.jogos.slice(0, 20);
-            console.log('Jogos carregados:', state.todosJogos);
+            console.log('Jogos carregados (busca inicial):', state.todosJogos);
             
             // Verificar alertas de horário (análise feita apenas nos 20 jogos da lista)
             if (data.alertas_horario && data.alertas_horario.length > 0) {
@@ -248,11 +252,15 @@ function atualizarTabelaJogos() {
         faltamSelecionar
     });
     
-    // LÓGICA SIMPLIFICADA: Se faltam jogos, mostrar TODOS os jogos disponíveis
-    if (faltamSelecionar > 0) {
-        // Mostrar TODOS os jogos para garantir que temos opções suficientes
+    // Verificar se estamos em busca ampliada
+    if (state.buscaAmpliada) {
+        // BUSCA AMPLIADA: Mostrar TODOS os jogos sem limitação
         jogosParaMostrar = state.todosJogos;
-        console.log(`FALTAM JOGOS: Mostrando TODOS os ${jogosParaMostrar.length} jogos disponíveis`);
+        console.log(`🚀 BUSCA AMPLIADA: Mostrando TODOS os ${jogosParaMostrar.length} jogos!`);
+    } else if (faltamSelecionar > 0 && state.todosJogos.length > 20) {
+        // Se faltam jogos na busca inicial, mostrar mais
+        jogosParaMostrar = state.todosJogos;
+        console.log(`FALTAM JOGOS (busca inicial): Mostrando ${jogosParaMostrar.length} jogos`);
     } else if (state.todosJogos.length <= 20) {
         // Busca inicial - mostrar todos até 20
         jogosParaMostrar = state.todosJogos;
@@ -260,7 +268,7 @@ function atualizarTabelaJogos() {
     } else {
         // Limitar a 20 na busca inicial quando já temos jogos suficientes
         jogosParaMostrar = state.todosJogos.slice(0, 20);
-        console.log(`Limitando a 20 jogos (já completo)`);
+        console.log(`Limitando a 20 jogos (busca inicial completa)`);
     }
 
     jogosParaMostrar.forEach((jogo, index) => {
@@ -444,6 +452,11 @@ function completarSelecaoJogos() {
 
 // Função para buscar mais jogos quando não há suficientes
 async function buscarMaisJogos() {
+    console.log('🚀 INICIANDO BUSCA AMPLIADA');
+    
+    // Ativar flag de busca ampliada
+    state.buscaAmpliada = true;
+    
     const alertaDiv = document.querySelector('#alerta-quantidade-jogos');
     if (alertaDiv) {
         // Mostrar loading no botão
