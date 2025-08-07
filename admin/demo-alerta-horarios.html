@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Sistema de Alerta de Horários</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">
+                    <i class="fas fa-clock"></i> Demo - Sistema de Alerta de Horários
+                </h1>
+                
+                <div class="alert alert-info">
+                    <h5>Como funciona:</h5>
+                    <p>O sistema detecta automaticamente quando há 3 ou mais jogos marcados para o mesmo horário e exibe um alerta modal para o administrador verificar se os horários estão confirmados pela CBF.</p>
+                </div>
+
+                <button type="button" class="btn btn-warning btn-lg" onclick="mostrarDemoAlerta()">
+                    <i class="fas fa-exclamation-triangle"></i> Simular Detecção de Horários Suspeitos
+                </button>
+                
+                <div class="mt-4">
+                    <h3>Exemplo de Dados que Disparam o Alerta:</h3>
+                    <div class="card">
+                        <div class="card-body">
+                            <pre class="bg-light p-3 rounded"><code>{
+  "alertas_horario": [
+    {
+      "horario": "13/09/2025 15:00",
+      "quantidade": 4,
+      "jogos": [
+        {
+          "id": 1351270,
+          "campeonato": "Brasileirão Série A",
+          "time_casa": "Bahia",
+          "time_visitante": "Cruzeiro"
+        },
+        {
+          "id": 1351271,
+          "campeonato": "Brasileirão Série A", 
+          "time_casa": "Flamengo",
+          "time_visitante": "Santos"
+        },
+        {
+          "id": 1351272,
+          "campeonato": "Brasileirão Série A",
+          "time_casa": "São Paulo",
+          "time_visitante": "Palmeiras"
+        },
+        {
+          "id": 1351273,
+          "campeonato": "Brasileirão Série A",
+          "time_casa": "Corinthians", 
+          "time_visitante": "Vasco"
+        }
+      ]
+    }
+  ]
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function mostrarDemoAlerta() {
+            const alertasDemo = [
+                {
+                    horario: "13/09/2025 15:00",
+                    quantidade: 4,
+                    jogos: [
+                        {
+                            id: 1351270,
+                            campeonato: "Brasileirão Série A",
+                            time_casa: "Bahia",
+                            time_visitante: "Cruzeiro"
+                        },
+                        {
+                            id: 1351271,
+                            campeonato: "Brasileirão Série A", 
+                            time_casa: "Flamengo",
+                            time_visitante: "Santos"
+                        },
+                        {
+                            id: 1351272,
+                            campeonato: "Brasileirão Série A",
+                            time_casa: "São Paulo",
+                            time_visitante: "Palmeiras"
+                        },
+                        {
+                            id: 1351273,
+                            campeonato: "Brasileirão Série A",
+                            time_casa: "Corinthians", 
+                            time_visitante: "Vasco"
+                        }
+                    ]
+                },
+                {
+                    horario: "13/09/2025 17:00",
+                    quantidade: 3,
+                    jogos: [
+                        {
+                            id: 1351274,
+                            campeonato: "Copa do Brasil",
+                            time_casa: "Grêmio",
+                            time_visitante: "Internacional"
+                        },
+                        {
+                            id: 1351275,
+                            campeonato: "Copa do Brasil",
+                            time_casa: "Botafogo",
+                            time_visitante: "Fluminense"
+                        },
+                        {
+                            id: 1351276,
+                            campeonato: "Copa do Brasil",
+                            time_casa: "Atlético-MG",
+                            time_visitante: "Cruzeiro"
+                        }
+                    ]
+                }
+            ];
+            
+            mostrarAlertaHorarios(alertasDemo);
+        }
+
+        function mostrarAlertaHorarios(alertas) {
+            console.log('Alertas de horário detectados:', alertas);
+            
+            let conteudoModal = '<div class="alert alert-warning mb-3">';
+            conteudoModal += '<h5><i class="fas fa-exclamation-triangle"></i> Atenção: Horários Suspeitos Detectados</h5>';
+            conteudoModal += '<p>Foram encontrados múltiplos jogos com o mesmo horário. Isso pode indicar que os horários ainda não foram confirmados pela CBF.</p>';
+            conteudoModal += '</div>';
+            
+            alertas.forEach(alerta => {
+                conteudoModal += `<div class="card mb-3">`;
+                conteudoModal += `<div class="card-header bg-warning text-dark">`;
+                conteudoModal += `<strong>${alerta.quantidade} jogos</strong> marcados para <strong>${alerta.horario}</strong>`;
+                conteudoModal += `</div>`;
+                conteudoModal += `<div class="card-body">`;
+                conteudoModal += `<div class="list-group list-group-flush">`;
+                
+                alerta.jogos.forEach(jogo => {
+                    conteudoModal += `<div class="list-group-item">`;
+                    conteudoModal += `<strong>${jogo.campeonato}</strong><br>`;
+                    conteudoModal += `${jogo.time_casa} x ${jogo.time_visitante}`;
+                    conteudoModal += `</div>`;
+                });
+                
+                conteudoModal += `</div></div></div>`;
+            });
+            
+            conteudoModal += '<div class="alert alert-info">';
+            conteudoModal += '<h6>Recomendação:</h6>';
+            conteudoModal += '<p class="mb-1">• Verifique os horários oficiais no site da CBF</p>';
+            conteudoModal += '<p class="mb-1">• Considere aguardar a confirmação dos horários antes de criar o bolão</p>';
+            conteudoModal += '<p class="mb-0">• Se necessário, atualize o bolão após a confirmação dos horários</p>';
+            conteudoModal += '</div>';
+            
+            // Criar modal dinamicamente se não existir
+            let modal = document.getElementById('alertaHorarioModal');
+            if (!modal) {
+                const modalHtml = `
+                <div class="modal fade" id="alertaHorarioModal" tabindex="-1" aria-labelledby="alertaHorarioModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-warning text-dark">
+                                <h5 class="modal-title" id="alertaHorarioModalLabel">
+                                    <i class="fas fa-clock"></i> Verificação de Horários
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="alertaHorarioModalBody">
+                                <!-- Conteúdo será inserido aqui -->
+                            </div>
+                            <div class="modal-footer">
+                                <a href="https://www.cbf.com.br/futebol-brasileiro/competicoes" target="_blank" class="btn btn-info me-auto">
+                                    <i class="fas fa-external-link-alt"></i> Verificar na CBF
+                                </a>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendi</button>
+                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Continuar Mesmo Assim</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+                
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                modal = document.getElementById('alertaHorarioModal');
+            }
+            
+            // Atualizar conteúdo do modal
+            document.getElementById('alertaHorarioModalBody').innerHTML = conteudoModal;
+            
+            // Mostrar modal
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+        }
+    </script>
+</body>
+</html>

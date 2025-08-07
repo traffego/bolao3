@@ -194,6 +194,11 @@ async function carregarJogos() {
             state.todosJogos = data.jogos.slice(0, 20);
             console.log('Jogos carregados:', state.todosJogos);
             
+            // Verificar alertas de horário
+            if (data.alertas_horario && data.alertas_horario.length > 0) {
+                mostrarAlertaHorarios(data.alertas_horario);
+            }
+            
             atualizarTabelaJogos();
             if (preSelecionarJogos) {
                 selecionarJogosAutomaticamente();
@@ -343,6 +348,79 @@ if (form) {
         
         console.log('Jogos enviados:', state.jogosSelecionados);
     });
+}
+
+// Função para mostrar alerta de horários suspeitos
+function mostrarAlertaHorarios(alertas) {
+    console.log('Alertas de horário detectados:', alertas);
+    
+    let conteudoModal = '<div class="alert alert-warning mb-3">';
+    conteudoModal += '<h5><i class="fas fa-exclamation-triangle"></i> Atenção: Horários Suspeitos Detectados</h5>';
+    conteudoModal += '<p>Foram encontrados múltiplos jogos com o mesmo horário. Isso pode indicar que os horários ainda não foram confirmados pela CBF.</p>';
+    conteudoModal += '</div>';
+    
+    alertas.forEach(alerta => {
+        conteudoModal += `<div class="card mb-3">`;
+        conteudoModal += `<div class="card-header bg-warning text-dark">`;
+        conteudoModal += `<strong>${alerta.quantidade} jogos</strong> marcados para <strong>${alerta.horario}</strong>`;
+        conteudoModal += `</div>`;
+        conteudoModal += `<div class="card-body">`;
+        conteudoModal += `<div class="list-group list-group-flush">`;
+        
+        alerta.jogos.forEach(jogo => {
+            conteudoModal += `<div class="list-group-item">`;
+            conteudoModal += `<strong>${jogo.campeonato}</strong><br>`;
+            conteudoModal += `${jogo.time_casa} x ${jogo.time_visitante}`;
+            conteudoModal += `</div>`;
+        });
+        
+        conteudoModal += `</div></div></div>`;
+    });
+    
+    conteudoModal += '<div class="alert alert-info">';
+    conteudoModal += '<h6>Recomendação:</h6>';
+    conteudoModal += '<p class="mb-1">• Verifique os horários oficiais no site da CBF</p>';
+    conteudoModal += '<p class="mb-1">• Considere aguardar a confirmação dos horários antes de criar o bolão</p>';
+    conteudoModal += '<p class="mb-0">• Se necessário, atualize o bolão após a confirmação dos horários</p>';
+    conteudoModal += '</div>';
+    
+    // Criar modal dinamicamente se não existir
+    let modal = document.getElementById('alertaHorarioModal');
+    if (!modal) {
+        const modalHtml = `
+        <div class="modal fade" id="alertaHorarioModal" tabindex="-1" aria-labelledby="alertaHorarioModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title" id="alertaHorarioModalLabel">
+                            <i class="fas fa-clock"></i> Verificação de Horários
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="alertaHorarioModalBody">
+                        <!-- Conteúdo será inserido aqui -->
+                    </div>
+                    <div class="modal-footer">
+                        <a href="https://www.cbf.com.br/futebol-brasileiro/competicoes" target="_blank" class="btn btn-info me-auto">
+                            <i class="fas fa-external-link-alt"></i> Verificar na CBF
+                        </a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendi</button>
+                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Continuar Mesmo Assim</button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        modal = document.getElementById('alertaHorarioModal');
+    }
+    
+    // Atualizar conteúdo do modal
+    document.getElementById('alertaHorarioModalBody').innerHTML = conteudoModal;
+    
+    // Mostrar modal
+    const bootstrapModal = new bootstrap.Modal(modal);
+    bootstrapModal.show();
 }
 
 // Inicializar quando o DOM estiver pronto

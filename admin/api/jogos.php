@@ -98,13 +98,41 @@ try {
         }
         return $ordA - $ordB;
     });
+    // Detectar horários suspeitos (múltiplos jogos no mesmo horário)
+    $horariosCount = [];
+    $alertasHorario = [];
+    
+    foreach ($jogos as $jogo) {
+        // Extrair apenas o horário (sem a data)
+        $horario = substr($jogo['data'], -5); // Pega apenas "HH:MM"
+        $data = substr($jogo['data'], 0, 10); // Pega apenas "dd/mm/yyyy"
+        $chaveHorario = $data . ' ' . $horario;
+        
+        if (!isset($horariosCount[$chaveHorario])) {
+            $horariosCount[$chaveHorario] = [];
+        }
+        $horariosCount[$chaveHorario][] = $jogo;
+    }
+    
+    // Verificar se há 3 ou mais jogos no mesmo horário
+    foreach ($horariosCount as $horario => $jogosNoHorario) {
+        if (count($jogosNoHorario) >= 3) {
+            $alertasHorario[] = [
+                'horario' => $horario,
+                'quantidade' => count($jogosNoHorario),
+                'jogos' => $jogosNoHorario
+            ];
+        }
+    }
+    
     // Limitar a 20 jogos
     $jogos = array_slice($jogos, 0, 20);
 
     // Retornar resposta
     echo json_encode([
         'success' => true,
-        'jogos' => $jogos
+        'jogos' => $jogos,
+        'alertas_horario' => $alertasHorario
     ]);
 
 } catch (Exception $e) {
