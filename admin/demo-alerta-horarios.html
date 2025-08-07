@@ -17,7 +17,9 @@
                 
                 <div class="alert alert-info">
                     <h5>Como funciona:</h5>
-                    <p>O sistema detecta automaticamente quando há 3 ou mais jogos marcados para o mesmo horário e exibe um alerta modal para o administrador verificar se os horários estão confirmados pela CBF.</p>
+                    <p>O sistema analisa apenas os <strong>20 jogos exibidos na lista</strong> e detecta automaticamente quando há 3 ou mais jogos marcados para o mesmo horário, exibindo um alerta modal para o administrador verificar se os horários estão confirmados pela CBF.</p>
+                    <hr>
+                    <small><strong>Nota:</strong> A análise é feita apenas nos jogos que aparecem na interface (limitados a 20), não em todos os jogos disponíveis na API.</small>
                 </div>
 
                 <button type="button" class="btn btn-warning btn-lg" onclick="mostrarDemoAlerta()">

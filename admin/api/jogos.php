@@ -98,7 +98,11 @@ try {
         }
         return $ordA - $ordB;
     });
-    // Detectar horários suspeitos (múltiplos jogos no mesmo horário)
+    
+    // Limitar a 20 jogos PRIMEIRO
+    $jogos = array_slice($jogos, 0, 20);
+    
+    // Detectar horários suspeitos APENAS nos jogos que serão exibidos (máximo 20)
     $horariosCount = [];
     $alertasHorario = [];
     
@@ -114,7 +118,7 @@ try {
         $horariosCount[$chaveHorario][] = $jogo;
     }
     
-    // Verificar se há 3 ou mais jogos no mesmo horário
+    // Verificar se há 3 ou mais jogos no mesmo horário (apenas nos 20 jogos da lista)
     foreach ($horariosCount as $horario => $jogosNoHorario) {
         if (count($jogosNoHorario) >= 3) {
             $alertasHorario[] = [
@@ -124,9 +128,6 @@ try {
             ];
         }
     }
-    
-    // Limitar a 20 jogos
-    $jogos = array_slice($jogos, 0, 20);
 
     // Retornar resposta
     echo json_encode([

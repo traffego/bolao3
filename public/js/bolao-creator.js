@@ -194,8 +194,9 @@ async function carregarJogos() {
             state.todosJogos = data.jogos.slice(0, 20);
             console.log('Jogos carregados:', state.todosJogos);
             
-            // Verificar alertas de horário
+            // Verificar alertas de horário (análise feita apenas nos 20 jogos da lista)
             if (data.alertas_horario && data.alertas_horario.length > 0) {
+                console.log('Alertas de horário detectados nos 20 jogos da lista:', data.alertas_horario);
                 mostrarAlertaHorarios(data.alertas_horario);
             }
             
