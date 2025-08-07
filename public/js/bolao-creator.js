@@ -274,11 +274,20 @@ function atualizarTabelaJogos() {
     jogosParaMostrar.forEach((jogo, index) => {
         const tr = document.createElement('tr');
         const isSelected = state.jogosSelecionados.has(jogo.id);
-        const isDisabled = !isSelected && state.jogosSelecionados.size >= state.maxJogos;
         const jaUtilizado = jogo.ja_utilizado || false;
 
-        // Se o jogo já foi utilizado, desabilitar completamente
-        const finalDisabled = jaUtilizado || isDisabled;
+        // NOVA LÓGICA: Só desabilitar se já está em uso OU se atingiu o limite E não está selecionado
+        // Jogos livres (não em uso) devem SEMPRE poder ser marcados/desmarcados
+        let finalDisabled = false;
+        
+        if (jaUtilizado) {
+            // Jogo em outro bolão - sempre desabilitado
+            finalDisabled = true;
+        } else if (!isSelected && state.jogosSelecionados.size >= state.maxJogos) {
+            // Só desabilitar se não está selecionado E atingiu o limite
+            finalDisabled = true;
+        }
+        // Jogos livres e já selecionados ficam sempre habilitados para desmarcação
         
         // Adicionar classes CSS apropriadas
         if (jaUtilizado) {
@@ -483,16 +492,16 @@ async function buscarMaisJogos() {
             return;
         }
         
-        // SIMPLIFICADO: Buscar sempre 50 jogos para garantir que temos o suficiente
+        // OTIMIZADO: Buscar apenas 20 + diferença necessária
         const jogosSelecionadosAtual = state.jogosSelecionados.size;
         const faltam = state.maxJogos - jogosSelecionadosAtual;
-        const limiteBusca = 50; // Sempre buscar o máximo para garantir
+        const limiteBusca = 20 + faltam; // 20 base + o que falta
         
-        console.log('Busca ampliada - FORÇADA:', {
+        console.log('Busca ampliada - OTIMIZADA:', {
             jogosSelecionadosAtual,
             quantidadeDesejada: state.maxJogos,
             faltam,
-            limiteBusca
+            limiteBusca: `20 + ${faltam} = ${limiteBusca}`
         });
         
         const campeonatosParam = campeonatosSelecionados.join(',');
@@ -593,8 +602,22 @@ function handleJogoSelection(event) {
         if (state.jogosSelecionados.size < state.maxJogos) {
             state.jogosSelecionados.add(jogoId);
         } else {
-            event.target.checked = false;
-            alert(`Você já selecionou o máximo de ${state.maxJogos} jogos.`);
+            // Atingiu o limite - desmarcar um jogo livre para dar lugar ao novo
+            const jogosLivresSelecionados = Array.from(state.jogosSelecionados).filter(id => {
+                const jogoSelecionado = state.todosJogos.find(j => j.id === id);
+                return jogoSelecionado && !jogoSelecionado.ja_utilizado;
+            });
+            
+            if (jogosLivresSelecionados.length > 0) {
+                // Desmarcar o primeiro jogo livre selecionado
+                const jogoParaDesmarcar = jogosLivresSelecionados[0];
+                state.jogosSelecionados.delete(jogoParaDesmarcar);
+                state.jogosSelecionados.add(jogoId);
+                console.log(`Trocou jogo ${jogoParaDesmarcar} por ${jogoId}`);
+            } else {
+                event.target.checked = false;
+                alert(`Você já selecionou o máximo de ${state.maxJogos} jogos.`);
+            }
         }
     } else {
         state.jogosSelecionados.delete(jogoId);
