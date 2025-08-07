@@ -234,17 +234,34 @@ function atualizarTabelaJogos() {
     const jogosSelecionados = state.jogosSelecionados.size;
     const minJogosNecessarios = Math.max(quantidadeDesejada, jogosSelecionados + 5); // +5 margem
     
-    // Se temos poucos jogos selecionados e muitos jogos disponíveis, mostrar mais
-    if (jogosSelecionados < quantidadeDesejada && state.todosJogos.length > 20) {
-        // Mostrar até o necessário para completar + margem
-        jogosParaMostrar = state.todosJogos.slice(0, Math.min(minJogosNecessarios, state.todosJogos.length));
-        console.log(`Mostrando ${jogosParaMostrar.length} jogos (necessários: ${minJogosNecessarios})`);
+    // Contar quantos jogos estão em uso para calcular quantos mostrar
+    const jogosEmUso = state.todosJogos.filter(jogo => jogo.ja_utilizado).length;
+    const jogosDisponiveis = state.todosJogos.length - jogosEmUso;
+    const faltamSelecionar = quantidadeDesejada - jogosSelecionados;
+    
+    console.log('Análise da tabela:', {
+        totalJogos: state.todosJogos.length,
+        jogosEmUso,
+        jogosDisponiveis,
+        jogosSelecionados,
+        quantidadeDesejada,
+        faltamSelecionar
+    });
+    
+    // Se ainda faltam jogos para selecionar e temos mais de 20 jogos, mostrar mais
+    if (faltamSelecionar > 0 && state.todosJogos.length > 20) {
+        // Calcular quantos jogos mostrar: selecionados + que faltam + jogos em uso + margem
+        const jogosParaMostrarCount = jogosSelecionados + faltamSelecionar + jogosEmUso + 5;
+        jogosParaMostrar = state.todosJogos.slice(0, Math.min(jogosParaMostrarCount, state.todosJogos.length));
+        console.log(`Mostrando ${jogosParaMostrar.length} jogos (calculado: ${jogosParaMostrarCount})`);
     } else if (state.todosJogos.length <= 20) {
         // Busca inicial - mostrar todos até 20
         jogosParaMostrar = state.todosJogos;
+        console.log(`Mostrando todos os ${jogosParaMostrar.length} jogos (≤20)`);
     } else {
-        // Limitar a 20 na busca inicial
+        // Limitar a 20 na busca inicial quando já temos jogos suficientes
         jogosParaMostrar = state.todosJogos.slice(0, 20);
+        console.log(`Limitando a 20 jogos da busca inicial`);
     }
 
     jogosParaMostrar.forEach((jogo, index) => {
@@ -430,9 +447,28 @@ async function buscarMaisJogos() {
             return;
         }
         
-        // Calcular quantos jogos precisamos buscar (quantidade desejada + margem de segurança)
-        const jogosNecessarios = state.maxJogos + 10; // +10 como margem de segurança
+        // Calcular quantos jogos precisamos buscar baseado em jogos já em uso
+        const jogosSelecionadosAtual = state.jogosSelecionados.size;
+        const faltam = state.maxJogos - jogosSelecionadosAtual;
+        const jogosEmUsoAtual = state.todosJogos.filter(jogo => jogo.ja_utilizado).length;
+        
+        // Estimar que pode haver mais jogos em uso na busca ampliada (proporção similar)
+        const proporcaoEmUso = state.todosJogos.length > 0 ? jogosEmUsoAtual / state.todosJogos.length : 0.3;
+        const estimativaJogosEmUso = Math.ceil(faltam / (1 - proporcaoEmUso)) * proporcaoEmUso;
+        
+        // Calcular limite: jogos que faltam + estimativa de jogos em uso + margem
+        const jogosNecessarios = faltam + estimativaJogosEmUso + 15; // +15 margem de segurança
         const limiteBusca = Math.min(jogosNecessarios, 50); // Máximo 50
+        
+        console.log('Cálculo para busca ampliada:', {
+            jogosSelecionadosAtual,
+            faltam,
+            jogosEmUsoAtual,
+            proporcaoEmUso,
+            estimativaJogosEmUso,
+            jogosNecessarios,
+            limiteBusca
+        });
         
         const campeonatosParam = campeonatosSelecionados.join(',');
         const url = `${APP_URL}/admin/api/jogos.php?inicio=${dataInicio}&fim=${dataFimNova}&campeonatos=${campeonatosParam}&limit=${limiteBusca}`;
