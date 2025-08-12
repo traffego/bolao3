@@ -557,7 +557,7 @@ include TEMPLATE_DIR . '/header.php';
                         $palpiteJogo = $palpites[$jogoId] ?? $palpitesSessao[$jogoId] ?? null;
                         $disabled = $prazoEncerrado ? 'disabled' : '';
                         ?>
-                    <div class="card mb-2 border-0 bg-transparent <?= $prazoEncerrado ? 'opacity-75' : '' ?>">
+                    <div class="card mb-2 border-0 bg-transparent shadow-none <?= $prazoEncerrado ? 'opacity-75' : '' ?>">
                         <div class="card-body py-1 <?= $prazoEncerrado ? 'bg-light' : '' ?>">
                             <?php if ($prazoEncerrado): ?>
                                 <div class="position-relative">
@@ -1150,14 +1150,14 @@ function gerarPalpitesAleatorios(button) {
     opacity: 0.9;
 }
 
-/* Sombras */
+/* Sombras removidas para visual mais limpo */
 .btn-palpite {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: none;
 }
 
 .btn-palpite:hover,
 .btn-palpite.active {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: none;
 }
 
 .btn-palpite.btn-outline-warning {
@@ -1185,7 +1185,6 @@ function gerarPalpitesAleatorios(button) {
     border-radius: 20px;
     font-weight: 600;
     font-size: 0.9rem;
-    box-shadow: 0 2px 10px rgba(6, 170, 72, 0.2);
     white-space: nowrap;
 }
 
@@ -1210,7 +1209,6 @@ function gerarPalpitesAleatorios(button) {
     border-radius: 12px;
     background-color: #fff3cd;
     color: #856404;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     font-size: 0.8rem;
     font-weight: 500;
 }
@@ -1222,7 +1220,6 @@ function gerarPalpitesAleatorios(button) {
 /* Animação sutil no hover */
 .time-badge:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
 }
 
