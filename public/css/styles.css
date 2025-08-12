@@ -1039,7 +1039,7 @@ footer a:hover {
 
 /* Custom color classes */
 .bg-green {
-    background: linear-gradient(45deg, #006400, #008f00) !important;
+  background: linear-gradient(45deg, #22c122, #06aa48) !important;
 }
 
 .bg-green-solid {
