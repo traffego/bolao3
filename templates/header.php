@@ -27,7 +27,7 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--globo-azul-principal, #1e3c72) !important; box-shadow: 0 2px 10px rgba(30, 60, 114, 0.3);">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--globo-verde-principal, #06AA48) !important; box-shadow: 0 2px 10px rgba(6, 170, 72, 0.3);">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="<?= APP_URL ?>" style="font-family: var(--font-primary); font-weight: 700; color: white !important;">
             <img src="<?= APP_URL ?>/public/img/logo.png" alt="<?= APP_NAME ?>" style="height: 96px; width: 96px; object-fit: contain;">

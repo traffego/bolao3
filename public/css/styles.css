@@ -7,12 +7,13 @@
    ======================================== */
 :root {
   /* Cores Primárias */
-  --globo-azul-principal: #1e3c72;
+  --globo-verde-principal: #06AA48;
+  --globo-verde-escuro: #058a3a;
   --globo-vermelho-destaque: #e74c3c;
   
   /* Cores Secundárias */
-  --globo-azul-claro: #3498db;
-  --globo-verde-futebol: #27ae60;
+  --globo-verde-claro: #4CAF50;
+  --globo-verde-futebol: #06AA48;
   --globo-laranja-energia: #f39c12;
   
   /* Cores de Apoio */
@@ -26,8 +27,8 @@
   --font-mono: 'Roboto Mono', 'Source Code Pro', Courier New, monospace;
   
   /* Gradientes */
-  --gradient-primary: linear-gradient(135deg, var(--globo-azul-principal) 0%, var(--globo-azul-claro) 100%);
-  --gradient-success: linear-gradient(135deg, var(--globo-verde-futebol) 0%, #2ecc71 100%);
+  --gradient-primary: linear-gradient(135deg, var(--globo-verde-principal) 0%, var(--globo-verde-claro) 100%);
+  --gradient-success: linear-gradient(135deg, var(--globo-verde-principal) 0%, var(--globo-verde-claro) 100%);
   --gradient-warning: linear-gradient(135deg, var(--globo-laranja-energia) 0%, #e67e22 100%);
   --gradient-danger: linear-gradient(135deg, var(--globo-vermelho-destaque) 0%, #c0392b 100%);
 }
@@ -138,7 +139,24 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-primary);
   font-weight: 700;
-  color: var(--globo-azul-principal);
+  color: var(--globo-verde-principal);
+}
+
+/* Textos em fundos escuros */
+.bg-dark, .bg-dark *, 
+.navbar-dark, .navbar-dark *,
+[style*="background: rgba(0,0,0"], [style*="background: rgba(0,0,0"] *,
+[style*="background: linear-gradient"][style*="rgba(0,0,0"], [style*="background: linear-gradient"][style*="rgba(0,0,0"] *,
+.text-white, .text-white * {
+  color: white !important;
+}
+
+/* Títulos em fundos escuros */
+.bg-dark h1, .bg-dark h2, .bg-dark h3, .bg-dark h4, .bg-dark h5, .bg-dark h6,
+.navbar-dark h1, .navbar-dark h2, .navbar-dark h3, .navbar-dark h4, .navbar-dark h5, .navbar-dark h6,
+[style*="background: rgba(0,0,0"] h1, [style*="background: rgba(0,0,0"] h2, [style*="background: rgba(0,0,0"] h3,
+[style*="background: rgba(0,0,0"] h4, [style*="background: rgba(0,0,0"] h5, [style*="background: rgba(0,0,0"] h6 {
+  color: white !important;
 }
 
 h1 { font-size: 2.5rem; font-weight: 800; }

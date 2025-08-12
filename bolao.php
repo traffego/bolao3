@@ -273,7 +273,7 @@ include TEMPLATE_DIR . '/header.php';
             <div class="card-body p-4" id="bolaoInfoContent">
                 <!-- Título do Bolão -->
                 <div class="text-center mb-4">
-                    <h3 class="fw-bold mb-2" style="color: var(--globo-azul-principal, #1e3c72); font-family: var(--font-primary);"><?= htmlspecialchars($bolao['nome']) ?></h3>
+                    <h3 class="fw-bold mb-2" style="color: var(--globo-verde-principal, #06AA48); font-family: var(--font-primary);"><?= htmlspecialchars($bolao['nome']) ?></h3>
                     <?php if (!empty($bolao['descricao'])): ?>
                         <p class="text-muted small" style="font-family: var(--font-primary);"><?= nl2br(htmlspecialchars($bolao['descricao'])) ?></p>
                     <?php endif; ?>
