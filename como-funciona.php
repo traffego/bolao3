@@ -8,80 +8,192 @@ $pageTitle = 'Como Funciona';
 include TEMPLATE_DIR . '/header.php';
 ?>
 
-<div class="container py-4">
-    <h1 class="mb-4">Como Funciona o Bolão Vitimba</h1>
-    
-    <!-- Seção Principal -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <h2 class="h4 mb-3">Participar é muito fácil!</h2>
-            <p>O Bolão Vitimba é uma plataforma onde você pode participar de bolões de futebol e concorrer a prêmios em dinheiro. Siga os passos abaixo para começar:</p>
+<!-- Steps to Participate Section -->
+<section class="how-to-participate-section" style="margin-top: 3rem; margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw;">
+    <div class="how-to-participate-bg">
+        <div class="container">
+            <!-- Section Header -->
+            <div class="text-center mb-5">
+                <h1 class="section-title text-white mb-3">Como Participar</h1>
+                <p class="section-subtitle text-white-50 fs-5">Siga estes 4 passos simples para começar a ganhar</p>
+            </div>
+
+            <!-- Steps Grid -->
+            <div class="row g-4 justify-content-center">
+                <!-- Step 1: Cadastre-se -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-icon-container">
+                            <div class="step-icon">
+                                <i class="bi bi-person-plus-fill"></i>
+                            </div>
+                        </div>
+                        <div class="step-content">
+                            <h4 class="step-title">Cadastre-se</h4>
+                            <p class="step-description">Crie sua conta gratuitamente em segundos. Apenas dados básicos necessários.</p>
+                            <div class="step-features">
+                                <small><i class="bi bi-check-circle-fill me-1"></i>100% Gratuito</small>
+                                <small><i class="bi bi-check-circle-fill me-1"></i>Rápido e Seguro</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Escolha um Bolão -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-icon-container">
+                            <div class="step-icon">
+                                <i class="bi bi-grid-3x3-gap-fill"></i>
+                            </div>
+                        </div>
+                        <div class="step-content">
+                            <h4 class="step-title">Escolha um Bolão</h4>
+                            <p class="step-description">Navegue pelos bolões disponíveis e escolha o que mais combina com você.</p>
+                            <div class="step-features">
+                                <small><i class="bi bi-check-circle-fill me-1"></i>Vários Campeonatos</small>
+                                <small><i class="bi bi-check-circle-fill me-1"></i>Prêmios Atrativos</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Faça seus Palpites -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-icon-container">
+                            <div class="step-icon">
+                                <i class="bi bi-bullseye"></i>
+                            </div>
+                        </div>
+                        <div class="step-content">
+                            <h4 class="step-title">Faça seus Palpites</h4>
+                            <p class="step-description">Registre seus palpites para os jogos. Use sua expertise futebolística!</p>
+                            <div class="step-features">
+                                <small><i class="bi bi-check-circle-fill me-1"></i>Interface Intuitiva</small>
+                                <small><i class="bi bi-check-circle-fill me-1"></i>Palpites Flexíveis</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Ganhe Prêmios -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-icon-container">
+                            <div class="step-icon">
+                                <i class="bi bi-trophy-fill"></i>
+                            </div>
+                        </div>
+                        <div class="step-content">
+                            <h4 class="step-title">Ganhe Prêmios</h4>
+                            <p class="step-description">Acompanhe o ranking em tempo real e ganhe prêmios em dinheiro!</p>
+                            <div class="step-features">
+                                <small><i class="bi bi-check-circle-fill me-1"></i>Prêmios em Dinheiro</small>
+                                <small><i class="bi bi-check-circle-fill me-1"></i>Saque Rápido</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</section>
 
-    <!-- Passos -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h3 class="h5 mb-3"><i class="bi bi-1-circle-fill text-primary me-2"></i>Cadastro</h3>
-                    <p>Crie sua conta gratuitamente fornecendo apenas informações básicas como nome, e-mail e senha. O processo é rápido e seguro.</p>
+<!-- Como Funciona a Pontuação -->
+<div class="container" style="margin-top: 5rem; margin-bottom: 5rem;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header text-center py-4" style="background: linear-gradient(135deg, var(--globo-verde-principal), var(--globo-verde-claro)); color: white;">
+                    <h2 class="mb-0">
+                        <i class="bi bi-trophy-fill me-2"></i>
+                        Como Funciona a Pontuação
+                    </h2>
+                </div>
+                <div class="card-body p-5">
+                    <div class="row g-4">
+                        <!-- Sistema de Pontos -->
+                        <div class="col-md-6">
+                            <div class="text-center mb-4">
+                                <div class="bg-success rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 80px; height: 80px;">
+                                    <i class="bi bi-bullseye text-white fs-1"></i>
+                                </div>
+                                <h4 class="text-success mb-3">Sistema de Pontos</h4>
+                                <div class="text-start">
+                                    <p class="fs-5 mb-3">
+                                        <i class="bi bi-arrow-right-circle-fill text-success me-2"></i>
+                                        <strong>Cada jogo acertado = 1 ponto</strong>
+                                    </p>
+                                    <p class="text-muted">
+                                        Sistema simples e justo: acertou o resultado do jogo, ganhou 1 ponto!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prêmio do Bolão -->
+                        <div class="col-md-6">
+                            <div class="text-center mb-4">
+                                <div class="bg-warning rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 80px; height: 80px;">
+                                    <i class="bi bi-trophy-fill text-white fs-1"></i>
+                                </div>
+                                <h4 class="text-warning mb-3">Prêmio do Bolão</h4>
+                                <div class="text-start">
+                                    <p class="fs-5 mb-3">
+                                        <i class="bi bi-arrow-right-circle-fill text-warning me-2"></i>
+                                        <strong>Maior pontuação ganha</strong>
+                                    </p>
+                                    <p class="text-muted">
+                                        Quem acertar a maior quantidade de jogos leva o prêmio principal. 
+                                        Se houver empate, o prêmio é dividido igualmente.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prêmio da Rodada -->
+                        <div class="col-12">
+                            <div class="text-center">
+                                <div class="bg-primary rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 80px; height: 80px;">
+                                    <i class="bi bi-star-fill text-white fs-1"></i>
+                                </div>
+                                <h4 class="text-primary mb-3">Prêmio da Rodada</h4>
+                                <div class="row justify-content-center">
+                                    <div class="col-lg-8">
+                                        <p class="fs-5 mb-3">
+                                            <i class="bi bi-arrow-right-circle-fill text-primary me-2"></i>
+                                            <strong>Acertou TODOS os jogos? Ganhou o prêmio da rodada!</strong>
+                                        </p>
+                                        <p class="text-muted">
+                                            Para ganhar o prêmio da rodada, você precisa acertar 100% dos jogos. 
+                                            Se mais pessoas conseguirem essa façanha, o prêmio é dividido entre elas.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Call to Action -->
+                    <div class="text-center mt-5 pt-4 border-top">
+                        <h5 class="mb-3">Pronto para testar seus conhecimentos?</h5>
+                        <a href="<?= APP_URL ?>/boloes.php" class="btn btn-lg px-5 py-3" 
+                           style="background: linear-gradient(135deg, var(--globo-verde-principal), var(--globo-verde-claro)); color: white; border-radius: 12px; font-weight: 600;">
+                            <i class="bi bi-rocket-takeoff me-2"></i>
+                            Participar Agora
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h3 class="h5 mb-3"><i class="bi bi-2-circle-fill text-primary me-2"></i>Escolha um Bolão</h3>
-                    <p>Navegue pelos bolões disponíveis e escolha aquele que mais te interessa. Cada bolão tem suas próprias regras e premiações.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h3 class="h5 mb-3"><i class="bi bi-3-circle-fill text-primary me-2"></i>Faça o Pagamento</h3>
-                    <p>Efetue o pagamento da taxa de participação de forma segura através do PIX. O valor varia de acordo com o bolão escolhido.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h3 class="h5 mb-3"><i class="bi bi-4-circle-fill text-primary me-2"></i>Registre seus Palpites</h3>
-                    <p>Faça seus palpites para os jogos do bolão. Você pode alterar seus palpites até o início de cada partida.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Regras Gerais -->
-    <div class="card mb-4">
-        <div class="card-header bg-green text-white">
-            <h3 class="h5 mb-0">Regras Gerais</h3>
-        </div>
-        <div class="card-body">
-            <ul class="list-unstyled">
-                <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Pontuação:
-                    <ul>
-                        <li>Acertar o placar exato: 10 pontos</li>
-                        <li>Acertar o vencedor e diferença de gols: 5 pontos</li>
-                        <li>Acertar apenas o vencedor: 3 pontos</li>
-                    </ul>
-                </li>
-                <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Os palpites podem ser alterados até o início de cada partida</li>
-                <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Em caso de empate no número de pontos, o critério de desempate será o maior número de placares exatos</li>
-                <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>O prêmio será distribuído conforme as regras específicas de cada bolão</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Call to Action -->
-    <div class="text-center">
-        <a href="<?= APP_URL ?>/boloes.php" class="btn btn-primary btn-lg">Participar Agora</a>
     </div>
 </div>
 
