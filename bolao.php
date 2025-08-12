@@ -261,7 +261,7 @@ include TEMPLATE_DIR . '/header.php';
                     <div class="d-flex align-items-center">
                         <i class="bi bi-trophy-fill me-2" style="font-size: 1.2rem;"></i>
                         <div>
-                            <h5 class="card-title mb-0 fw-bold" style="font-family: 'Open Sans', Arial, sans-serif;">Informações do Bolão</h5>
+                            <h5 class="card-title mb-0 fw-bold" style="font-family: var(--font-primary);">Informações do Bolão</h5>
                             <small class="d-md-none" id="bolaoSummary" style="opacity: 0.8;">Toque para ver detalhes</small>
                         </div>
                     </div>
@@ -273,9 +273,9 @@ include TEMPLATE_DIR . '/header.php';
             <div class="card-body p-4" id="bolaoInfoContent">
                 <!-- Título do Bolão -->
                 <div class="text-center mb-4">
-                    <h3 class="fw-bold mb-2" style="color: var(--globo-azul-principal, #1e3c72); font-family: 'Open Sans', Arial, sans-serif;"><?= htmlspecialchars($bolao['nome']) ?></h3>
+                    <h3 class="fw-bold mb-2" style="color: var(--globo-azul-principal, #1e3c72); font-family: var(--font-primary);"><?= htmlspecialchars($bolao['nome']) ?></h3>
                     <?php if (!empty($bolao['descricao'])): ?>
-                        <p class="text-muted small" style="font-family: 'Open Sans', Arial, sans-serif;"><?= nl2br(htmlspecialchars($bolao['descricao'])) ?></p>
+                        <p class="text-muted small" style="font-family: var(--font-primary);"><?= nl2br(htmlspecialchars($bolao['descricao'])) ?></p>
                     <?php endif; ?>
                 </div>
                 
@@ -289,8 +289,8 @@ include TEMPLATE_DIR . '/header.php';
                                     <i class="bi bi-calendar-range" style="font-size: 1.5rem;"></i>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <div class="info-label fw-semibold" style="font-family: 'Open Sans', Arial, sans-serif;">Período</div>
-                                    <div class="info-value" style="font-family: 'Open Sans', Arial, sans-serif;"><?= formatDate($bolao['data_inicio']) ?> a <?= formatDate($bolao['data_fim']) ?></div>
+                                    <div class="info-label fw-semibold" style="font-family: var(--font-primary);">Período</div>
+                                    <div class="info-value" style="font-family: var(--font-primary);"><?= formatDate($bolao['data_inicio']) ?> a <?= formatDate($bolao['data_fim']) ?></div>
                                 </div>
                             </div>
                         </div>
@@ -333,7 +333,7 @@ include TEMPLATE_DIR . '/header.php';
                 <!-- Prêmios -->
                 <?php if ($bolao['premio_total'] > 0 || $bolao['premio_rodada'] > 0): ?>
                 <div class="mb-3">
-                    <h6 class="fw-bold mb-2" style="color: var(--globo-vermelho-destaque, #e74c3c); font-family: 'Open Sans', Arial, sans-serif;">
+                    <h6 class="fw-bold mb-2" style="color: var(--globo-vermelho-destaque, #e74c3c); font-family: var(--font-primary);">
                         <i class="bi bi-trophy-fill me-1"></i>
                         Prêmios
                     </h6>
@@ -342,7 +342,7 @@ include TEMPLATE_DIR . '/header.php';
                         <div class="col-6">
                             <div class="prize-card text-center p-3 rounded-3" style="background: var(--gradient-warning, linear-gradient(135deg, #f39c12 0%, #e67e22 100%)); color: white;">
                                 <i class="bi bi-trophy" style="font-size: 1.8rem; color: white;"></i>
-                                <div class="fw-bold mt-1" style="font-family: 'Open Sans', Arial, sans-serif;">Prêmio Total</div>
+                                <div class="fw-bold mt-1" style="font-family: var(--font-primary);">Prêmio Total</div>
                                 <div class="h5 fw-bold mb-0" style="font-family: 'Roboto Mono', monospace; color: white;"><?= formatMoney($bolao['premio_total']) ?></div>
                             </div>
                         </div>
@@ -352,7 +352,7 @@ include TEMPLATE_DIR . '/header.php';
                         <div class="col-6">
                             <div class="prize-card text-center p-3 rounded-3" style="background: var(--gradient-success, linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)); color: white;">
                                 <i class="bi bi-award" style="font-size: 1.8rem; color: white;"></i>
-                                <div class="fw-bold mt-1" style="font-family: 'Open Sans', Arial, sans-serif;">Por Rodada</div>
+                                <div class="fw-bold mt-1" style="font-family: var(--font-primary);">Por Rodada</div>
                                 <div class="h5 fw-bold mb-0" style="font-family: 'Roboto Mono', monospace; color: white;"><?= formatMoney($bolao['premio_rodada']) ?></div>
                             </div>
                         </div>
@@ -485,7 +485,7 @@ include TEMPLATE_DIR . '/header.php';
                             <div class="d-flex align-items-start">
                                 <i class="bi bi-clock-history me-3" style="font-size: 2rem; margin-top: 0.25rem; color: var(--globo-laranja-energia, #f39c12);"></i>
                                 <div class="flex-grow-1">
-                                    <h5 class="card-title mb-2" style="color: var(--globo-laranja-energia, #f39c12); font-family: 'Open Sans', Arial, sans-serif; font-weight: 700;">
+                                    <h5 class="card-title mb-2" style="color: var(--globo-laranja-energia, #f39c12); font-family: var(--font-primary); font-weight: 700;">
                                         <strong>⏰ Oops! Você perdeu o prazo</strong>
                                     </h5>
                                     <p class="card-text mb-2">
@@ -521,7 +521,7 @@ include TEMPLATE_DIR . '/header.php';
                                     data-bs-toggle="tooltip" 
                                     data-bs-placement="top" 
                                     title="Gera resultados aleatórios para todos os jogos"
-                                    style="background: var(--gradient-danger, linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)); color: white; border: none; font-family: 'Open Sans', Arial, sans-serif; font-weight: 600;">
+                                    style="background: var(--gradient-danger, linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)); color: white; border: none; font-family: var(--font-primary); font-weight: 600;">
                                 <i class="bi bi-shuffle me-2"></i>
                                 Gerar Palpites
                             </button>
@@ -1374,7 +1374,7 @@ function gerarPalpitesAleatorios(button) {
     background: var(--gradient-success, linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)) !important;
     color: white !important;
     border: none !important;
-    font-family: 'Open Sans', Arial, sans-serif;
+    font-family: var(--font-primary);
     font-weight: 600;
     padding: 12px 30px;
     border-radius: 50px;
@@ -1491,7 +1491,7 @@ function gerarPalpitesAleatorios(button) {
     }
     
     .mobile-hero-title {
-        font-family: 'Open Sans', Arial, sans-serif;
+        font-family: var(--font-primary);
         font-weight: 700;
         font-size: 1.5rem;
         margin-bottom: 1rem;

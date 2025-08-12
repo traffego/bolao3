@@ -12,10 +12,26 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     
-    <!-- Google Fonts - Open Sans & Roboto Mono -->
+    <!-- Google Fonts - Futura PT & Roboto Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Futura+PT:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Fallback para Futura usando fontes do sistema -->
+    <style>
+        @font-face {
+            font-family: 'Futura';
+            src: local('Futura PT'), local('Futura-Medium'), local('Futura'), local('Century Gothic'), local('Avenir Next'), local('Avenir');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Futura';
+            src: local('Futura PT Medium'), local('Futura-Bold'), local('Futura Bold'), local('Century Gothic Bold'), local('Avenir Next Demi Bold');
+            font-weight: 700;
+            font-style: normal;
+        }
+    </style>
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= APP_URL ?>/public/css/styles.css">
@@ -29,7 +45,7 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--globo-azul-principal, #1e3c72) !important; box-shadow: 0 2px 10px rgba(30, 60, 114, 0.3);">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="<?= APP_URL ?>" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: 700; color: white !important;">
+        <a class="navbar-brand d-flex align-items-center" href="<?= APP_URL ?>" style="font-family: var(--font-primary); font-weight: 700; color: white !important;">
             <img src="<?= APP_URL ?>/public/img/logo.png" alt="<?= APP_NAME ?>" style="height: 96px; width: 96px; object-fit: contain;">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">

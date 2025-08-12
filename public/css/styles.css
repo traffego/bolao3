@@ -22,7 +22,7 @@
   --globo-branco: #ffffff;
   
   /* Tipografia */
-  --font-primary: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  --font-primary: 'Futura', 'Futura PT', 'Century Gothic', 'Avenir Next', 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
   --font-mono: 'Roboto Mono', 'Source Code Pro', Courier New, monospace;
   
   /* Gradientes */
