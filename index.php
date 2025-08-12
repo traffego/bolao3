@@ -149,8 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Steps to Participate Section -->
 <section class="how-to-participate-section" style="margin-top: 5rem;">
-    <div class="container-fluid px-0">
-        <div class="how-to-participate-bg">
+    <div class="how-to-participate-bg w-100" style="margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw !important;">
             <div class="container">
                 <!-- Section Header -->
                 <div class="text-center mb-5">
@@ -245,12 +244,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="text-center mt-5">
                     <div class="cta-container">
                         <h3 class="text-white mb-3">Pronto para começar a ganhar?</h3>
-                        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center align-items-center">
-                            <a href="<?= APP_URL ?>/cadastro.php" class="btn btn-light btn-lg px-4 py-3 cta-btn-primary">
+                        <div class="d-flex justify-content-center">
+                            <a href="<?= APP_URL ?>/boloes.php" class="btn btn-light btn-lg px-4 py-3 cta-btn-primary">
                                 <i class="bi bi-rocket-takeoff me-2"></i>Começar Agora
-                            </a>
-                            <a href="<?= APP_URL ?>/como-funciona.php" class="btn btn-outline-light btn-lg px-4 py-3 cta-btn-secondary">
-                                <i class="bi bi-info-circle me-2"></i>Saiba Mais
                             </a>
                         </div>
                     </div>
