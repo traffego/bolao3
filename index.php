@@ -45,7 +45,7 @@ include TEMPLATE_DIR . '/header.php';
 <?php if (!empty($slideBoloes)): ?>
 <!-- Slider Section with Ambilight Effect -->
 <div class="ambilight-container mb-4">
-    <div class="swiper main-slider" style="border-radius: 10px; overflow: hidden; position: relative; z-index: 2;">
+    <div class="swiper main-slider" style="border-radius: 10px; overflow: hidden; position: relative; z-index: 1;">
         <div class="swiper-wrapper">
             <?php foreach ($slideBoloes as $bolao): ?>
                 <div class="swiper-slide">
