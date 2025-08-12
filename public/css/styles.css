@@ -123,6 +123,81 @@
 }
 
 /* ========================================
+   LINKS E HOVER EFFECTS
+   ======================================== */
+/* Configurações globais para links */
+a {
+  text-decoration: none;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* Hover para links - apenas movimento para cima, sem mudança de cor */
+a:hover {
+  text-decoration: none;
+  color: inherit !important;
+  transform: translateY(-2px);
+}
+
+/* Links de menu e navegação */
+.navbar-nav .nav-link,
+.nav-link,
+.dropdown-item,
+.btn-link {
+  font-weight: bold !important;
+  font-size: medium !important;
+  transition: transform 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover,
+.nav-link:hover,
+.dropdown-item:hover,
+.btn-link:hover {
+  color: inherit !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+/* Links em fundos escuros mantêm cor branca */
+.navbar-dark .nav-link,
+.navbar-dark .nav-link:hover,
+.navbar-dark .dropdown-item,
+.navbar-dark .dropdown-item:hover,
+.bg-dark a,
+.bg-dark a:hover,
+.text-white a,
+.text-white a:hover {
+  color: white !important;
+}
+
+/* Override Bootstrap hover colors */
+.btn:hover,
+.btn:focus,
+.btn:active {
+  color: inherit !important;
+  transform: translateY(-2px);
+}
+
+/* Links específicos do site */
+.slide-link:hover {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+/* Cards e outros elementos */
+.card a:hover,
+.list-group-item a:hover,
+.dropdown-menu a:hover {
+  color: inherit !important;
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Navbar brand hover */
+.navbar-brand:hover {
+  color: inherit !important;
+  transform: translateY(-2px);
+}
+
+/* ========================================
    TIPOGRAFIA GLOBAL
    ======================================== */
 body {
