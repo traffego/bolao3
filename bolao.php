@@ -240,9 +240,9 @@ include TEMPLATE_DIR . '/header.php';
                     </button>
                 </div>
             </div>
-            <div class="card-body p-3 p-md-4" id="bolaoInfoContent">
-                <!-- Título do Bolão (oculto no mobile) -->
-                <div class="text-center mb-3 d-none d-md-block">
+            <div class="card-body p-4" id="bolaoInfoContent">
+                <!-- Título do Bolão -->
+                <div class="text-center mb-4">
                     <h3 class="fw-bold mb-2" style="color: var(--globo-verde-principal, #06AA48); font-family: var(--font-primary);"><?= htmlspecialchars($bolao['nome']) ?></h3>
                     <?php if (!empty($bolao['descricao'])): ?>
                         <p class="text-muted small" style="font-family: var(--font-primary);"><?= nl2br(htmlspecialchars($bolao['descricao'])) ?></p>
@@ -253,10 +253,10 @@ include TEMPLATE_DIR . '/header.php';
                 <div class="row g-2 mb-3">
                     <!-- Período -->
                     <div class="col-12">
-                        <div class="info-card p-2 rounded-3" style="background: var(--gradient-primary, linear-gradient(135deg, #1e3c72 0%, #3498db 100%)); color: white;">
+                        <div class="info-card p-3 rounded-3" style="background: var(--gradient-primary, linear-gradient(135deg, #1e3c72 0%, #3498db 100%)); color: white;">
                             <div class="d-flex align-items-center">
-                                <div class="info-icon me-2">
-                                    <i class="bi bi-calendar-range" style="font-size: 1.2rem;"></i>
+                                <div class="info-icon me-3">
+                                    <i class="bi bi-calendar-range" style="font-size: 1.5rem;"></i>
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="info-label fw-semibold" style="font-family: var(--font-primary);">Período</div>
@@ -269,10 +269,10 @@ include TEMPLATE_DIR . '/header.php';
                     <!-- Prazo para Palpites -->
                     <?php if ($dataLimite): ?>
                     <div class="col-12">
-                        <div class="info-card p-2 rounded-3 <?= $prazoEncerrado ? 'bg-light border border-warning' : '' ?>" style="<?= !$prazoEncerrado ? 'background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;' : 'color: #856404;' ?>">
+                        <div class="info-card p-3 rounded-3 <?= $prazoEncerrado ? 'bg-light border border-warning' : '' ?>" style="<?= !$prazoEncerrado ? 'background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;' : 'color: #856404;' ?>">
                             <div class="d-flex align-items-center">
-                                <div class="info-icon me-2">
-                                    <i class="bi bi-<?= $prazoEncerrado ? 'clock-history' : 'alarm' ?>" style="font-size: 1.2rem;"></i>
+                                <div class="info-icon me-3">
+                                    <i class="bi bi-<?= $prazoEncerrado ? 'clock-history' : 'alarm' ?>" style="font-size: 1.5rem;"></i>
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="info-label fw-semibold"><?= $prazoEncerrado ? 'Prazo Encerrado' : 'Prazo para Palpites' ?></div>
@@ -310,8 +310,8 @@ include TEMPLATE_DIR . '/header.php';
                     <div class="row g-2">
                         <?php if ($bolao['premio_total'] > 0): ?>
                         <div class="col-6">
-                            <div class="prize-card text-center p-2 rounded-3" style="background: var(--gradient-warning, linear-gradient(135deg, #f39c12 0%, #e67e22 100%)); color: white;">
-                                <i class="bi bi-trophy" style="font-size: 1.4rem; color: white;"></i>
+                            <div class="prize-card text-center p-3 rounded-3" style="background: var(--gradient-warning, linear-gradient(135deg, #f39c12 0%, #e67e22 100%)); color: white;">
+                                <i class="bi bi-trophy" style="font-size: 1.8rem; color: white;"></i>
                                 <div class="fw-bold mt-1" style="font-family: var(--font-primary);">Prêmio Total</div>
                                 <div class="h5 fw-bold mb-0" style="font-family: 'Roboto Mono', monospace; color: white;"><?= formatMoney($bolao['premio_total']) ?></div>
                             </div>
@@ -320,8 +320,8 @@ include TEMPLATE_DIR . '/header.php';
                         
                         <?php if ($bolao['premio_rodada'] > 0): ?>
                         <div class="col-6">
-                            <div class="prize-card text-center p-2 rounded-3" style="background: var(--gradient-success, linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)); color: white;">
-                                <i class="bi bi-award" style="font-size: 1.4rem; color: white;"></i>
+                            <div class="prize-card text-center p-3 rounded-3" style="background: var(--gradient-success, linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)); color: white;">
+                                <i class="bi bi-award" style="font-size: 1.8rem; color: white;"></i>
                                 <div class="fw-bold mt-1" style="font-family: var(--font-primary);">Por Rodada</div>
                                 <div class="h5 fw-bold mb-0" style="font-family: 'Roboto Mono', monospace; color: white;"><?= formatMoney($bolao['premio_rodada']) ?></div>
                             </div>
@@ -335,10 +335,10 @@ include TEMPLATE_DIR . '/header.php';
                 <div class="row g-2 mb-3">
                     <?php if ($bolao['valor_participacao'] > 0): ?>
                     <div class="col-12">
-                        <div class="info-card p-2 rounded-3" style="background: linear-gradient(135deg, #a8e6cf 0%, #dcedc8 100%);">
+                        <div class="info-card p-3 rounded-3" style="background: linear-gradient(135deg, #a8e6cf 0%, #dcedc8 100%);">
                             <div class="d-flex align-items-center">
-                                <div class="info-icon me-2">
-                                    <i class="bi bi-currency-dollar text-success" style="font-size: 1.2rem;"></i>
+                                <div class="info-icon me-3">
+                                    <i class="bi bi-currency-dollar text-success" style="font-size: 1.5rem;"></i>
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="info-label fw-semibold text-success">Valor de Participação</div>
@@ -351,10 +351,10 @@ include TEMPLATE_DIR . '/header.php';
                     
                     <?php if (isLoggedIn() && getModeloPagamento() === 'conta_saldo' && $saldoInfo): ?>
                     <div class="col-12">
-                        <div class="info-card p-2 rounded-3" style="background: <?= $podeApostar ? 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)' : 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)' ?>;">"}
+                        <div class="info-card p-3 rounded-3" style="background: <?= $podeApostar ? 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)' : 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)' ?>;">
                             <div class="d-flex align-items-center">
-                                <div class="info-icon me-2">
-                                    <i class="bi bi-wallet2 <?= $podeApostar ? 'text-success' : 'text-danger' ?>" style="font-size: 1.2rem;"></i>
+                                <div class="info-icon me-3">
+                                    <i class="bi bi-wallet2 <?= $podeApostar ? 'text-success' : 'text-danger' ?>" style="font-size: 1.5rem;"></i>
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="info-label fw-semibold <?= $podeApostar ? 'text-success' : 'text-danger' ?>">Seu Saldo</div>
@@ -375,7 +375,7 @@ include TEMPLATE_DIR . '/header.php';
                 <div class="row g-2">
                     <div class="col-6">
                         <div class="stat-card text-center p-2 rounded-3 bg-light">
-                            <i class="bi bi-joystick text-primary" style="font-size: 1rem;"></i>
+                            <i class="bi bi-joystick text-primary" style="font-size: 1.2rem;"></i>
                             <div class="small fw-semibold text-muted">Total de Jogos</div>
                             <div class="h6 fw-bold text-primary mb-0"><?= count($jogos) ?></div>
                         </div>
@@ -384,7 +384,7 @@ include TEMPLATE_DIR . '/header.php';
                     <?php if ($bolao['max_participantes'] > 0): ?>
                     <div class="col-6">
                         <div class="stat-card text-center p-2 rounded-3 bg-light">
-                            <i class="bi bi-people text-info" style="font-size: 1rem;"></i>
+                            <i class="bi bi-people text-info" style="font-size: 1.2rem;"></i>
                             <div class="small fw-semibold text-muted">Máx. Participantes</div>
                             <div class="h6 fw-bold text-info mb-0"><?= $bolao['max_participantes'] ?></div>
                         </div>
@@ -1492,51 +1492,19 @@ function gerarPalpitesAleatorios(button) {
     .mobile-info-card {
         border-radius: 15px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1rem !important;
     }
     
     .mobile-info-card .card-header {
         border-radius: 15px 15px 0 0 !important;
-        padding: 0.5rem 0.75rem;
+        padding: 0.75rem 1rem;
     }
     
     .mobile-info-card .card-title {
-        font-size: 0.9rem !important;
+        font-size: 1rem !important;
     }
     
     .mobile-info-card #bolaoSummary {
-        font-size: 0.7rem;
-    }
-    
-    .mobile-info-card .card-body {
-        padding: 1rem !important;
-    }
-    
-    .mobile-info-card .info-card {
-        padding: 0.5rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-    
-    .mobile-info-card .info-icon {
-        width: 30px !important;
-        height: 30px !important;
-        margin-right: 0.5rem !important;
-    }
-    
-    .mobile-info-card .info-label {
-        font-size: 0.75rem !important;
-    }
-    
-    .mobile-info-card .info-value {
-        font-size: 0.8rem !important;
-    }
-    
-    .mobile-info-card .prize-card {
-        padding: 0.75rem !important;
-    }
-    
-    .mobile-info-card .stat-card {
-        padding: 0.5rem !important;
+        font-size: 0.75rem;
     }
 }
 

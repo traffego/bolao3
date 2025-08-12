@@ -62,41 +62,38 @@ include TEMPLATE_DIR . '/header.php';
                                      class="w-100 slide-image"
                                      style="height: 600px; object-fit: cover;">
                             <?php endif; ?>
-                            <div class="position-absolute bottom-0 start-0 w-100 p-3 p-md-4" 
+                            <div class="position-absolute bottom-0 start-0 w-100 p-4" 
                                  style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); pointer-events: none;">
                                 <div class="container">
-                                    <div class="mb-2 mb-md-3">
+                                    <div class="mb-3">
                                         <div class="text-start">
-                                            <h3 class="text-white mb-1 mb-md-2 slide-title">
-                                                <i class="bi bi-trophy-fill text-warning me-1"></i> 
-                                                <span class="d-none d-md-inline">Prêmio Total: </span><?= formatMoney($bolao['premio_total']) ?>
+                                            <h3 class="text-white mb-2">
+                                                <i class="bi bi-trophy-fill text-warning"></i> 
+                                                Prêmio Total: <?= formatMoney($bolao['premio_total']) ?>
                                             </h3>
                                             <?php if ($bolao['premio_rodada'] > 0): ?>
-                                                <h4 class="text-white mb-1 mb-md-2 slide-subtitle d-none d-sm-block">
-                                                    <i class="bi bi-award-fill text-success me-1"></i> 
+                                                <h4 class="text-white mb-2">
+                                                    <i class="bi bi-award-fill text-success"></i> 
                                                     Por Rodada: <?= formatMoney($bolao['premio_rodada']) ?>
                                                 </h4>
                                             <?php else: ?>
-                                                <h4 class="text-white mb-1 mb-md-2 slide-subtitle d-none d-sm-block">
-                                                    <i class="bi bi-gift-fill text-warning me-1"></i> 
+                                                <h4 class="text-white mb-2">
+                                                    <i class="bi bi-gift-fill text-warning"></i> 
                                                     Por Rodada: Surpresa...
                                                 </h4>
                                             <?php endif; ?>
-                                            <h4 class="text-white mb-2 mb-md-3 slide-subtitle">
-                                                <i class="bi bi-ticket-fill text-info me-1"></i> 
-                                                <span class="d-none d-md-inline">Participação: </span><?= formatMoney($bolao['valor_participacao']) ?>
+                                            <h4 class="text-white mb-3">
+                                                <i class="bi bi-ticket-fill text-info"></i> 
+                                                Participação: <?= formatMoney($bolao['valor_participacao']) ?>
                                             </h4>
                                         </div>
                                     </div>
                                     <?php if (!empty($bolao['descricao'])): ?>
-                                        <p class="text-white mb-2 mb-md-3 text-start slide-description d-none d-md-block"><?= htmlspecialchars(substr($bolao['descricao'], 0, 150)) ?>...</p>
-                                        <p class="text-white mb-2 text-start slide-description d-md-none"><?= htmlspecialchars(substr($bolao['descricao'], 0, 60)) ?>...</p>
+                                        <p class="text-white mb-3 text-start"><?= htmlspecialchars(substr($bolao['descricao'], 0, 150)) ?>...</p>
                                     <?php endif; ?>
                                     <div class="text-start">
-                                        <div class="btn btn-primary slide-btn" style="pointer-events: none;">
-                                            <i class="bi bi-play-fill me-1"></i>
-                                            <span class="d-none d-sm-inline">Participar Agora</span>
-                                            <span class="d-sm-none">Participar</span>
+                                        <div class="btn btn-primary btn-lg" style="pointer-events: none;">
+                                            <i class="bi bi-play-fill"></i> Participar Agora
                                         </div>
                                     </div>
                                 </div>
@@ -121,54 +118,19 @@ document.addEventListener('DOMContentLoaded', function() {
         autoplay: {
             delay: 5000,
             disableOnInteraction: false,
-            pauseOnMouseEnter: true,
         },
         pagination: {
             el: '.swiper-pagination',
             clickable: true,
-            dynamicBullets: true,
-            dynamicMainBullets: 3,
         },
         navigation: {
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
         },
-        effect: 'fade',
-        fadeEffect: {
-            crossFade: true
-        },
-        speed: 800,
-        touchRatio: 1,
-        touchAngle: 45,
-        grabCursor: true,
-        keyboard: {
-            enabled: true,
-            onlyInViewport: true,
-        },
-        mousewheel: {
-            invert: false,
-        },
-        breakpoints: {
-            320: {
-                autoplay: {
-                    delay: 4000,
-                },
-                speed: 600,
-            },
-            768: {
-                autoplay: {
-                    delay: 5000,
-                },
-                speed: 800,
-            },
-            1024: {
-                autoplay: {
-                    delay: 6000,
-                },
-                speed: 1000,
-            }
-        }
+
     });
+
+
 
     // Prevenir que os controles do swiper interfiram com o clique do slide
     const swiperControls = document.querySelectorAll('.swiper-button-next, .swiper-button-prev, .swiper-pagination');
@@ -176,14 +138,6 @@ document.addEventListener('DOMContentLoaded', function() {
         control.addEventListener('click', function(e) {
             e.stopPropagation();
         });
-    });
-
-    // Pausar autoplay quando o usuário interage
-    swiper.on('touchStart', function() {
-        swiper.autoplay.stop();
-        setTimeout(() => {
-            swiper.autoplay.start();
-        }, 10000);
     });
 });
 </script>
