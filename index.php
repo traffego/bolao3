@@ -147,81 +147,118 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-<!-- Steps to Participate -->
-<div class="container" style="margin-top: 5rem;">
-    <div class="row">
-        <div class="col-12 px-0">
-            <div class="py-5 mb-5 w-100 bg-green" style="margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw !important;">
-                <div class="container">
-                    <h2 class="text-center text-white mb-5">Como Participar</h2>
-                    <div class="row g-4 justify-content-center">
-                        <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-4">
-                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
-                                             style="width: 80px; height: 80px;">
-                                            <i class="bi bi-person-plus-fill fs-1"></i>
-                                        </div>
-                                    </div>
-                                    <h4 class="mb-3 text-white">Cadastre-se</h4>
-                                    <p class="mb-0 text-white">Crie sua conta gratuitamente em nosso sistema.</p>
+<!-- Steps to Participate Section -->
+<section class="how-to-participate-section" style="margin-top: 5rem;">
+    <div class="container-fluid px-0">
+        <div class="how-to-participate-bg">
+            <div class="container">
+                <!-- Section Header -->
+                <div class="text-center mb-5">
+                    <h2 class="section-title text-white mb-3">Como Participar</h2>
+                    <p class="section-subtitle text-white-50 fs-5">Siga estes 4 passos simples para começar a ganhar</p>
+                </div>
+
+                <!-- Steps Grid -->
+                <div class="row g-4 justify-content-center">
+                    <!-- Step 1: Cadastre-se -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <div class="step-icon-container">
+                                <div class="step-icon">
+                                    <i class="bi bi-person-plus-fill"></i>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-4">
-                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
-                                             style="width: 80px; height: 80px;">
-                                            <i class="bi bi-ticket-perforated-fill fs-1"></i>
-                                        </div>
-                                    </div>
-                                    <h4 class="mb-3 text-white">Escolha um Bolão</h4>
-                                    <p class="mb-0 text-white">Selecione um bolão ativo para participar.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-4">
-                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
-                                             style="width: 80px; height: 80px;">
-                                            <i class="bi bi-controller fs-1"></i>
-                                        </div>
-                                    </div>
-                                    <h4 class="mb-3 text-white">Faça seus Palpites</h4>
-                                    <p class="mb-0 text-white">Registre seus palpites para os jogos selecionados.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-4">
-                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
-                                             style="width: 80px; height: 80px;">
-                                            <i class="bi bi-trophy-fill fs-1"></i>
-                                        </div>
-                                    </div>
-                                    <h4 class="mb-3 text-white">Ganhe Prêmios</h4>
-                                    <p class="mb-0 text-white">Acompanhe o ranking e ganhe prêmios em dinheiro.</p>
+                            <div class="step-content">
+                                <h4 class="step-title">Cadastre-se</h4>
+                                <p class="step-description">Crie sua conta gratuitamente em segundos. Apenas dados básicos necessários.</p>
+                                <div class="step-features">
+                                    <small><i class="bi bi-check-circle-fill me-1"></i>100% Gratuito</small>
+                                    <small><i class="bi bi-check-circle-fill me-1"></i>Rápido e Seguro</small>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="text-center mt-5">
-                        <a href="<?= APP_URL ?>/como-funciona.php" class="btn btn-light btn-lg px-5" style="border-radius: 10px;">
-                            <i class="bi bi-info-circle me-2"></i>Saiba Mais
-                        </a>
+
+                    <!-- Step 2: Escolha um Bolão -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <div class="step-icon-container">
+                                <div class="step-icon">
+                                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                                </div>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">Escolha um Bolão</h4>
+                                <p class="step-description">Navegue pelos bolões disponíveis e escolha o que mais combina com você.</p>
+                                <div class="step-features">
+                                    <small><i class="bi bi-check-circle-fill me-1"></i>Vários Campeonatos</small>
+                                    <small><i class="bi bi-check-circle-fill me-1"></i>Prêmios Atrativos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Faça seus Palpites -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <div class="step-icon-container">
+                                <div class="step-icon">
+                                    <i class="bi bi-bullseye"></i>
+                                </div>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">Faça seus Palpites</h4>
+                                <p class="step-description">Registre seus palpites para os jogos. Use sua expertise futebolística!</p>
+                                <div class="step-features">
+                                    <small><i class="bi bi-check-circle-fill me-1"></i>Interface Intuitiva</small>
+                                    <small><i class="bi bi-check-circle-fill me-1"></i>Palpites Flexíveis</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Ganhe Prêmios -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="step-card">
+                            <div class="step-number">4</div>
+                            <div class="step-icon-container">
+                                <div class="step-icon">
+                                    <i class="bi bi-trophy-fill"></i>
+                                </div>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">Ganhe Prêmios</h4>
+                                <p class="step-description">Acompanhe o ranking em tempo real e ganhe prêmios em dinheiro!</p>
+                                <div class="step-features">
+                                    <small><i class="bi bi-check-circle-fill me-1"></i>Prêmios em Dinheiro</small>
+                                    <small><i class="bi bi-check-circle-fill me-1"></i>Saque Rápido</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Call to Action -->
+                <div class="text-center mt-5">
+                    <div class="cta-container">
+                        <h3 class="text-white mb-3">Pronto para começar a ganhar?</h3>
+                        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center align-items-center">
+                            <a href="<?= APP_URL ?>/cadastro.php" class="btn btn-light btn-lg px-4 py-3 cta-btn-primary">
+                                <i class="bi bi-rocket-takeoff me-2"></i>Começar Agora
+                            </a>
+                            <a href="<?= APP_URL ?>/como-funciona.php" class="btn btn-outline-light btn-lg px-4 py-3 cta-btn-secondary">
+                                <i class="bi bi-info-circle me-2"></i>Saiba Mais
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Available Boloes -->
 <div style="margin-top: 5rem;">
