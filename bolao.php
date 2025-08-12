@@ -557,7 +557,7 @@ include TEMPLATE_DIR . '/header.php';
                         $palpiteJogo = $palpites[$jogoId] ?? $palpitesSessao[$jogoId] ?? null;
                         $disabled = $prazoEncerrado ? 'disabled' : '';
                         ?>
-                    <div class="card mb-2 <?= $prazoEncerrado ? 'border-secondary' : '' ?>">
+                    <div class="card mb-2 border-0 bg-transparent <?= $prazoEncerrado ? 'opacity-75' : '' ?>">
                         <div class="card-body py-1 <?= $prazoEncerrado ? 'bg-light' : '' ?>">
                             <?php if ($prazoEncerrado): ?>
                                 <div class="position-relative">
@@ -1061,7 +1061,7 @@ function gerarPalpitesAleatorios(button) {
     
     .date-badge-header {
         font-size: 0.8rem;
-        padding: 6px 16px;
+        padding: 3px 10px;
     }
     
     .date-header {
@@ -1186,7 +1186,7 @@ function gerarPalpitesAleatorios(button) {
 .date-badge-header {
     background: linear-gradient(135deg, var(--globo-verde-principal, #06AA48) 0%, var(--globo-verde-claro, #4CAF50) 100%);
     color: white;
-    padding: 8px 20px;
+    padding: 4px 12px;
     border-radius: 20px;
     font-weight: 600;
     font-size: 0.9rem;
