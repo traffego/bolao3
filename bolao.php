@@ -220,37 +220,7 @@ $pageTitle = $bolao['nome'];
 include TEMPLATE_DIR . '/header.php';
 ?>
 
-<!-- Hero Banner Mobile -->
-<div class="mobile-hero d-md-none <?= empty($bolao['imagem']) ? 'mobile-hero-no-image' : '' ?>" <?= !empty($bolao['imagem']) ? 'style="background-image: url(\'' . $bolao['imagem'] . '\');"' : '' ?>>
-    <div class="mobile-hero-overlay">
-        <div class="mobile-hero-content">
-            <h2 class="mobile-hero-title"><?= htmlspecialchars($bolao['nome']) ?></h2>
-            <div class="mobile-hero-info">
-                <span class="mobile-hero-badge">
-                    <i class="bi bi-joystick me-1"></i>
-                    <?= count($jogos) ?> jogos
-                </span>
-                <?php if ($bolao['valor_participacao'] > 0): ?>
-                <span class="mobile-hero-badge">
-                    <i class="bi bi-currency-dollar me-1"></i>
-                    <?= formatMoney($bolao['valor_participacao']) ?>
-                </span>
-                <?php endif; ?>
-                <?php if ($dataLimite && !$prazoEncerrado): ?>
-                <span class="mobile-hero-badge mobile-hero-deadline">
-                    <i class="bi bi-clock me-1"></i>
-                    <?= $dataLimite->format('d/m H:i') ?>
-                </span>
-                <?php elseif ($prazoEncerrado): ?>
-                <span class="mobile-hero-badge mobile-hero-expired">
-                    <i class="bi bi-x-circle me-1"></i>
-                    Encerrado
-                </span>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <div class="row">
     <!-- Informações do Bolão -->
@@ -504,26 +474,28 @@ include TEMPLATE_DIR . '/header.php';
                     </div>
                 <?php else: ?>
                     <!-- Card de palpites aleatórios -->
-                    <div class="card mb-4 border-primary">
-                        <div class="card-body d-flex align-items-center justify-content-between">
-                            <div>
-                                <h5 class="card-title mb-1">
+                    <div class="card mb-3 border-0 bg-transparent">
+                        <div class="card-body p-2 d-flex align-items-center justify-content-between flex-column flex-md-row">
+                            <div class="mb-2 mb-md-0 text-center text-md-start">
+                                <h6 class="card-title mb-1 d-none d-md-block">
                                     <i class="bi bi-dice-5-fill text-primary me-2"></i>
                                     Quer ajuda com os palpites?
-                                </h5>
-                                <p class="card-text text-muted mb-0">
+                                </h6>
+                                <p class="card-text text-muted mb-0 small d-none d-md-block">
                                     Clique no botão ao lado para gerar palpites aleatórios
                                 </p>
+                                <span class="d-md-none small text-muted">Gerar palpites aleatórios</span>
                             </div>
                             <button type="button" 
-                                    class="btn btn-lg" 
+                                    class="btn btn-sm w-100 w-md-auto" 
                                     onclick="gerarPalpitesAleatorios(this)"
                                     data-bs-toggle="tooltip" 
                                     data-bs-placement="top" 
                                     title="Gera resultados aleatórios para todos os jogos"
                                     style="background: var(--gradient-danger, linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)); color: white; border: none; font-family: var(--font-primary); font-weight: 600;">
-                                <i class="bi bi-shuffle me-2"></i>
-                                Gerar Palpites
+                                <i class="bi bi-shuffle me-1"></i>
+                                <span class="d-none d-md-inline">Gerar Palpites</span>
+                                <span class="d-md-none">Gerar</span>
                             </button>
                         </div>
                     </div>
@@ -1065,8 +1037,12 @@ function gerarPalpitesAleatorios(button) {
     }
     
     .time-badge {
-        font-size: 0.75rem;
-        padding: 2px 6px;
+        font-size: 0.65rem;
+        padding: 1px 4px;
+    }
+    
+    .time-badge i {
+        font-size: 0.6rem;
     }
 
     .btn-palpite.btn-outline-warning i {
@@ -1205,16 +1181,17 @@ function gerarPalpitesAleatorios(button) {
 .time-badge {
     display: inline-flex;
     align-items: center;
-    padding: 3px 8px;
-    border-radius: 12px;
-    background-color: #fff3cd;
+    padding: 2px 6px;
+    border-radius: 8px;
+    background-color: rgba(255, 243, 205, 0.6);
     color: #856404;
-    font-size: 0.8rem;
-    font-weight: 500;
+    font-size: 0.7rem;
+    font-weight: 400;
+    opacity: 0.8;
 }
 
 .time-badge i {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
 }
 
 /* Animação sutil no hover */
@@ -1481,127 +1458,11 @@ function gerarPalpitesAleatorios(button) {
     }
 }
 
-/* Hero Banner Mobile */
+/* Ajustes para mobile sem Hero Banner */
 @media (max-width: 767.98px) {
-    .mobile-hero {
-        position: relative;
-        height: 200px;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        margin: -1.5rem -15px 2rem -15px; /* Expande para as bordas */
-        border-radius: 0 0 20px 20px;
-        overflow: hidden;
-    }
-    
-    .mobile-hero-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(
-            135deg,
-            rgba(30, 60, 114, 0.85) 0%,
-            rgba(52, 152, 219, 0.75) 50%,
-            rgba(30, 60, 114, 0.85) 100%
-        );
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 20px;
-    }
-    
-    .mobile-hero-content {
-        color: white;
-        z-index: 2;
-    }
-    
-    .mobile-hero-title {
-        font-family: var(--font-primary);
-        font-weight: 700;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        line-height: 1.2;
-    }
-    
-    .mobile-hero-info {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    
-    .mobile-hero-badge {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .mobile-hero-deadline {
-        background: rgba(255, 193, 7, 0.3) !important;
-        border-color: rgba(255, 193, 7, 0.5) !important;
-        animation: pulseWarning 2s infinite;
-    }
-    
-    .mobile-hero-expired {
-        background: rgba(220, 53, 69, 0.3) !important;
-        border-color: rgba(220, 53, 69, 0.5) !important;
-    }
-    
-    @keyframes pulseWarning {
-        0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.05); opacity: 0.8; }
-    }
-    
-    /* Fallback quando não há imagem */
-    .mobile-hero-no-image {
-        background: linear-gradient(135deg, 
-            #1e3c72 0%, 
-            #3498db 30%, 
-            #2ecc71 60%, 
-            #1e3c72 100%);
-        background-size: 300% 300%;
-        animation: gradientShift 8s ease infinite, heroFloat 6s ease-in-out infinite;
-    }
-    
-    @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    
-    /* Efeito parallax sutil */
-    .mobile-hero {
-        background-attachment: scroll; /* Para compatibilidade mobile */
-        animation: heroFloat 6s ease-in-out infinite;
-    }
-    
-    @keyframes heroFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-5px); }
-    }
-    
-    /* Ajustar margem do container principal no mobile */
-    .container {
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-    
-    /* Ajustes para o card de informações no mobile */
     .mobile-info-card {
-        margin-top: -1rem; /* Aproxima do hero banner */
-        border-radius: 15px 15px 0 0;
-        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
     
     .mobile-info-card .card-header {
