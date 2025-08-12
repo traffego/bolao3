@@ -125,6 +125,16 @@
     object-position: center;
     background-color: #f8f9fa;
   }
+
+  @media (max-width: 767.98px) {
+    .main-slider .swiper-slide img, .main-slider .slide-image {
+        width: 100% !important;
+        height: auto !important;
+        object-fit: contain;
+        object-position: center;
+        background-color: #f8f9fa;
+    }
+}
   
   /* Ajustar controles para mobile */
   .main-slider .swiper-button-next,
