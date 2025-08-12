@@ -12,26 +12,10 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     
-    <!-- Google Fonts - Futura PT & Roboto Mono -->
+    <!-- Google Fonts - Nunito Sans & Roboto Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Futura+PT:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-    
-    <!-- Fallback para Futura usando fontes do sistema -->
-    <style>
-        @font-face {
-            font-family: 'Futura';
-            src: local('Futura PT'), local('Futura-Medium'), local('Futura'), local('Century Gothic'), local('Avenir Next'), local('Avenir');
-            font-weight: 400;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'Futura';
-            src: local('Futura PT Medium'), local('Futura-Bold'), local('Futura Bold'), local('Century Gothic Bold'), local('Avenir Next Demi Bold');
-            font-weight: 700;
-            font-style: normal;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= APP_URL ?>/public/css/styles.css">
