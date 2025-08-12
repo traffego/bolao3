@@ -186,6 +186,18 @@
   gap: 12px;
 }
 
+.stat-row {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item-half {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
 .stat-icon {
   width: 40px;
   height: 40px;
@@ -271,6 +283,15 @@
   
   .bolao-card-footer {
     padding: 0 16px 16px;
+  }
+  
+  .stat-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .stat-item-half {
+    flex: none;
   }
 }
 

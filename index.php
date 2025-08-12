@@ -207,33 +207,37 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     <div class="bolao-card-body">
                         <div class="bolao-stats">
+                            <?php if ($bolao['premio_rodada'] > 0): ?>
                             <div class="stat-item">
                                 <div class="stat-icon">
-                                    <i class="bi bi-people-fill"></i>
+                                    <i class="bi bi-award-fill"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <span class="stat-value"><?= $bolao['total_jogadores'] ?></span>
-                                    <span class="stat-label">Participantes</span>
+                                    <span class="stat-value"><?= formatMoney($bolao['premio_rodada']) ?></span>
+                                    <span class="stat-label">Prêmio por Rodada</span>
                                 </div>
                             </div>
+                            <?php endif; ?>
                             
-                            <div class="stat-item">
-                                <div class="stat-icon">
-                                    <i class="bi bi-calendar-event"></i>
+                            <div class="stat-row">
+                                <div class="stat-item-half">
+                                    <div class="stat-icon">
+                                        <i class="bi bi-ticket-fill"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <span class="stat-value"><?= formatMoney($bolao['valor_participacao']) ?></span>
+                                        <span class="stat-label">Entrada</span>
+                                    </div>
                                 </div>
-                                <div class="stat-content">
-                                    <span class="stat-value"><?= formatDate($bolao['data_fim']) ?></span>
-                                    <span class="stat-label">Término</span>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-item">
-                                <div class="stat-icon">
-                                    <i class="bi bi-ticket-fill"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="stat-value"><?= formatMoney($bolao['valor_participacao']) ?></span>
-                                    <span class="stat-label">Entrada</span>
+                                
+                                <div class="stat-item-half">
+                                    <div class="stat-icon">
+                                        <i class="bi bi-calendar-event"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <span class="stat-value"><?= formatDate($bolao['data_fim']) ?></span>
+                                        <span class="stat-label">Término</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
