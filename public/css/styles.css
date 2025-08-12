@@ -123,6 +123,158 @@
 }
 
 /* ========================================
+   BOLAO CARDS DESIGN
+   ======================================== */
+.bolao-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(6, 170, 72, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.bolao-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(6, 170, 72, 0.15);
+  border-color: var(--globo-verde-principal);
+}
+
+.bolao-card-header {
+  background: linear-gradient(135deg, var(--globo-verde-principal) 0%, var(--globo-verde-claro) 100%);
+  padding: 20px;
+  position: relative;
+  color: white;
+}
+
+.bolao-prize-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bolao-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  max-width: calc(100% - 120px);
+}
+
+.bolao-card-body {
+  padding: 24px 20px;
+}
+
+.bolao-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--globo-verde-principal), var(--globo-verde-claro));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--globo-cinza-escuro);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--globo-cinza-medio);
+  font-weight: 500;
+}
+
+.bolao-card-footer {
+  padding: 0 20px 20px;
+}
+
+.bolao-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: linear-gradient(135deg, var(--globo-verde-principal), var(--globo-verde-claro));
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.bolao-btn:hover {
+  background: linear-gradient(135deg, var(--globo-verde-escuro), var(--globo-verde-principal));
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(6, 170, 72, 0.3);
+}
+
+.bolao-btn i {
+  font-size: 1.1rem;
+}
+
+/* Responsividade dos cards */
+@media (max-width: 768px) {
+  .bolao-card-header {
+    padding: 16px;
+  }
+  
+  .bolao-title {
+    font-size: 1.1rem;
+    max-width: calc(100% - 100px);
+  }
+  
+  .bolao-prize-badge {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+  
+  .bolao-card-body {
+    padding: 20px 16px;
+  }
+  
+  .bolao-card-footer {
+    padding: 0 16px 16px;
+  }
+}
+
+/* ========================================
    LINKS E HOVER EFFECTS
    ======================================== */
 /* Configurações globais para links */

@@ -45,7 +45,7 @@ include TEMPLATE_DIR . '/header.php';
 <?php if (!empty($slideBoloes)): ?>
 <!-- Slider Section with Ambilight Effect -->
 <div class="ambilight-container mb-4">
-    <div class="swiper main-slider" style="border-radius: 10px; overflow: hidden; position: relative; z-index: 1;">
+    <div class="swiper main-slider" style="border-radius: 4px; overflow: hidden; position: relative; z-index: 1;">
         <div class="swiper-wrapper">
             <?php foreach ($slideBoloes as $bolao): ?>
                 <div class="swiper-slide">
@@ -195,45 +195,65 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="row g-4 mb-5">
     <?php if (count($boloes) > 0): ?>
         <?php foreach ($boloes as $bolao): ?>
-            <div class="col-md-6">
-                <div class="card h-100 shadow-sm border-0 card-hover" style="border-radius: 15px; overflow: hidden;">
-                    <div class="card-header text-white py-3 bg-green">
-                        <h5 class="mb-0 fw-bold"><?= sanitize($bolao['nome']) ?></h5>
+            <div class="col-lg-6 col-xl-4">
+                <div class="bolao-card h-100">
+                    <div class="bolao-card-header">
+                        <div class="bolao-prize-badge">
+                            <i class="bi bi-trophy-fill"></i>
+                            <span><?= formatMoney($bolao['premio_total']) ?></span>
+                        </div>
+                        <h5 class="bolao-title"><?= sanitize($bolao['nome']) ?></h5>
                     </div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-calendar-event text-green me-2"></i>
-                                <span>Término: <?= formatDate($bolao['data_fim']) ?></span>
+                    
+                    <div class="bolao-card-body">
+                        <div class="bolao-stats">
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <span class="stat-value"><?= $bolao['total_jogadores'] ?></span>
+                                    <span class="stat-label">Participantes</span>
+                                </div>
                             </div>
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-people-fill text-green me-2"></i>
-                                <span><?= $bolao['total_jogadores'] ?> jogadores</span>
+                            
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <span class="stat-value"><?= formatDate($bolao['data_fim']) ?></span>
+                                    <span class="stat-label">Término</span>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="bi bi-ticket-fill"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <span class="stat-value"><?= formatMoney($bolao['valor_participacao']) ?></span>
+                                    <span class="stat-label">Entrada</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-ticket-fill text-green me-2"></i>
-                                <span>Entrada: <?= formatMoney($bolao['valor_participacao']) ?></span>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-trophy-fill text-green me-2"></i>
-                                <span>Prêmio: <?= formatMoney($bolao['premio_total']) ?></span>
-                            </div>
-                        </div>
-                        <div class="text-center">
-                            <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="btn btn-green btn-lg px-4">
-                                <i class="bi bi-play-fill me-2"></i>Ver Detalhes
-                            </a>
-                        </div>
+                    </div>
+                    
+                    <div class="bolao-card-footer">
+                        <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="bolao-btn">
+                            <i class="bi bi-play-fill"></i>
+                            <span>Participar Agora</span>
+                        </a>
                     </div>
                 </div>
             </div>
         <?php endforeach; ?>
     <?php else: ?>
         <div class="col-12">
-            <div class="alert alert-info">
-                Não há bolões disponíveis no momento. Volte mais tarde!
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle fs-3 mb-3 d-block"></i>
+                <h5>Nenhum bolão disponível</h5>
+                <p class="mb-0">Não há bolões disponíveis no momento. Volte mais tarde!</p>
             </div>
         </div>
     <?php endif; ?>
