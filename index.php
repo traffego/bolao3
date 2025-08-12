@@ -77,6 +77,11 @@ include TEMPLATE_DIR . '/header.php';
                                                         <i class="bi bi-award-fill text-success"></i> 
                                                         Por Rodada: <?= formatMoney($bolao['premio_rodada']) ?>
                                                     </h4>
+                                                <?php else: ?>
+                                                    <h4 class="text-white mb-2">
+                                                        <i class="bi bi-gift-fill text-warning"></i> 
+                                                        Por Rodada: Surpresa...
+                                                    </h4>
                                                 <?php endif; ?>
                                             </div>
                                             <div class="col-md-6">
@@ -207,17 +212,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     <div class="bolao-card-body">
                         <div class="bolao-stats">
-                            <?php if ($bolao['premio_rodada'] > 0): ?>
                             <div class="stat-item">
                                 <div class="stat-icon">
-                                    <i class="bi bi-award-fill"></i>
+                                    <?php if ($bolao['premio_rodada'] > 0): ?>
+                                        <i class="bi bi-award-fill"></i>
+                                    <?php else: ?>
+                                        <i class="bi bi-gift-fill"></i>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="stat-content">
-                                    <span class="stat-value"><?= formatMoney($bolao['premio_rodada']) ?></span>
-                                    <span class="stat-label">Prêmio por Rodada</span>
+                                    <?php if ($bolao['premio_rodada'] > 0): ?>
+                                        <span class="stat-value"><?= formatMoney($bolao['premio_rodada']) ?></span>
+                                        <span class="stat-label">Prêmio por Rodada</span>
+                                    <?php else: ?>
+                                        <span class="stat-value">Surpresa...</span>
+                                        <span class="stat-label">Prêmio por Rodada</span>
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                            <?php endif; ?>
                             
                             <div class="stat-row">
                                 <div class="stat-item-half">
