@@ -33,6 +33,93 @@
 }
 
 /* ========================================
+   AMBILIGHT SLIDER EFFECT
+   ======================================== */
+.ambilight-container {
+  position: relative;
+  padding: 40px;
+  margin: 0 -40px;
+}
+
+.ambilight-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(60px) brightness(0.6) saturate(1.5);
+  transform: scale(1.2);
+  opacity: 0.8;
+  z-index: 1;
+  transition: all 0.8s ease-in-out;
+}
+
+.slide-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.slide-link:hover {
+  text-decoration: none;
+  color: inherit;
+  transform: scale(1.02);
+}
+
+.slide-link:hover .slide-image {
+  filter: brightness(1.1);
+}
+
+/* Ajustes para controles do swiper */
+.main-slider .swiper-button-next,
+.main-slider .swiper-button-prev {
+  z-index: 10;
+  color: white;
+  background: rgba(0,0,0,0.3);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  margin-top: -25px;
+}
+
+.main-slider .swiper-button-next:hover,
+.main-slider .swiper-button-prev:hover {
+  background: rgba(0,0,0,0.6);
+}
+
+.main-slider .swiper-pagination {
+  z-index: 10;
+}
+
+.main-slider .swiper-pagination-bullet {
+  background: rgba(255,255,255,0.7);
+  width: 12px;
+  height: 12px;
+}
+
+.main-slider .swiper-pagination-bullet-active {
+  background: white;
+  transform: scale(1.3);
+}
+
+/* Responsividade do ambilight */
+@media (max-width: 768px) {
+  .ambilight-container {
+    padding: 20px;
+    margin: 0 -20px;
+  }
+  
+  .ambilight-bg {
+    filter: blur(40px) brightness(0.5) saturate(1.3);
+  }
+}
+
+/* ========================================
    TIPOGRAFIA GLOBAL
    ======================================== */
 body {

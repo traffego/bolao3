@@ -43,61 +43,66 @@ include TEMPLATE_DIR . '/header.php';
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
 
 <?php if (!empty($slideBoloes)): ?>
-<!-- Slider Section -->
-<div class="swiper main-slider mb-4" style="border-radius: 10px; overflow: hidden;">
-    <div class="swiper-wrapper">
-        <?php foreach ($slideBoloes as $bolao): ?>
-            <div class="swiper-slide">
-                <div class="position-relative">
-                    <?php if (!empty($bolao['imagem_bolao_url'])): ?>
-                        <img src="<?= APP_URL ?>/<?= $bolao['imagem_bolao_url'] ?>" 
-                             alt="<?= htmlspecialchars($bolao['nome']) ?>"
-                             class="w-100"
-                             style="height: 600px; object-fit: cover;">
-                    <?php else: ?>
-                        <img src="<?= APP_URL ?>/public/img/noimage.jpg" 
-                             alt="Imagem não disponível"
-                             class="w-100"
-                             style="height: 600px; object-fit: cover;">
-                    <?php endif; ?>
-                    <div class="position-absolute bottom-0 start-0 w-100 p-4" 
-                         style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
-                        <div class="container">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    <h3 class="text-white mb-2">
-                                        <i class="bi bi-trophy-fill text-warning"></i> 
-                                        Prêmio: <?= formatMoney($bolao['premio_total']) ?>
-                                    </h3>
-                                    <h4 class="text-white">
-                                        <i class="bi bi-ticket-fill text-info"></i> 
-                                        Participação: <?= formatMoney($bolao['valor_participacao']) ?>
-                                    </h4>
+<!-- Slider Section with Ambilight Effect -->
+<div class="ambilight-container mb-4">
+    <div class="swiper main-slider" style="border-radius: 10px; overflow: hidden; position: relative; z-index: 2;">
+        <div class="swiper-wrapper">
+            <?php foreach ($slideBoloes as $bolao): ?>
+                <div class="swiper-slide">
+                    <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="slide-link">
+                        <div class="position-relative">
+                            <?php if (!empty($bolao['imagem_bolao_url'])): ?>
+                                <img src="<?= APP_URL ?>/<?= $bolao['imagem_bolao_url'] ?>" 
+                                     alt="<?= htmlspecialchars($bolao['nome']) ?>"
+                                     class="w-100 slide-image"
+                                     style="height: 600px; object-fit: cover;">
+                            <?php else: ?>
+                                <img src="<?= APP_URL ?>/public/img/noimage.jpg" 
+                                     alt="Imagem não disponível"
+                                     class="w-100 slide-image"
+                                     style="height: 600px; object-fit: cover;">
+                            <?php endif; ?>
+                            <div class="position-absolute bottom-0 start-0 w-100 p-4" 
+                                 style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); pointer-events: none;">
+                                <div class="container">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h3 class="text-white mb-2">
+                                                <i class="bi bi-trophy-fill text-warning"></i> 
+                                                Prêmio: <?= formatMoney($bolao['premio_total']) ?>
+                                            </h3>
+                                            <h4 class="text-white">
+                                                <i class="bi bi-ticket-fill text-info"></i> 
+                                                Participação: <?= formatMoney($bolao['valor_participacao']) ?>
+                                            </h4>
+                                        </div>
+                                    </div>
+                                    <?php if (!empty($bolao['descricao'])): ?>
+                                        <p class="text-white mb-3"><?= htmlspecialchars(substr($bolao['descricao'], 0, 150)) ?>...</p>
+                                    <?php endif; ?>
+                                    <div class="btn btn-primary btn-lg" style="pointer-events: none;">
+                                        <i class="bi bi-play-fill"></i> Participar Agora
+                                    </div>
                                 </div>
                             </div>
-                            <?php if (!empty($bolao['descricao'])): ?>
-                                <p class="text-white mb-3"><?= htmlspecialchars(substr($bolao['descricao'], 0, 150)) ?>...</p>
-                            <?php endif; ?>
-                            <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" 
-                               class="btn btn-primary btn-lg">
-                                <i class="bi bi-play-fill"></i> Participar Agora
-                            </a>
                         </div>
-                    </div>
+                    </a>
                 </div>
-            </div>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+        </div>
+        <div class="swiper-pagination"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
     </div>
-    <div class="swiper-pagination"></div>
-    <div class="swiper-button-next"></div>
-    <div class="swiper-button-prev"></div>
+    <!-- Ambilight Background -->
+    <div class="ambilight-bg"></div>
 </div>
 
 <!-- Swiper JS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    new Swiper('.main-slider', {
+    const swiper = new Swiper('.main-slider', {
         loop: true,
         autoplay: {
             delay: 5000,
@@ -111,6 +116,34 @@ document.addEventListener('DOMContentLoaded', function() {
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
         },
+        on: {
+            slideChange: function () {
+                updateAmbilight();
+            },
+            init: function() {
+                updateAmbilight();
+            }
+        }
+    });
+
+    // Função para atualizar o efeito ambilight
+    function updateAmbilight() {
+        const activeSlide = document.querySelector('.swiper-slide-active');
+        const activeImage = activeSlide ? activeSlide.querySelector('.slide-image') : null;
+        const ambilightBg = document.querySelector('.ambilight-bg');
+        
+        if (activeImage && ambilightBg) {
+            const imageSrc = activeImage.src;
+            ambilightBg.style.backgroundImage = `url(${imageSrc})`;
+        }
+    }
+
+    // Prevenir que os controles do swiper interfiram com o clique do slide
+    const swiperControls = document.querySelectorAll('.swiper-button-next, .swiper-button-prev, .swiper-pagination');
+    swiperControls.forEach(control => {
+        control.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
     });
 });
 </script>
