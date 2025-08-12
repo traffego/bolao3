@@ -142,12 +142,26 @@
 
 .bolao-card-header {
   background: linear-gradient(135deg, var(--globo-verde-principal) 0%, var(--globo-verde-claro) 100%);
-  background-size: cover;
-  background-position: center;
-  background-blend-mode: overlay;
   padding: 20px;
   position: relative;
   color: white;
+  overflow: hidden;
+}
+
+.bolao-card-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: inherit;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(8px) brightness(0.7) saturate(1.2);
+  transform: scale(1.1);
+  z-index: 1;
 }
 
 .bolao-header-overlay {
@@ -156,37 +170,53 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, var(--globo-verde-principal) 0%, var(--globo-verde-claro) 100%);
-  opacity: 0.85;
-  z-index: 1;
+  background: linear-gradient(135deg, 
+    rgba(6, 170, 72, 0.75) 0%, 
+    rgba(76, 175, 80, 0.65) 50%,
+    rgba(6, 170, 72, 0.8) 100%);
+  backdrop-filter: blur(4px) saturate(1.5);
+  -webkit-backdrop-filter: blur(4px) saturate(1.5);
+  z-index: 2;
 }
 
 .bolao-card-header * {
   position: relative;
-  z-index: 2;
+  z-index: 3;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 3px rgba(0, 0, 0, 0.8);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 }
 
 .bolao-prize-badge {
   position: absolute;
   top: 15px;
   right: 15px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px) saturate(1.8);
+  -webkit-backdrop-filter: blur(12px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   padding: 8px 12px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 6px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  color: white;
 }
 
 .bolao-title {
   margin: 0;
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.3;
   max-width: calc(100% - 120px);
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 1px 2px rgba(0, 0, 0, 1),
+    0 0 8px rgba(0, 0, 0, 0.5);
+  color: white;
+  letter-spacing: 0.5px;
 }
 
 .bolao-card-body {
@@ -323,14 +353,28 @@
     padding: 16px;
   }
   
+  .bolao-card-header::before {
+    filter: blur(6px) brightness(0.6) saturate(1.1);
+  }
+  
+  .bolao-header-overlay {
+    backdrop-filter: blur(3px) saturate(1.3);
+    -webkit-backdrop-filter: blur(3px) saturate(1.3);
+  }
+  
   .bolao-title {
     font-size: 1.1rem;
     max-width: calc(100% - 100px);
+    text-shadow: 
+      0 2px 6px rgba(0, 0, 0, 0.9),
+      0 1px 3px rgba(0, 0, 0, 1);
   }
   
   .bolao-prize-badge {
     font-size: 0.8rem;
     padding: 6px 10px;
+    backdrop-filter: blur(8px) saturate(1.5);
+    -webkit-backdrop-filter: blur(8px) saturate(1.5);
   }
   
   .bolao-card-body {
