@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="col-12 px-0">
             <div class="py-5 mb-5 w-100 bg-green" style="margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw !important;">
                 <div class="container">
-                    <h2 class="text-center text-white mb-5">Como Participar</h2>
+                    <h2 class="text-center mb-5">Como Participar</h2>
                     <div class="row g-4 justify-content-center">
                         <div class="col-lg-2 col-md-3 col-sm-6">
                             <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
