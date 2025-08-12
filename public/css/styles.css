@@ -424,10 +424,49 @@ a:hover {
 
 /* Cards e outros elementos */
 .card a:hover,
-.list-group-item a:hover,
-.dropdown-menu a:hover {
+.list-group-item a:hover {
   color: inherit !important;
   background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Dropdown Menu com fundo verde escuro */
+.dropdown-menu {
+  background-color: var(--globo-verde-escuro, #058a3a) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dropdown-menu .dropdown-item {
+  color: white !important;
+  transition: all 0.3s ease;
+}
+
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.dropdown-menu .dropdown-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.dropdown-menu .dropdown-item.text-danger {
+  color: #ff6b6b !important;
+}
+
+.dropdown-menu .dropdown-item.text-danger:hover {
+  background-color: rgba(255, 107, 107, 0.1) !important;
+  color: #ff6b6b !important;
+}
+
+.dropdown-menu .dropdown-item.text-primary {
+  color: #4dabf7 !important;
+}
+
+.dropdown-menu .dropdown-item.text-primary:hover {
+  background-color: rgba(77, 171, 247, 0.1) !important;
+  color: #4dabf7 !important;
 }
 
 /* Navbar brand hover */
