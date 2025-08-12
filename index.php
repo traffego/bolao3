@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <!-- Steps to Participate -->
-<div class="container">
+<div class="container" style="margin-top: 5rem;">
     <div class="row">
         <div class="col-12 px-0">
             <div class="py-5 mb-5 w-100 bg-green" style="margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw !important;">
@@ -164,8 +164,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <i class="bi bi-person-plus-fill fs-1"></i>
                                         </div>
                                     </div>
-                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Cadastre-se</h4>
-                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Crie sua conta gratuitamente em nosso sistema.</p>
+                                    <h4 class="mb-3 text-white">Cadastre-se</h4>
+                                    <p class="mb-0 text-white">Crie sua conta gratuitamente em nosso sistema.</p>
                                 </div>
                             </div>
                         </div>
@@ -178,8 +178,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <i class="bi bi-ticket-perforated-fill fs-1"></i>
                                         </div>
                                     </div>
-                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Escolha um Bolão</h4>
-                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Selecione um bolão ativo para participar.</p>
+                                    <h4 class="mb-3 text-white">Escolha um Bolão</h4>
+                                    <p class="mb-0 text-white">Selecione um bolão ativo para participar.</p>
                                 </div>
                             </div>
                         </div>
@@ -192,8 +192,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <i class="bi bi-controller fs-1"></i>
                                         </div>
                                     </div>
-                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Faça seus Palpites</h4>
-                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Registre seus palpites para os jogos selecionados.</p>
+                                    <h4 class="mb-3 text-white">Faça seus Palpites</h4>
+                                    <p class="mb-0 text-white">Registre seus palpites para os jogos selecionados.</p>
                                 </div>
                             </div>
                         </div>
@@ -206,8 +206,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <i class="bi bi-trophy-fill fs-1"></i>
                                         </div>
                                     </div>
-                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Ganhe Prêmios</h4>
-                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Acompanhe o ranking e ganhe prêmios em dinheiro.</p>
+                                    <h4 class="mb-3 text-white">Ganhe Prêmios</h4>
+                                    <p class="mb-0 text-white">Acompanhe o ranking e ganhe prêmios em dinheiro.</p>
                                 </div>
                             </div>
                         </div>
@@ -224,7 +224,9 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- Available Boloes -->
-<h2 class="mb-4 text-center">Bolões Disponíveis</h2>
+<div style="margin-top: 5rem;">
+    <h2 class="mb-4 text-center">Bolões Disponíveis</h2>
+</div>
 <div class="row g-4 mb-5">
     <?php if (count($boloes) > 0): ?>
         <?php foreach ($boloes as $bolao): ?>
@@ -305,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- Ver Todos os Bolões Button -->
-<div class="text-center mb-5">
+<div class="text-center mb-5" style="margin-top: 3rem;">
     <a href="<?= APP_URL ?>/boloes.php" class="btn-ver-todos">
         <i class="bi bi-grid-fill"></i>
         <span>Ver Todos os Bolões</span>
@@ -315,7 +317,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Recent Results -->
 <?php if (count($resultados) > 0): ?>
-    <h2 class="mb-3">Resultados Recentes</h2>
+    <div style="margin-top: 5rem;">
+        <h2 class="mb-3">Resultados Recentes</h2>
+    </div>
     <div class="row">
         <?php foreach ($resultados as $resultado): ?>
             <div class="col-md-4 mb-3">
