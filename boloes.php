@@ -31,11 +31,13 @@ include TEMPLATE_DIR . '/header.php';
     <!-- Mensagem flash -->
     <?php displayFlashMessages(); ?>
     
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-3">
+    <div class="row g-4 mt-3">
         <?php if (empty($boloes)): ?>
             <div class="col-12">
-                <div class="alert alert-info">
-                    Nenhum bolão disponível no momento.
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle fs-3 mb-3 d-block"></i>
+                    <h5>Nenhum bolão disponível</h5>
+                    <p class="mb-0">Não há bolões disponíveis no momento. Volte mais tarde!</p>
                 </div>
             </div>
         <?php else: ?>
@@ -52,67 +54,101 @@ include TEMPLATE_DIR . '/header.php';
                         $prazoEncerrado = $agora > $dataLimite;
                     }
                 ?>
-                <div class="col">
-                    <div class="card h-100 <?= $prazoEncerrado ? 'border-danger' : '' ?>">
-                        <?php if (!empty($bolao['imagem_bolao_url'])): ?>
-                            <img src="<?= APP_URL ?>/<?= htmlspecialchars($bolao['imagem_bolao_url']) ?>" 
-                                 class="card-img-top" 
-                                 alt="<?= htmlspecialchars($bolao['nome']) ?>"
-                                 style="object-fit: cover; height: 150px;">
-                        <?php endif; ?>
-                        <div class="card-body">
-                            <h5 class="card-title"><?= htmlspecialchars($bolao['nome']) ?></h5>
-                            
-                            <p class="text-muted mb-2">
-                                <i class="fas fa-calendar"></i> 
-                                <?= formatDate($bolao['data_inicio']) ?> a <?= formatDate($bolao['data_fim']) ?>
-                            </p>
-                            
-                            <p class="mb-2">
-                                <i class="fas fa-clock"></i> 
-                                <strong>Prazo:</strong> 
-                                <?php if (!empty($bolao['data_limite_palpitar'])): ?>
-                                    <?= formatDateTime($bolao['data_limite_palpitar']) ?>
-                                    <?php if ($prazoEncerrado): ?>
-                                        <span class="badge bg-danger">Encerrado</span>
-                                    <?php endif; ?>
-                                <?php else: ?>
-                                    Não definido
-                                <?php endif; ?>
-                            </p>
-                            
-                            <p class="mb-2">
-                                <i class="fas fa-money-bill-wave"></i> 
-                                <strong>Valor:</strong> <?= formatMoney($bolao['valor_participacao']) ?>
-                            </p>
-                            
-                            <p class="mb-2">
-                                <i class="fas fa-trophy"></i> 
-                                <strong>Prêmio:</strong> <?= formatMoney($bolao['premio_total']) ?>
-                            </p>
-                            
-                            <div class="mb-3">
-                                <?php foreach ($campeonatos as $campeonato): ?>
-                                    <span class="badge bg-info text-dark">
-                                        <?= htmlspecialchars($campeonato['nome']) ?>
-                                    </span>
-                                <?php endforeach; ?>
+                <div class="col-lg-6 col-xl-4">
+                    <div class="bolao-card h-100 <?= $prazoEncerrado ? 'border-danger' : '' ?>">
+                        <div class="bolao-card-header" <?php if (!empty($bolao['imagem_bolao_url'])): ?>style="background-image: url('<?= APP_URL ?>/<?= htmlspecialchars($bolao['imagem_bolao_url']) ?>');"<?php endif; ?>>
+                            <div class="bolao-header-overlay"></div>
+                            <div class="bolao-prize-badge">
+                                <i class="bi bi-trophy-fill"></i>
+                                <span><?= formatMoney($bolao['premio_total']) ?></span>
                             </div>
-                            
-                            <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="btn btn-primary w-100">
-                                <?php if ($prazoEncerrado): ?>
-                                    Ver Resultados 
-                                <?php else: ?>
-                                    Participar
-                                <?php endif; ?>
-                            </a>
+                            <?php if ($prazoEncerrado): ?>
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge bg-danger">Encerrado</span>
+                                </div>
+                            <?php endif; ?>
+                            <h5 class="bolao-title"><?= htmlspecialchars($bolao['nome']) ?></h5>
                         </div>
                         
-                        <?php if ($bolao['publico'] != 1): ?>
-                            <div class="card-footer bg-warning text-center">
-                                <small class="text-dark"><i class="fas fa-lock"></i> Bolão Privado</small>
+                        <div class="bolao-card-body">
+                            <div class="bolao-stats">
+                                <!-- Prazo -->
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="bi bi-clock-fill"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <?php if (!empty($bolao['data_limite_palpitar'])): ?>
+                                            <span class="stat-value"><?= formatDateTime($bolao['data_limite_palpitar']) ?></span>
+                                            <span class="stat-label">Prazo para Palpitar</span>
+                                        <?php else: ?>
+                                            <span class="stat-value">Não definido</span>
+                                            <span class="stat-label">Prazo para Palpitar</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-row">
+                                    <div class="stat-item-half">
+                                        <div class="stat-icon">
+                                            <i class="bi bi-ticket-fill"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <span class="stat-value"><?= formatMoney($bolao['valor_participacao']) ?></span>
+                                            <span class="stat-label">Entrada</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="stat-item-half">
+                                        <div class="stat-icon">
+                                            <i class="bi bi-calendar-event"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <span class="stat-value"><?= formatDate($bolao['data_fim']) ?></span>
+                                            <span class="stat-label">Término</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Campeonatos -->
+                                <?php if (!empty($campeonatos)): ?>
+                                    <div class="stat-item">
+                                        <div class="stat-icon">
+                                            <i class="bi bi-trophy"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <div class="d-flex flex-wrap gap-1">
+                                                <?php foreach ($campeonatos as $campeonato): ?>
+                                                    <span class="badge bg-success">
+                                                        <?= htmlspecialchars($campeonato['nome']) ?>
+                                                    </span>
+                                                <?php endforeach; ?>
+                                            </div>
+                                            <span class="stat-label">Campeonatos</span>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                        <?php endif; ?>
+                        </div>
+                        
+                        <div class="bolao-card-footer">
+                            <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="bolao-btn">
+                                <?php if ($prazoEncerrado): ?>
+                                    <i class="bi bi-eye-fill"></i>
+                                    <span>Ver Resultados</span>
+                                <?php else: ?>
+                                    <i class="bi bi-play-fill"></i>
+                                    <span>Participar Agora</span>
+                                <?php endif; ?>
+                            </a>
+                            <?php if ($bolao['publico'] != 1): ?>
+                                <div class="text-center mt-2">
+                                    <small class="text-warning">
+                                        <i class="bi bi-lock-fill"></i> Bolão Privado
+                                    </small>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>
