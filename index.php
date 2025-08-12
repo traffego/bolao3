@@ -164,36 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <?php endif; ?>
 
-<!-- Features -->
-<div class="row g-4 mb-5">
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="bi bi-controller fs-1 text-primary mb-3"></i>
-                <h5 class="card-title">Simples de Participar</h5>
-                <p class="card-text">Escolha um bolão, faça seus palpites e acompanhe os resultados em tempo real.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="bi bi-graph-up-arrow fs-1 text-primary mb-3"></i>
-                <h5 class="card-title">Estatísticas Completas</h5>
-                <p class="card-text">Acompanhe seu desempenho, ranking e estatísticas detalhadas dos seus palpites.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="bi bi-cash-coin fs-1 text-primary mb-3"></i>
-                <h5 class="card-title">Prêmios Reais</h5>
-                <p class="card-text">Prêmios em dinheiro para os melhores colocados em cada bolão.</p>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Available Boloes -->
 <h2 class="mb-4 text-center">Bolões Disponíveis</h2>
@@ -202,7 +173,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php foreach ($boloes as $bolao): ?>
             <div class="col-lg-6 col-xl-4">
                 <div class="bolao-card h-100">
-                    <div class="bolao-card-header">
+                    <div class="bolao-card-header" <?php if (!empty($bolao['imagem_bolao_url'])): ?>style="background-image: url('<?= APP_URL ?>/<?= $bolao['imagem_bolao_url'] ?>');"<?php endif; ?>>
+                        <div class="bolao-header-overlay"></div>
                         <div class="bolao-prize-badge">
                             <i class="bi bi-trophy-fill"></i>
                             <span><?= formatMoney($bolao['premio_total']) ?></span>
@@ -275,6 +247,15 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php endif; ?>
 </div>
 
+<!-- Ver Todos os Bolões Button -->
+<div class="text-center mb-5">
+    <a href="<?= APP_URL ?>/boloes.php" class="btn-ver-todos">
+        <i class="bi bi-grid-fill"></i>
+        <span>Ver Todos os Bolões</span>
+        <i class="bi bi-arrow-right"></i>
+    </a>
+</div>
+
 <!-- Recent Results -->
 <?php if (count($resultados) > 0): ?>
     <h2 class="mb-3">Resultados Recentes</h2>
@@ -324,8 +305,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <i class="bi bi-person-plus-fill fs-1"></i>
                                         </div>
                                     </div>
-                                    <h4 class="mb-3">Cadastre-se</h4>
-                                    <p class="text-muted mb-0">Crie sua conta gratuitamente em nosso sistema.</p>
+                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Cadastre-se</h4>
+                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Crie sua conta gratuitamente em nosso sistema.</p>
                                 </div>
                             </div>
                         </div>
@@ -338,8 +319,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <i class="bi bi-ticket-perforated-fill fs-1"></i>
                                         </div>
                                     </div>
-                                    <h4 class="mb-3">Escolha um Bolão</h4>
-                                    <p class="text-muted mb-0">Selecione um bolão ativo para participar.</p>
+                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Escolha um Bolão</h4>
+                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Selecione um bolão ativo para participar.</p>
                                 </div>
                             </div>
                         </div>
@@ -352,8 +333,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <i class="bi bi-controller fs-1"></i>
                                         </div>
                                     </div>
-                                    <h4 class="mb-3">Faça seus Palpites</h4>
-                                    <p class="text-muted mb-0">Registre seus palpites para os jogos selecionados.</p>
+                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Faça seus Palpites</h4>
+                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Registre seus palpites para os jogos selecionados.</p>
                                 </div>
                             </div>
                         </div>
@@ -366,8 +347,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <i class="bi bi-trophy-fill fs-1"></i>
                                         </div>
                                     </div>
-                                    <h4 class="mb-3">Ganhe Prêmios</h4>
-                                    <p class="text-muted mb-0">Acompanhe o ranking e ganhe prêmios em dinheiro.</p>
+                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Ganhe Prêmios</h4>
+                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Acompanhe o ranking e ganhe prêmios em dinheiro.</p>
                                 </div>
                             </div>
                         </div>

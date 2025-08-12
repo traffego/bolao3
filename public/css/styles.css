@@ -142,9 +142,28 @@
 
 .bolao-card-header {
   background: linear-gradient(135deg, var(--globo-verde-principal) 0%, var(--globo-verde-claro) 100%);
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: overlay;
   padding: 20px;
   position: relative;
   color: white;
+}
+
+.bolao-header-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--globo-verde-principal) 0%, var(--globo-verde-claro) 100%);
+  opacity: 0.85;
+  z-index: 1;
+}
+
+.bolao-card-header * {
+  position: relative;
+  z-index: 2;
 }
 
 .bolao-prize-badge {
@@ -259,6 +278,43 @@
 
 .bolao-btn i {
   font-size: 1.1rem;
+}
+
+/* Botão Ver Todos os Bolões */
+.btn-ver-todos {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, var(--globo-verde-principal), var(--globo-verde-claro));
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 16px 32px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  box-shadow: 0 4px 15px rgba(6, 170, 72, 0.2);
+}
+
+.btn-ver-todos:hover {
+  background: linear-gradient(135deg, var(--globo-verde-escuro), var(--globo-verde-principal));
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(6, 170, 72, 0.3);
+}
+
+.btn-ver-todos i:first-child {
+  font-size: 1.2rem;
+}
+
+.btn-ver-todos i:last-child {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-ver-todos:hover i:last-child {
+  transform: translateX(4px);
 }
 
 /* Responsividade dos cards */
