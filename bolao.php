@@ -539,22 +539,22 @@ include TEMPLATE_DIR . '/header.php';
                             <?php endif; ?>
                             <div class="row align-items-center">
                                 <div class="col-md-12">
-                                    <div class="palpites-container text-center">
-                                        <div class="mb-2 game-time">
-                                            <span class="time-badge">
-                                                <i class="bi bi-clock me-1"></i>
-                                                <?php 
-                                                // Se temos data_formatada (formato brasileiro), usar diretamente a parte do horário
-                                                if (!empty($jogo['data_formatada'])) {
-                                                    echo substr($jogo['data_formatada'], 11, 5); // Pega apenas "HH:mm"
-                                                } else {
-                                                    // Se só temos 'data' (formato ISO), converter corretamente
-                                                    echo date('H:i', strtotime($jogo['data']));
-                                                }
-                                                ?>
-                                            </span>
-                                        </div>
+                                    <div class="palpites-container">
                                         <div class="d-flex align-items-center justify-content-center">
+                                            <div class="time-badge-left me-3">
+                                                <span class="time-badge">
+                                                    <i class="bi bi-clock me-1"></i>
+                                                    <?php 
+                                                    // Se temos data_formatada (formato brasileiro), usar diretamente a parte do horário
+                                                    if (!empty($jogo['data_formatada'])) {
+                                                        echo substr($jogo['data_formatada'], 11, 5); // Pega apenas "HH:mm"
+                                                    } else {
+                                                        // Se só temos 'data' (formato ISO), converter corretamente
+                                                        echo date('H:i', strtotime($jogo['data']));
+                                                    }
+                                                    ?>
+                                                </span>
+                                            </div>
                                             <div class="palpites-buttons btn-group" role="group">
                                                 <input type="radio" 
                                                        class="btn-check" 
@@ -964,10 +964,14 @@ function gerarPalpitesAleatorios(button) {
 .palpites-buttons {
     display: flex;
     width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 500px;
     flex-direction: row; /* Força layout horizontal */
     flex-wrap: nowrap; /* Impede quebra de linha */
+}
+
+.palpites-container .d-flex {
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .palpites-buttons .btn-palpite {
@@ -1043,6 +1047,24 @@ function gerarPalpitesAleatorios(button) {
     
     .time-badge i {
         font-size: 0.6rem;
+    }
+    
+    .time-badge-left {
+        min-width: 50px;
+    }
+    
+    .palpites-container .d-flex {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .time-badge-left {
+        margin-bottom: 0.25rem;
+    }
+    
+    .palpites-buttons {
+        max-width: 100%;
     }
 
     .btn-palpite.btn-outline-warning i {
@@ -1168,6 +1190,13 @@ function gerarPalpitesAleatorios(button) {
     height: 2px;
     background: linear-gradient(to right, transparent, var(--globo-verde-principal, #06AA48), transparent);
     opacity: 0.3;
+}
+
+.time-badge-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 60px;
 }
 
 .game-time {
