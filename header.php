@@ -18,7 +18,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-green shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="<?= APP_URL ?>">
-                <i class="bi bi-trophy-fill me-2"></i>
+                <img src="<?= APP_URL ?>/public/img/logo.png" alt="<?= APP_NAME ?>" class="me-2" style="height: 32px; width: 32px; object-fit: contain;">
                 <span class="fw-bold">Bolão do Brasileirão</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
