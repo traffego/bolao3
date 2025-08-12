@@ -30,8 +30,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--globo-azul-principal, #1e3c72) !important; box-shadow: 0 2px 10px rgba(30, 60, 114, 0.3);">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="<?= APP_URL ?>" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: 700; color: white !important;">
-            <img src="<?= APP_URL ?>/public/img/logo.png" alt="<?= APP_NAME ?>" class="me-2" style="height: 32px; width: 32px; object-fit: contain;">
-            <?= APP_NAME ?>
+            <img src="<?= APP_URL ?>/public/img/logo.png" alt="<?= APP_NAME ?>" style="height: 32px; width: 32px; object-fit: contain;">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
             <span class="navbar-toggler-icon"></span>
