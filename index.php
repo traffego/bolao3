@@ -43,9 +43,9 @@ include TEMPLATE_DIR . '/header.php';
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
 
 <?php if (!empty($slideBoloes)): ?>
-<!-- Slider Section with Ambilight Effect -->
-<div class="ambilight-container mb-4">
-    <div class="swiper main-slider" style="border-radius: 4px; overflow: hidden; position: relative; z-index: 1;">
+<!-- Slider Section -->
+<div class="slider-container">
+    <div class="swiper main-slider" style="border-radius: 4px; overflow: hidden;">
         <div class="swiper-wrapper">
             <?php foreach ($slideBoloes as $bolao): ?>
                 <div class="swiper-slide">
@@ -109,8 +109,6 @@ include TEMPLATE_DIR . '/header.php';
         <div class="swiper-button-next"></div>
         <div class="swiper-button-prev"></div>
     </div>
-    <!-- Ambilight Background -->
-    <div class="ambilight-bg"></div>
 </div>
 
 <!-- Swiper JS -->
@@ -131,27 +129,10 @@ document.addEventListener('DOMContentLoaded', function() {
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
         },
-        on: {
-            slideChange: function () {
-                updateAmbilight();
-            },
-            init: function() {
-                updateAmbilight();
-            }
-        }
+
     });
 
-    // Função para atualizar o efeito ambilight
-    function updateAmbilight() {
-        const activeSlide = document.querySelector('.swiper-slide-active');
-        const activeImage = activeSlide ? activeSlide.querySelector('.slide-image') : null;
-        const ambilightBg = document.querySelector('.ambilight-bg');
-        
-        if (activeImage && ambilightBg) {
-            const imageSrc = activeImage.src;
-            ambilightBg.style.backgroundImage = `url(${imageSrc})`;
-        }
-    }
+
 
     // Prevenir que os controles do swiper interfiram com o clique do slide
     const swiperControls = document.querySelectorAll('.swiper-button-next, .swiper-button-prev, .swiper-pagination');
@@ -165,6 +146,82 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php endif; ?>
 
 
+
+<!-- Steps to Participate -->
+<div class="container">
+    <div class="row">
+        <div class="col-12 px-0">
+            <div class="py-5 mb-5 w-100 bg-green" style="margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw !important;">
+                <div class="container">
+                    <h2 class="text-center text-white mb-5">Como Participar</h2>
+                    <div class="row g-4 justify-content-center">
+                        <div class="col-lg-2 col-md-3 col-sm-6">
+                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-4">
+                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px;">
+                                            <i class="bi bi-person-plus-fill fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Cadastre-se</h4>
+                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Crie sua conta gratuitamente em nosso sistema.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-sm-6">
+                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-4">
+                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px;">
+                                            <i class="bi bi-ticket-perforated-fill fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Escolha um Bolão</h4>
+                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Selecione um bolão ativo para participar.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-sm-6">
+                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-4">
+                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px;">
+                                            <i class="bi bi-controller fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Faça seus Palpites</h4>
+                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Registre seus palpites para os jogos selecionados.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-sm-6">
+                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-4">
+                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px;">
+                                            <i class="bi bi-trophy-fill fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Ganhe Prêmios</h4>
+                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Acompanhe o ranking e ganhe prêmios em dinheiro.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-5">
+                        <a href="<?= APP_URL ?>/como-funciona.php" class="btn btn-light btn-lg px-5" style="border-radius: 10px;">
+                            <i class="bi bi-info-circle me-2"></i>Saiba Mais
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Available Boloes -->
 <h2 class="mb-4 text-center">Bolões Disponíveis</h2>
@@ -288,81 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 <?php endif; ?>
 
-<!-- Steps to Participate -->
-<div class="container">
-    <div class="row">
-        <div class="col-12 px-0">
-            <div class="py-5 mb-5 w-100 bg-green" style="margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw !important;">
-                <div class="container">
-                    <h2 class="text-center text-white mb-5">Como Participar</h2>
-                    <div class="row g-4 justify-content-center">
-                        <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-4">
-                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
-                                             style="width: 80px; height: 80px;">
-                                            <i class="bi bi-person-plus-fill fs-1"></i>
-                                        </div>
-                                    </div>
-                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Cadastre-se</h4>
-                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Crie sua conta gratuitamente em nosso sistema.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-4">
-                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
-                                             style="width: 80px; height: 80px;">
-                                            <i class="bi bi-ticket-perforated-fill fs-1"></i>
-                                        </div>
-                                    </div>
-                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Escolha um Bolão</h4>
-                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Selecione um bolão ativo para participar.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-4">
-                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
-                                             style="width: 80px; height: 80px;">
-                                            <i class="bi bi-controller fs-1"></i>
-                                        </div>
-                                    </div>
-                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Faça seus Palpites</h4>
-                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Registre seus palpites para os jogos selecionados.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-2 col-md-3 col-sm-6">
-                            <div class="card h-100 border-0 shadow card-hover" style="border-radius: 15px;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-4">
-                                        <div class="bg-green text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
-                                             style="width: 80px; height: 80px;">
-                                            <i class="bi bi-trophy-fill fs-1"></i>
-                                        </div>
-                                    </div>
-                                    <h4 class="mb-3" style="color: var(--globo-verde-principal);">Ganhe Prêmios</h4>
-                                    <p class="mb-0" style="color: var(--globo-cinza-escuro);">Acompanhe o ranking e ganhe prêmios em dinheiro.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-center mt-5">
-                        <a href="<?= APP_URL ?>/como-funciona.php" class="btn btn-light btn-lg px-5" style="border-radius: 10px;">
-                            <i class="bi bi-info-circle me-2"></i>Saiba Mais
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <?php
 // Include footer

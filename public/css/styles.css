@@ -34,28 +34,15 @@
 }
 
 /* ========================================
-   AMBILIGHT SLIDER EFFECT
+   SLIDER WITH LIGHT SHADOW
    ======================================== */
-.ambilight-container {
+.slider-container {
   position: relative;
-  padding: 15px;
-  margin: 0 -15px;
+  margin-bottom: 2rem;
 }
 
-.ambilight-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: blur(60px) brightness(1.3) saturate(1.2) contrast(0.8);
-  transform: scale(1.1);
-  opacity: 0.4;
-  z-index: -1;
-  transition: all 0.8s ease-in-out;
+.main-slider {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .slide-link {
@@ -108,19 +95,7 @@
   transform: scale(1.3);
 }
 
-/* Responsividade do ambilight */
-@media (max-width: 768px) {
-  .ambilight-container {
-    padding: 10px;
-    margin: 0 -10px;
-  }
-  
-  .ambilight-bg {
-    filter: blur(40px) brightness(1.4) saturate(1.1) contrast(0.7);
-    transform: scale(1.05);
-    opacity: 0.3;
-  }
-}
+
 
 /* ========================================
    BOLAO CARDS DESIGN
@@ -314,37 +289,28 @@
 .btn-ver-todos {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   background: linear-gradient(135deg, var(--globo-verde-principal), var(--globo-verde-claro));
   color: white;
   border: none;
-  border-radius: 50px;
-  padding: 16px 32px;
+  border-radius: 8px;
+  padding: 12px 20px;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
-  font-size: 1rem;
-  box-shadow: 0 4px 15px rgba(6, 170, 72, 0.2);
+  font-size: 0.95rem;
+  box-shadow: 0 4px 15px rgba(6, 170, 72, 0.3);
 }
 
 .btn-ver-todos:hover {
   background: linear-gradient(135deg, var(--globo-verde-escuro), var(--globo-verde-principal));
   color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(6, 170, 72, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(6, 170, 72, 0.3);
 }
 
-.btn-ver-todos i:first-child {
-  font-size: 1.2rem;
-}
-
-.btn-ver-todos i:last-child {
-  font-size: 1rem;
-  transition: transform 0.3s ease;
-}
-
-.btn-ver-todos:hover i:last-child {
-  transform: translateX(4px);
+.btn-ver-todos i {
+  font-size: 1.1rem;
 }
 
 /* Responsividade dos cards */
