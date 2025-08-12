@@ -529,14 +529,36 @@ include TEMPLATE_DIR . '/header.php';
                     </div>
                 <?php endif; ?>
 
-                <?php foreach ($jogos as $jogo): ?>
-                    <?php 
-                    $jogoId = $jogo['id'];
-                    $palpiteJogo = $palpites[$jogoId] ?? $palpitesSessao[$jogoId] ?? null;
-                    $disabled = $prazoEncerrado ? 'disabled' : '';
-                    ?>
-                    <div class="card mb-3 <?= $prazoEncerrado ? 'border-secondary' : '' ?>">
-                        <div class="card-body py-2 <?= $prazoEncerrado ? 'bg-light' : '' ?>">
+                <?php 
+                // Agrupar jogos por data
+                $jogosPorData = [];
+                foreach ($jogos as $jogo) {
+                    $dataJogo = !empty($jogo['data_formatada']) ? substr($jogo['data_formatada'], 0, 10) : date('d/m/Y', strtotime($jogo['data']));
+                    $jogosPorData[$dataJogo][] = $jogo;
+                }
+                ?>
+                
+                <?php foreach ($jogosPorData as $data => $jogosData): ?>
+                    <!-- Cabeçalho da Data -->
+                    <div class="date-header mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="date-line flex-grow-1"></div>
+                            <div class="date-badge-header mx-3">
+                                <i class="bi bi-calendar-day me-2"></i>
+                                <?= $data ?>
+                            </div>
+                            <div class="date-line flex-grow-1"></div>
+                        </div>
+                    </div>
+                    
+                    <?php foreach ($jogosData as $jogo): ?>
+                        <?php 
+                        $jogoId = $jogo['id'];
+                        $palpiteJogo = $palpites[$jogoId] ?? $palpitesSessao[$jogoId] ?? null;
+                        $disabled = $prazoEncerrado ? 'disabled' : '';
+                        ?>
+                    <div class="card mb-2 <?= $prazoEncerrado ? 'border-secondary' : '' ?>">
+                        <div class="card-body py-1 <?= $prazoEncerrado ? 'bg-light' : '' ?>">
                             <?php if ($prazoEncerrado): ?>
                                 <div class="position-relative">
                                     <div class="position-absolute top-0 end-0 p-2">
@@ -546,20 +568,8 @@ include TEMPLATE_DIR . '/header.php';
                             <div class="row align-items-center">
                                 <div class="col-md-12">
                                     <div class="palpites-container text-center">
-                                        <div class="mb-3 game-datetime">
-                                            <span class="date-badge">
-                                                <i class="bi bi-calendar-event me-1"></i>
-                                                <?php 
-                                                // Se temos data_formatada (formato brasileiro), usar diretamente a parte da data
-                                                if (!empty($jogo['data_formatada'])) {
-                                                    echo substr($jogo['data_formatada'], 0, 10); // Pega apenas "dd/mm/yyyy"
-                                                } else {
-                                                    // Se só temos 'data' (formato ISO), converter corretamente
-                                                    echo date('d/m/Y', strtotime($jogo['data']));
-                                                }
-                                                ?>
-                                            </span>
-                                            <span class="time-badge ms-2">
+                                        <div class="mb-2 game-time">
+                                            <span class="time-badge">
                                                 <i class="bi bi-clock me-1"></i>
                                                 <?php 
                                                 // Se temos data_formatada (formato brasileiro), usar diretamente a parte do horário
@@ -621,6 +631,7 @@ include TEMPLATE_DIR . '/header.php';
                             <?php endif; ?>
                         </div>
                     </div>
+                    <?php endforeach; ?>
                 <?php endforeach; ?>
                 
                 <div class="d-flex justify-content-start align-items-center mt-4 mb-5">
@@ -990,7 +1001,7 @@ function gerarPalpitesAleatorios(button) {
 .palpites-buttons .btn-palpite {
     flex: 1 1 0; /* Distribuição igual do espaço */
     min-width: 0; /* Permite que os botões encolham */
-    height: 70px; /* Reduzido de 100px para 70px */
+    height: 45px; /* Reduzido ainda mais para 45px */
     transition: all 0.3s ease;
     border-radius: 0;
     margin: 0;
@@ -1036,16 +1047,30 @@ function gerarPalpitesAleatorios(button) {
     }
 
     .team-logo-btn {
-        width: 35px; /* Logos um pouco menores no mobile */
-        height: 35px;
+        width: 24px; /* Logos ainda menores no mobile */
+        height: 24px;
     }
 
     .team-name-btn {
-        font-size: 9px; /* Fonte um pouco menor no mobile */
+        font-size: 7px; /* Fonte ainda menor no mobile */
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+    
+    .date-badge-header {
+        font-size: 0.8rem;
+        padding: 6px 16px;
+    }
+    
+    .date-header {
+        margin: 1.5rem 0 0.75rem 0;
+    }
+    
+    .time-badge {
+        font-size: 0.75rem;
+        padding: 2px 6px;
     }
 
     .btn-palpite.btn-outline-warning i {
@@ -1055,16 +1080,16 @@ function gerarPalpitesAleatorios(button) {
 
 /* Mantém os outros estilos... */
 .team-logo-btn {
-    width: 35px; /* Reduzido de 45px para 35px */
-    height: 35px; /* Reduzido de 45px para 35px */
+    width: 28px; /* Reduzido ainda mais para 28px */
+    height: 28px; /* Reduzido ainda mais para 28px */
     object-fit: contain;
-    margin-bottom: 1px; /* Reduzido de 2px para 1px */
+    margin-bottom: 1px;
 }
 
 .team-name-btn {
-    font-size: 9px; /* Reduzido de 10px para 9px */
+    font-size: 8px; /* Reduzido ainda mais para 8px */
     text-align: center;
-    line-height: 1.0; /* Reduzido de 1.1 para 1.0 */
+    line-height: 1.0;
     font-weight: bold;
     margin-top: 1px;
     color: inherit;
@@ -1153,43 +1178,55 @@ function gerarPalpitesAleatorios(button) {
     margin: 0; /* Remove margem */
 }
 
-.game-datetime {
+/* Cabeçalhos de data */
+.date-header {
+    margin: 2rem 0 1rem 0;
+}
+
+.date-badge-header {
+    background: linear-gradient(135deg, var(--globo-verde-principal, #06AA48) 0%, var(--globo-verde-claro, #4CAF50) 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 10px rgba(6, 170, 72, 0.2);
+    white-space: nowrap;
+}
+
+.date-line {
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--globo-verde-principal, #06AA48), transparent);
+    opacity: 0.3;
+}
+
+.game-time {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    white-space: nowrap; /* Evita quebra de linha */
-}
-
-.date-badge, .time-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 10px;
-    border-radius: 15px;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    color: #495057;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    min-width: fit-content; /* Garante que o conteúdo não seja comprimido */
-}
-
-.date-badge {
-    background-color: #e9ecef;
 }
 
 .time-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 12px;
     background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
     color: #856404;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
-.date-badge i, .time-badge i {
-    font-size: 1rem;
+.time-badge i {
+    font-size: 0.75rem;
 }
 
 /* Animação sutil no hover */
-.date-badge:hover, .time-badge:hover {
+.time-badge:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
