@@ -1011,7 +1011,7 @@ function gerarPalpitesAleatorios(button) {
     align-items: center;
     justify-content: center;
     gap: 1px; /* Reduzido de 2px para 1px */
-    border: 2px solid #6c757d;
+    border: none;
     opacity: 0.9;
     color: #495057;
     background-color: rgba(108, 117, 125, 0.1);
@@ -1020,20 +1020,16 @@ function gerarPalpitesAleatorios(button) {
 /* Botão da esquerda */
 .palpites-buttons .btn-palpite:first-child {
     border-radius: 8px 0 0 8px;
-    border-right: 1px solid #6c757d;
 }
 
 /* Botão do meio */
 .palpites-buttons .btn-palpite:not(:first-child):not(:last-child) {
     border-radius: 0;
-    border-left: 1px solid #6c757d;
-    border-right: 1px solid #6c757d;
 }
 
 /* Botão da direita */
 .palpites-buttons .btn-palpite:last-child {
     border-radius: 0 8px 8px 0;
-    border-left: 1px solid #6c757d;
 }
 
 /* Ajustes para telas pequenas */
@@ -1100,7 +1096,6 @@ function gerarPalpitesAleatorios(button) {
 .btn-palpite.active {
     transform: scale(1.02);
     z-index: 1;
-    border-color: currentColor;
     opacity: 1;
 }
 
@@ -1114,7 +1109,7 @@ function gerarPalpitesAleatorios(button) {
 .btn-palpite.btn-outline-danger {
     color: #495057;
     background-color: rgba(108, 117, 125, 0.1);
-    border-color: #6c757d;
+    border: none;
 }
 
 /* Botão Time Casa (Verde) - apenas hover e ativo */
@@ -1122,7 +1117,7 @@ function gerarPalpitesAleatorios(button) {
 .btn-palpite.btn-outline-success.active {
     color: #fff;
     background-color: #198754;
-    border-color: #198754;
+    border: none;
     transform: scale(1.02);
     opacity: 1;
     z-index: 1;
@@ -1133,7 +1128,7 @@ function gerarPalpitesAleatorios(button) {
 .btn-palpite.btn-outline-warning.active {
     color: #000;
     background-color: #ffc107;
-    border-color: #ffc107;
+    border: none;
     transform: scale(1.02);
     opacity: 1;
     z-index: 1;
@@ -1144,7 +1139,7 @@ function gerarPalpitesAleatorios(button) {
 .btn-palpite.btn-outline-danger.active {
     color: #fff;
     background-color: #dc3545;
-    border-color: #dc3545;
+    border: none;
     transform: scale(1.02);
     opacity: 1;
     z-index: 1;
@@ -1214,7 +1209,6 @@ function gerarPalpitesAleatorios(button) {
     padding: 3px 8px;
     border-radius: 12px;
     background-color: #fff3cd;
-    border: 1px solid #ffeaa7;
     color: #856404;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     font-size: 0.8rem;
