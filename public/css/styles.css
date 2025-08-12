@@ -1002,16 +1002,13 @@ footer a:hover {
 
 .bg-light .text-light,
 .bg-light .text-white,
-.bg-green .text-light,
-.bg-green .text-white,
 [class*="bg-light-"] .text-light,
 [class*="bg-light-"] .text-white {
     color: #495057 !important;
     text-shadow: none;
 }
 
-.badge.bg-light,
-.badge.bg-green {
+.badge.bg-light {
     color: #495057 !important;
 }
 
