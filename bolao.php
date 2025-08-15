@@ -253,9 +253,6 @@ include TEMPLATE_DIR . '/header.php';
                 <div class="bolao-info-grid mb-3">
                     <!-- Período -->
                     <div class="info-item">
-                        <div class="info-icon">
-                            <i class="bi bi-calendar-range"></i>
-                        </div>
                         <div class="info-content">
                             <span class="info-label">Período</span>
                             <span class="info-value"><?= date('d/m', strtotime($bolao['data_inicio'])) ?> - <?= date('d/m', strtotime($bolao['data_fim'])) ?></span>
@@ -265,9 +262,6 @@ include TEMPLATE_DIR . '/header.php';
                     <!-- Prazo para Palpites -->
                     <?php if ($dataLimite): ?>
                     <div class="info-item <?= $prazoEncerrado ? 'expired' : 'active' ?>">
-                        <div class="info-icon">
-                            <i class="bi bi-<?= $prazoEncerrado ? 'clock-history' : 'alarm' ?>"></i>
-                        </div>
                         <div class="info-content">
                             <span class="info-label"><?= $prazoEncerrado ? 'Encerrado' : 'Prazo' ?></span>
                             <span class="info-value"><?= $dataLimite->format('d/m H:i') ?></span>
@@ -283,9 +277,6 @@ include TEMPLATE_DIR . '/header.php';
                     <!-- Valor de Participação -->
                     <?php if ($bolao['valor_participacao'] > 0): ?>
                     <div class="info-item">
-                        <div class="info-icon">
-                            <i class="bi bi-currency-dollar"></i>
-                        </div>
                         <div class="info-content">
                             <span class="info-label">Entrada</span>
                             <span class="info-value money"><?= formatMoney($bolao['valor_participacao']) ?></span>
@@ -296,9 +287,6 @@ include TEMPLATE_DIR . '/header.php';
                     <!-- Saldo do Usuário -->
                     <?php if (isLoggedIn() && getModeloPagamento() === 'conta_saldo' && $saldoInfo): ?>
                     <div class="info-item <?= $podeApostar ? 'success' : 'danger' ?>">
-                        <div class="info-icon">
-                            <i class="bi bi-wallet2"></i>
-                        </div>
                         <div class="info-content">
                             <span class="info-label">Saldo</span>
                             <span class="info-value money"><?= formatMoney($saldoInfo['saldo_atual']) ?></span>
@@ -311,9 +299,6 @@ include TEMPLATE_DIR . '/header.php';
 
                     <!-- Total de Jogos -->
                     <div class="info-item">
-                        <div class="info-icon">
-                            <i class="bi bi-joystick"></i>
-                        </div>
                         <div class="info-content">
                             <span class="info-label">Jogos</span>
                             <span class="info-value"><?= count($jogos) ?></span>
@@ -323,9 +308,6 @@ include TEMPLATE_DIR . '/header.php';
                     <!-- Máximo de Participantes -->
                     <?php if ($bolao['max_participantes'] > 0): ?>
                     <div class="info-item">
-                        <div class="info-icon">
-                            <i class="bi bi-people"></i>
-                        </div>
                         <div class="info-content">
                             <span class="info-label">Máx.</span>
                             <span class="info-value"><?= $bolao['max_participantes'] ?></span>
