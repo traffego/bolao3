@@ -12,27 +12,27 @@ O sistema de teste de webhook foi refatorado para evitar a inclusão direta do a
 - **Detecção de contexto**: O arquivo detecta se está sendo incluído ou executado diretamente
 - **Variável global `$GLOBALS['is_webhook_test']`**: Usado para identificar quando está em modo de teste
 
-### 2. Novo `webhook_test.php`
+### 2. Arquivo `webhook_test.php` (REMOVIDO)
 
-O arquivo de teste agora oferece duas opções:
+**NOTA**: O arquivo `webhook_test.php` foi removido do sistema por ser obsoleto.
 
-#### Opção 1: Teste via Função (Padrão)
-```
-POST /api/webhook_test.php
-```
-- Chama diretamente a função `processPixWebhook()`
-- Mais rápido e eficiente
-- Permite debugging mais fácil
-- Usa a mesma conexão de banco de dados
+#### Alternativas para Teste de Webhook:
 
-#### Opção 2: Teste via HTTP
+**Opção 1: Verificação de Status**
 ```
-POST /api/webhook_test.php?type=http
+GET /api/webhook_status.php
 ```
-- Faz uma requisição HTTP real para o endpoint do webhook
-- Simula completamente o comportamento de produção
-- Testa também a conectividade de rede
-- Mais realístico para testes end-to-end
+- Verifica o status atual do webhook
+- Testa conectividade com EFI Pay
+- Valida configurações
+
+**Opção 2: Diagnóstico Completo**
+```
+GET /admin/teste-efi-debug.php
+```
+- Diagnóstico completo do sistema EFI
+- Verificação de arquivos e configurações
+- Testes de conectividade integrados
 
 ## Como Usar
 
@@ -50,36 +50,32 @@ POST /api/webhook_test.php?type=http
 }
 ```
 
-### Teste via Função (Recomendado)
+### Verificação de Status do Webhook (Recomendado)
 
 ```bash
-curl -X POST https://seudominio.com/api/webhook_test.php \
+curl -X GET https://seudominio.com/api/webhook_status.php \
   -H "Content-Type: application/json" \
-  -b "PHPSESSID=sua_sessao_admin" \
-  -d '{
-    "pix": [
-      {
-        "txid": "TESTE123456789012345678901234",
-        "valor": "10.00"
-      }
-    ]
-  }'
+  -b "PHPSESSID=sua_sessao_admin"
 ```
 
-### Teste via HTTP
+### Diagnóstico Completo via Interface Web
+
+Acesse diretamente no navegador:
+```
+https://seudominio.com/admin/teste-efi-debug.php
+```
+
+### Verificação CLI de Transações Pendentes
 
 ```bash
-curl -X POST "https://seudominio.com/api/webhook_test.php?type=http" \
-  -H "Content-Type: application/json" \
-  -b "PHPSESSID=sua_sessao_admin" \
-  -d '{
-    "pix": [
-      {
-        "txid": "TESTE123456789012345678901234",
-        "valor": "10.00"
-      }
-    ]
-  }'
+php scripts/verificar-webhook.php
+```
+
+### Monitoramento de Webhook via CLI
+
+```bash
+php scripts/webhook_monitor.php
+```
 ```
 
 ## Formatos de Payload Suportados

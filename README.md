@@ -31,13 +31,12 @@ Um sistema completo para gerenciar bolões de futebol, permitindo a criação de
 
 3. Crie um banco de dados MySQL vazio ou use um existente
 
-4. Execute o script de setup para criar todas as tabelas e inserir dados de demonstração:
+4. Importe o arquivo SQL principal para criar todas as tabelas e dados iniciais:
    ```
-   cd bolao-football/database
-   php setup_demo.php
+   mysql -u seu_usuario -p seu_banco_de_dados < bolao_football.sql
    ```
 
-5. Configure as credenciais de banco de dados no arquivo `config/config.php` (se necessário)
+5. Configure as credenciais de banco de dados no arquivo `config/database.php` (se necessário)
 
 6. Acesse o sistema pelo navegador
 
@@ -96,4 +95,4 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para d
 
 ## Suporte
 
-Para suporte, entre em contato através do email: [seu-email@exemplo.com] "# bolao3" 
+Para suporte, entre em contato através do email: [seu-email@exemplo.com] "# bolao3"

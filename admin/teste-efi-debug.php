@@ -234,7 +234,7 @@ function displayStatus($status) {
                     <h3>Ações Disponíveis</h3>
                     <div class="btn-group" role="group">
                         <a href="configuracoes.php" class="btn btn-primary">Configurações EFI</a>
-                        <a href="../api/webhook_test.php" class="btn btn-secondary" target="_blank">Testar Webhook</a>
+                        <a href="../api/webhook_status.php" class="btn btn-secondary" target="_blank">Status Webhook</a>
                         <button onclick="location.reload()" class="btn btn-info">Atualizar Diagnóstico</button>
                     </div>
                 </div>
