@@ -366,9 +366,13 @@ function atualizarTabelaJogos() {
         if (jaUtilizado) {
             // Jogo em outro bolão - sempre desabilitado
             finalDisabled = true;
-        } else if (!isSelected && state.jogosSelecionados.size >= state.maxJogos && !state.buscaAmpliada) {
-            // Só desabilitar se não está selecionado E atingiu o limite E não está em busca ampliada
-            finalDisabled = true;
+        } else if (!isSelected && !state.buscaAmpliada) {
+            // Verificar se atingiu o limite usando jogos visíveis
+            const checkboxesSelecionadosVisiveis = document.querySelectorAll('#jogos-table tbody tr:not([style*="display: none"]) .jogo-checkbox:checked');
+            if (checkboxesSelecionadosVisiveis.length >= state.maxJogos) {
+                // Só desabilitar se não está selecionado E atingiu o limite E não está em busca ampliada
+                finalDisabled = true;
+            }
         }
         // Jogos livres e já selecionados ficam sempre habilitados para desmarcação
         // Na busca ampliada, todos os jogos livres ficam habilitados
@@ -438,7 +442,9 @@ function selecionarJogosAutomaticamente() {
 
 // Função para verificar se a quantidade de jogos selecionados é suficiente
 function verificarQuantidadeJogos() {
-    const jogosSelecionadosCount = state.jogosSelecionados.size;
+    // Contar apenas jogos selecionados que estão visíveis (não ocultos pelo toggle)
+    const checkboxesSelecionadosVisiveis = document.querySelectorAll('#jogos-table tbody tr:not([style*="display: none"]) .jogo-checkbox:checked');
+    const jogosSelecionadosVisiveis = checkboxesSelecionadosVisiveis.length;
     const quantidadeDesejada = state.maxJogos;
     
     // Remover alerta anterior se existir
@@ -447,8 +453,8 @@ function verificarQuantidadeJogos() {
         alertaAnterior.remove();
     }
     
-    if (jogosSelecionadosCount < quantidadeDesejada) {
-        const faltam = quantidadeDesejada - jogosSelecionadosCount;
+    if (jogosSelecionadosVisiveis < quantidadeDesejada) {
+        const faltam = quantidadeDesejada - jogosSelecionadosVisiveis;
         const jogosTableContainer = document.getElementById('jogos-table-container');
         
         const alertaDiv = document.createElement('div');
@@ -458,7 +464,7 @@ function verificarQuantidadeJogos() {
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h6><i class="fa-solid fa-exclamation-triangle"></i> Jogos Insuficientes</h6>
-                    <p class="mb-0">Foram selecionados apenas <strong>${jogosSelecionadosCount}</strong> jogos, mas você quer <strong>${quantidadeDesejada}</strong>. 
+                    <p class="mb-0">Foram selecionados apenas <strong>${jogosSelecionadosVisiveis}</strong> jogos visíveis, mas você quer <strong>${quantidadeDesejada}</strong>. 
                     Faltam <strong>${faltam}</strong> jogos.</p>
                 </div>
                 <button type="button" class="btn btn-primary" onclick="buscarMaisJogos()">
@@ -691,7 +697,11 @@ function handleJogoSelection(event) {
             return;
         }
         
-        if (state.jogosSelecionados.size < state.maxJogos) {
+        // Contar jogos selecionados visíveis para verificar limite
+        const checkboxesSelecionadosVisiveis = document.querySelectorAll('#jogos-table tbody tr:not([style*="display: none"]) .jogo-checkbox:checked');
+        const jogosSelecionadosVisiveis = checkboxesSelecionadosVisiveis.length;
+        
+        if (jogosSelecionadosVisiveis < state.maxJogos) {
             state.jogosSelecionados.add(jogoId);
         } else {
             // Na busca ampliada, não fazer troca automática - apenas alertar
