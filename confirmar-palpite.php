@@ -69,6 +69,14 @@ if (isset($_SESSION['palpite_pendente'])) {
             $palpites[$jogoId] = $value;
         }
     }
+    
+    // Validar se todos os palpites têm valores válidos
+    foreach ($palpites as $jogoId => $resultado) {
+        if ($resultado === '' || !in_array($resultado, ['0', '1', '2'])) {
+            setFlashMessage('warning', 'Você precisa dar palpites válidos para todos os jogos.');
+            redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
+        }
+    }
 }
 
 // Buscar dados do bolão
@@ -726,4 +734,4 @@ function selecionarResultado(jogoId, resultado) {
 }
 </script>
 
-<?php include TEMPLATE_DIR . '/footer.php'; ?> 
+<?php include TEMPLATE_DIR . '/footer.php'; ?>

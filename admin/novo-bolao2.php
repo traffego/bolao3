@@ -440,6 +440,20 @@ include '../templates/admin/header.php';
                     </div>
                 </div>
                 
+                <!-- Opções do Bolão -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="publico" name="publico" value="1" checked>
+                            <label class="form-check-label futebol-label" for="publico">
+                                <i class="fa-solid fa-globe"></i> Bolão Público
+                                <small class="text-muted d-block">Bolões públicos aparecem na lista geral e podem ser acessados por qualquer usuário</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Botões de ação -->
                 <div class="d-flex justify-content-center gap-3 mt-4">
                     <button type="button" id="buscar-jogos-btn" class="btn futebol-btn" style="flex: 1; max-width: 400px;">

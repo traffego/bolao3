@@ -102,6 +102,14 @@ try {
         }
     }
     
+    // Validar se todos os palpites têm valores válidos
+    foreach ($palpitesForm as $jogoId => $resultado) {
+        if ($resultado === '' || !in_array($resultado, ['0', '1', '2'])) {
+            setFlashMessage('warning', 'Você precisa dar palpites válidos para todos os jogos.');
+            redirect(APP_URL . '/bolao.php?id=' . $bolaoId);
+        }
+    }
+    
     // Inserir palpites como JSON com estrutura correta
     $palpiteId = dbInsert('palpites', [
         'jogador_id' => $usuarioId,
@@ -162,4 +170,4 @@ try {
     error_log('Erro ao salvar palpite: ' . $e->getMessage());
     setFlashMessage('danger', 'Erro ao salvar palpites: ' . $e->getMessage());
     redirect(APP_URL . '/bolao.php?slug=' . $bolaoSlug);
-} 
+}

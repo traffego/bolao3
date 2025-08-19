@@ -29,7 +29,7 @@ $valorParticipacao = isset($_POST['valor_participacao']) ? (float)str_replace(',
 $premioTotal = isset($_POST['premio_total']) ? (float)str_replace(',', '.', $_POST['premio_total']) : 0;
 $premioRodada = isset($_POST['premio_rodada']) ? (float)str_replace(',', '.', $_POST['premio_rodada']) : 0;
 $status = isset($_POST['status']) ? (int)$_POST['status'] : 1; // Default to active (1) if not specified
-$publico = isset($_POST['publico']) ? 1 : 0;
+$publico = isset($_POST['publico']) ? 1 : 1; // Default to public (1) if not specified
 $maxParticipantes = $_POST['max_participantes'] ?? null;
 $quantidadeJogos = $_POST['quantidade_jogos'] ?? 0;
 $imagemBolaoUrl = $_POST['imagem_bolao_url'] ?? '';
@@ -204,4 +204,4 @@ try {
     setFlashMessage('danger', 'Ocorreu um erro ao salvar o bolão: ' . $e->getMessage());
     redirect(APP_URL . '/admin/novo-bolao.php');
 }
-?> 
+?>

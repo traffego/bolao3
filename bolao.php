@@ -678,6 +678,26 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php elseif (!$podeApostar && getModeloPagamento() === 'conta_saldo'): ?>
             window.location.href = '<?= APP_URL ?>/minha-conta.php';
         <?php else: ?>
+            // Validar se todos os palpites foram preenchidos
+            const radioInputs = this.querySelectorAll('input[type="radio"][name^="resultado_"]');
+            const jogosIds = new Set();
+            const palpitesPreenchidos = new Set();
+            
+            // Coletar todos os IDs de jogos
+            radioInputs.forEach(input => {
+                const jogoId = input.name.replace('resultado_', '');
+                jogosIds.add(jogoId);
+                if (input.checked) {
+                    palpitesPreenchidos.add(jogoId);
+                }
+            });
+            
+            // Verificar se todos os jogos têm palpites
+            if (palpitesPreenchidos.size !== jogosIds.size) {
+                alert('Você precisa dar palpites para todos os jogos antes de enviar.');
+                return false;
+            }
+            
             this.submit();
         <?php endif; ?>
     });

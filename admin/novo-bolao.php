@@ -886,15 +886,25 @@ tbody tr.jogo-selecionado {
                     </div>
                 </div>
                 
-                <!-- Opção para incluir jogos sem horário definido -->
+                <!-- Opções adicionais -->
                 <div class="row g-4 mb-4">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" 
                                    id="incluir_sem_horario" name="incluir_sem_horario" value="1">
                             <label class="form-check-label futebol-label" for="incluir_sem_horario">
                                 <i class="fa-solid fa-clock"></i> Incluir jogos sem horário definido
                                 <small class="text-muted d-block">Marque esta opção para incluir jogos com status TBD (To Be Determined) ou TBA (To Be Announced)</small>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="publico" name="publico" value="1" checked>
+                            <label class="form-check-label futebol-label" for="publico">
+                                <i class="fa-solid fa-globe"></i> Bolão Público
+                                <small class="text-muted d-block">Bolões públicos aparecem na lista geral e podem ser acessados por qualquer usuário</small>
                             </label>
                         </div>
                     </div>
