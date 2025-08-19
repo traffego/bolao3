@@ -2,6 +2,15 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Otimização: Habilita compressão gzip para reduzir tempo de transferência
+if (extension_loaded('zlib') && !ob_get_level()) {
+    ob_start('ob_gzhandler');
+}
+
+// Headers de otimização
+header('Cache-Control: no-cache, must-revalidate');
+header('Expires: 0');
+
 require_once '../config/config.php';
 require_once '../includes/functions.php';
 require_once '../includes/EfiPixManager.php';
@@ -232,4 +241,4 @@ try {
         'error' => $e->getMessage()
     ]);
 }
-log_info("Fim do processamento"); 
+log_info("Fim do processamento");

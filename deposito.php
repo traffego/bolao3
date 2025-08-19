@@ -216,13 +216,28 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Adiciona loading (considera se é retomada ou novo)
+        // Adiciona loading otimizado (considera se é retomada ou novo)
         const isRetomada = btnGerarPix.innerHTML.includes('Retomar');
         const originalText = btnGerarPix.innerHTML;
-        btnGerarPix.innerHTML = isRetomada ? 
-            '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Retomando...' :
-            '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Gerando PIX...';
+        
+        // Indicador de progresso mais detalhado
+        let progressStep = 0;
+        const progressMessages = isRetomada ? 
+            ['Retomando...', 'Validando dados...', 'Processando...'] :
+            ['Gerando PIX...', 'Criando cobrança...', 'Gerando QR Code...'];
+        
+        const updateProgress = () => {
+            if (progressStep < progressMessages.length) {
+                btnGerarPix.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>${progressMessages[progressStep]}`;
+                progressStep++;
+            }
+        };
+        
+        updateProgress();
         btnGerarPix.disabled = true;
+        
+        // Atualiza progresso a cada 1.5 segundos para melhor UX
+        const progressInterval = setInterval(updateProgress, 1500);
         
         try {
             const response = await fetch('api/deposito.php', {
@@ -266,6 +281,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             alert(error.message || 'Erro ao gerar PIX. Tente novamente.');
         } finally {
+            // Limpa o intervalo de progresso
+            clearInterval(progressInterval);
+            
             // Remove loading
             btnGerarPix.innerHTML = originalText;
             btnGerarPix.disabled = false;
@@ -480,4 +498,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include 'templates/footer.php'; ?> 
+<?php include 'templates/footer.php'; ?>

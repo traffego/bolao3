@@ -336,16 +336,22 @@ class EfiPixManager {
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_TIMEOUT => 15, // Reduzido de 30 para 15 segundos
+                    CURLOPT_CONNECTTIMEOUT => 5, // Timeout de conexão de 5 segundos
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'PUT',
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => [
                         'Authorization: Bearer ' . $this->access_token,
-                        'Content-Type: application/json'
+                        'Content-Type: application/json',
+                        'Connection: keep-alive' // Reutilizar conexão
                     ],
                     CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
-                    CURLOPT_SSLCERTTYPE => 'P12'
+                    CURLOPT_SSLCERTTYPE => 'P12',
+                    CURLOPT_SSL_VERIFYPEER => true,
+                    CURLOPT_SSL_VERIFYHOST => 2,
+                    CURLOPT_TCP_NODELAY => true, // Desabilitar algoritmo de Nagle
+                    CURLOPT_FRESH_CONNECT => false // Reutilizar conexões existentes
                 ]);
         
                 $response = curl_exec($curl);
@@ -558,13 +564,15 @@ class EfiPixManager {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_TIMEOUT => 15, // Reduzido de 30 para 15 segundos
+            CURLOPT_CONNECTTIMEOUT => 5, // Timeout de conexão de 5 segundos
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => http_build_query($params),
             CURLOPT_HTTPHEADER => [
                 'Authorization: Basic ' . base64_encode(EFI_CLIENT_ID . ':' . EFI_CLIENT_SECRET),
-                'Content-Type: application/x-www-form-urlencoded'
+                'Content-Type: application/x-www-form-urlencoded',
+                'Connection: keep-alive' // Reutilizar conexão
             ],
             CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
             CURLOPT_SSLCERTTYPE => 'P12'
@@ -748,16 +756,22 @@ class EfiPixManager {
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
+                CURLOPT_TIMEOUT => 15, // Reduzido de 30 para 15 segundos
+                CURLOPT_CONNECTTIMEOUT => 5, // Timeout de conexão de 5 segundos
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'PUT',
                 CURLOPT_POSTFIELDS => json_encode($data),
                 CURLOPT_HTTPHEADER => [
                     'Authorization: Bearer ' . $this->access_token,
-                    'Content-Type: application/json'
+                    'Content-Type: application/json',
+                    'Connection: keep-alive' // Reutilizar conexão
                 ],
                 CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
-                CURLOPT_SSLCERTTYPE => 'P12'
+                CURLOPT_SSLCERTTYPE => 'P12',
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+                CURLOPT_TCP_NODELAY => true, // Desabilitar algoritmo de Nagle
+                CURLOPT_FRESH_CONNECT => false // Reutilizar conexões existentes
             ]);
 
             $response = curl_exec($curl);
@@ -880,13 +894,19 @@ class EfiPixManager {
         curl_setopt_array($curl, [
             CURLOPT_URL => EFI_API_URL . '/v2/cob/' . $txid,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_TIMEOUT => 15, // Reduzido de 30 para 15 segundos
+            CURLOPT_CONNECTTIMEOUT => 5, // Timeout de conexão de 5 segundos
             CURLOPT_HTTPHEADER => [
                 'Authorization: Bearer ' . $this->access_token,
-                'Content-Type: application/json'
+                'Content-Type: application/json',
+                'Connection: keep-alive' // Reutilizar conexão
             ],
             CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
-            CURLOPT_SSLCERTTYPE => 'P12'
+            CURLOPT_SSLCERTTYPE => 'P12',
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_TCP_NODELAY => true, // Desabilitar algoritmo de Nagle
+            CURLOPT_FRESH_CONNECT => false // Reutilizar conexões existentes
         ]);
 
         $response = curl_exec($curl);
@@ -1062,15 +1082,21 @@ class EfiPixManager {
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
+                CURLOPT_TIMEOUT => 15, // Reduzido de 30 para 15 segundos
+                CURLOPT_CONNECTTIMEOUT => 5, // Timeout de conexão de 5 segundos
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'GET',
                 CURLOPT_HTTPHEADER => [
                     'Authorization: Bearer ' . $this->access_token,
-                    'Content-Type: application/json'
+                    'Content-Type: application/json',
+                    'Connection: keep-alive' // Reutilizar conexão
                 ],
                 CURLOPT_SSLCERT => EFI_CERTIFICATE_PATH,
-                CURLOPT_SSLCERTTYPE => 'P12'
+                CURLOPT_SSLCERTTYPE => 'P12',
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+                CURLOPT_TCP_NODELAY => true, // Desabilitar algoritmo de Nagle
+                CURLOPT_FRESH_CONNECT => false // Reutilizar conexões existentes
             ]);
 
             $response = curl_exec($curl);
@@ -1108,4 +1134,4 @@ class EfiPixManager {
             throw $e;
         }
     }
-} 
+}
