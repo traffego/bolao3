@@ -21,7 +21,7 @@ if (!isset($_SESSION['admin_id'])) {
 
 // Buscar informações do administrador
 $adminId = $_SESSION['admin_id'];
-$sql = "SELECT * FROM administradores WHERE id = ? AND status = 'ativo'";
+$sql = "SELECT * FROM administrador WHERE id = ? AND status = 'ativo'";
 $admin = dbFetchOne($sql, [$adminId]);
 
 // Se administrador não existe ou está inativo
@@ -37,4 +37,4 @@ if (!$admin) {
     
     header('Location: ' . APP_URL . '/admin/login.php');
     exit;
-} 
+}

@@ -56,7 +56,7 @@ function checkAdminAuthentication() {
             try {
                 // Validate admin exists and is active in database
                 $adminId = $_SESSION['admin_id'];
-                $sql = "SELECT id, nome, status FROM administradores WHERE id = ? AND status = 'ativo'";
+                $sql = "SELECT id, nome, status FROM administrador WHERE id = ? AND status = 'ativo'";
                 $admin = dbFetchOne($sql, [$adminId]);
                 
                 if ($admin) {
