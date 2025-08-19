@@ -226,6 +226,9 @@ async function carregarJogos() {
     console.log('Iniciando carregamento de jogos...');
     console.log('Estado atual:', state);
     
+    // Resetar flag de busca ampliada ao iniciar nova busca
+    state.buscaAmpliada = false;
+    
     const jogosTableContainer = document.getElementById('jogos-table-container');
     const quantidadeInput = document.getElementById('quantidade-jogos');
     const dataInicioInput = document.getElementById('data-inicio');
@@ -421,7 +424,11 @@ function atualizarTabelaJogos() {
 
 // Função para selecionar jogos automaticamente
 function selecionarJogosAutomaticamente() {
-    state.jogosSelecionados.clear();
+    // CORREÇÃO: Não limpar seleções durante busca ampliada para preservar jogos já selecionados
+    if (!state.buscaAmpliada) {
+        state.jogosSelecionados.clear();
+    }
+    
     // Filtrar jogos que começam após o momento atual E que não estão sendo usados em outros bolões
     const agora = new Date();
     const jogosFuturos = state.todosJogos.filter(jogo => {
@@ -437,9 +444,19 @@ function selecionarJogosAutomaticamente() {
         return new Date(dataISO) > agora;
     });
     // Selecionar os primeiros jogos disponíveis até o limite máximo
-    jogosFuturos.slice(0, state.maxJogos).forEach(jogo => {
-        state.jogosSelecionados.add(jogo.id);
-    });
+    if (state.buscaAmpliada) {
+        // Durante busca ampliada, selecionar apenas jogos que ainda não estão selecionados
+        const jogosParaSelecionar = jogosFuturos.filter(jogo => !state.jogosSelecionados.has(jogo.id));
+        const faltam = state.maxJogos - state.jogosSelecionados.size;
+        jogosParaSelecionar.slice(0, faltam).forEach(jogo => {
+            state.jogosSelecionados.add(jogo.id);
+        });
+    } else {
+        // Seleção normal - selecionar os primeiros jogos disponíveis
+        jogosFuturos.slice(0, state.maxJogos).forEach(jogo => {
+            state.jogosSelecionados.add(jogo.id);
+        });
+    }
     
     // Verificar se a quantidade selecionada é menor que a desejada
     verificarQuantidadeJogos();
@@ -606,15 +623,34 @@ async function buscarMaisJogos() {
         });
         
         const campeonatosParam = campeonatosSelecionados.join(',');
-        const url = `${APP_URL}/admin/api/jogos.php?inicio=${dataInicio}&fim=${dataFimNova}&campeonatos=${campeonatosParam}&limit=${limiteBusca}`;
+        
+        // Incluir parâmetro incluir_sem_horario se o checkbox estiver marcado
+        const incluirSemHorarioCheckbox = document.getElementById('incluir_sem_horario');
+        const incluirSemHorario = incluirSemHorarioCheckbox && incluirSemHorarioCheckbox.checked ? '&incluir_sem_horario=1' : '';
+        
+        const url = `${APP_URL}/admin/api/jogos.php?inicio=${dataInicio}&fim=${dataFimNova}&campeonatos=${campeonatosParam}&limit=${limiteBusca}${incluirSemHorario}`;
         
         const response = await fetch(url);
         const data = await response.json();
         
         if (data.success && data.jogos) {
-            // Atualizar com os novos jogos encontrados - sem limitação na busca ampliada
-            state.todosJogos = data.jogos;
-            console.log('Jogos após busca ampliada:', state.todosJogos.length);
+            // CORREÇÃO: Mesclar jogos existentes com novos, preservando seleções
+            const jogosExistentesIds = new Set(state.todosJogos.map(jogo => jogo.id));
+            const novosJogos = data.jogos.filter(jogo => !jogosExistentesIds.has(jogo.id));
+            
+            // Adicionar apenas jogos que não existem ainda
+            state.todosJogos = [...state.todosJogos, ...novosJogos];
+            console.log('Jogos após busca ampliada:', {
+                jogosAnteriores: state.todosJogos.length - novosJogos.length,
+                novosJogosAdicionados: novosJogos.length,
+                totalJogos: state.todosJogos.length
+            });
+            
+            // Processar alertas de horário se existirem
+            if (data.alertas_horario && data.alertas_horario.length > 0) {
+                console.log('Alertas de horário detectados na busca ampliada:', data.alertas_horario);
+                mostrarAlertaHorarios(data.alertas_horario);
+            }
             
             // Completar a seleção apenas com os jogos que faltam
             completarSelecaoJogos();
@@ -675,6 +711,8 @@ async function buscarMaisJogos() {
 // Handlers de eventos
 function handleQuantidadeChange(event) {
     state.maxJogos = parseInt(event.target.value) || 0;
+    // Resetar flag de busca ampliada quando quantidade for alterada
+    state.buscaAmpliada = false;
     if (preSelecionarJogos) {
         selecionarJogosAutomaticamente();
     }
