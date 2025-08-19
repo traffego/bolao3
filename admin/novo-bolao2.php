@@ -168,6 +168,17 @@ if (isset($_GET['campeonato_brasil']) && isset($campeonatosBrasil[$_GET['campeon
 }
 
 /**
+ * Busca jogos de uma rodada específica
+ */
+function buscarJogosRodada($campeonatoId, $temporada, $rodada) {
+    return fetchApiFootballData('fixtures', [
+        'league' => $campeonatoId,
+        'season' => $temporada,
+        'round' => $rodada
+    ]) ?? [];
+}
+
+/**
  * Busca jogos que não estão sendo utilizados em outros bolões
  */
 function buscarJogosNaoUtilizados($campeonatoId, $ano, $incluirSemHorario = false) {
