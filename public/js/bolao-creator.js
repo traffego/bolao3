@@ -264,10 +264,13 @@ async function carregarJogos() {
     }
 
     try {
-        console.log('Fazendo requisição para a API...');
-        console.log('URL da requisição:', `${APP_URL}/admin/api/jogos.php?inicio=${state.dataInicio}&fim=${state.dataFim}&campeonatos=${state.campeonatos.join(',')}`);
+        // Verificar se deve incluir jogos sem horário definido
+        const incluirSemHorario = document.getElementById('incluir_sem_horario')?.checked ? '1' : '0';
         
-        const response = await fetch(`${APP_URL}/admin/api/jogos.php?inicio=${state.dataInicio}&fim=${state.dataFim}&campeonatos=${state.campeonatos.join(',')}`);
+        console.log('Fazendo requisição para a API...');
+        console.log('URL da requisição:', `${APP_URL}/admin/api/jogos.php?inicio=${state.dataInicio}&fim=${state.dataFim}&campeonatos=${state.campeonatos.join(',')}&incluir_sem_horario=${incluirSemHorario}`);
+        
+        const response = await fetch(`${APP_URL}/admin/api/jogos.php?inicio=${state.dataInicio}&fim=${state.dataFim}&campeonatos=${state.campeonatos.join(',')}&incluir_sem_horario=${incluirSemHorario}`);
         const data = await response.json();
         
         console.log('Resposta da API:', data);
@@ -386,6 +389,10 @@ function atualizarTabelaJogos() {
             tr.classList.add('jogo-selecionado');
         }
 
+        // Verificar se o jogo tem horário definido
+        const semHorarioDefinido = jogo.sem_horario_definido || false;
+        const indicadorHorario = semHorarioDefinido ? '<br><small class="text-warning"><i class="fa-solid fa-clock"></i> Horário TBD</small>' : '';
+        
         tr.innerHTML = `
             <td>
                 <input type="checkbox" 
@@ -394,7 +401,7 @@ function atualizarTabelaJogos() {
                        ${isSelected ? 'checked' : ''}
                        ${finalDisabled ? 'disabled' : ''}>
             </td>
-            <td>${jogo.data}</td>
+            <td>${jogo.data}${indicadorHorario}</td>
             <td>${jogo.campeonato}${jaUtilizado ? '<br><small class="text-muted"><i class="fa-solid fa-lock"></i> Em uso</small>' : ''}</td>
             <td>${jogo.time_casa}</td>
             <td>${jogo.time_visitante}</td>

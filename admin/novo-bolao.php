@@ -885,6 +885,20 @@ tbody tr.jogo-selecionado {
                         <div id="preview-imagem-bolao" class="mt-2"></div>
                     </div>
                 </div>
+                
+                <!-- Opção para incluir jogos sem horário definido -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="incluir_sem_horario" name="incluir_sem_horario" value="1">
+                            <label class="form-check-label futebol-label" for="incluir_sem_horario">
+                                <i class="fa-solid fa-clock"></i> Incluir jogos sem horário definido
+                                <small class="text-muted d-block">Marque esta opção para incluir jogos com status TBD (To Be Determined) ou TBA (To Be Announced)</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
                             
                 <!-- Botões de ação -->
                 <div class="d-flex justify-content-center gap-3 mt-4">
@@ -1059,4 +1073,4 @@ function sugerirNomeBolao() {
 dataInicioInput && dataInicioInput.addEventListener('change', sugerirNomeBolao);
 dataFimInput && dataFimInput.addEventListener('change', sugerirNomeBolao);
 </script>
-<?php include '../templates/admin/footer.php'; ?> 
+<?php include '../templates/admin/footer.php'; ?>

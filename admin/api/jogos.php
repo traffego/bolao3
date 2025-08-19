@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $dataInicio = $_GET['inicio'] ?? null;
 $dataFim = $_GET['fim'] ?? null;
 $campeonatosParam = $_GET['campeonatos'] ?? null;
+$incluirSemHorario = isset($_GET['incluir_sem_horario']) && $_GET['incluir_sem_horario'] === '1';
 
 if (!$dataInicio || !$dataFim || !$campeonatosParam) {
     http_response_code(400);
@@ -51,25 +52,41 @@ try {
     // Buscar jogos para cada campeonato
     foreach ($idsParaBuscar as $id) {
         $nome = $campeonatos[$id] ?? 'Desconhecido';
-        $response = apiFootballRequest('fixtures', [
+        // Se incluir jogos sem horário, buscar também status TBD e TBA
+        $statusParams = ['status' => 'NS']; // Not Started
+        if ($incluirSemHorario) {
+            $statusParams = ['status' => 'NS-TBD-TBA']; // Incluir também TBD e TBA
+        }
+        
+        $response = apiFootballRequest('fixtures', array_merge([
             'league' => $id,
             'season' => date('Y'),
             'from' => $dataInicio,
-            'to' => $dataFim,
-            'status' => 'NS' // Not Started
-        ]);
+            'to' => $dataFim
+        ], $statusParams));
 
         if ($response && isset($response['response'])) {
             foreach ($response['response'] as $jogo) {
-                $dataBr = date('d/m/Y H:i', strtotime($jogo['fixture']['date']));
-                $jogos[] = [
-                    'id' => $jogo['fixture']['id'],
-                    'data' => $dataBr,
-                    'campeonato' => $nome,
-                    'time_casa' => $jogo['teams']['home']['name'],
-                    'time_visitante' => $jogo['teams']['away']['name'],
-                    'status' => $jogo['fixture']['status']['short']
-                ];
+                // Verificar se deve incluir jogos sem horário definido
+                $temHorarioDefinido = !empty($jogo['fixture']['date']) && 
+                                    $jogo['fixture']['date'] !== '1970-01-01T00:00:00+00:00' &&
+                                    !in_array($jogo['fixture']['status']['short'], ['TBD', 'TBA']);
+                
+                // Incluir o jogo se:
+                // 1. Tem horário definido, OU
+                // 2. Não tem horário definido mas a opção incluir_sem_horario está marcada
+                if ($temHorarioDefinido || $incluirSemHorario) {
+                    $dataBr = date('d/m/Y H:i', strtotime($jogo['fixture']['date']));
+                    $jogos[] = [
+                        'id' => $jogo['fixture']['id'],
+                        'data' => $dataBr,
+                        'campeonato' => $nome,
+                        'time_casa' => $jogo['teams']['home']['name'],
+                        'time_visitante' => $jogo['teams']['away']['name'],
+                        'status' => $jogo['fixture']['status']['short'],
+                        'sem_horario_definido' => !$temHorarioDefinido
+                    ];
+                }
             }
         }
     }
@@ -187,4 +204,4 @@ try {
         'success' => false,
         'message' => 'Erro ao buscar jogos: ' . $e->getMessage()
     ]);
-} 
+}
