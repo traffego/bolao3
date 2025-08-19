@@ -79,7 +79,25 @@ if (!empty($formData['pais'])) {
 }
 
 // Processar busca de jogos
-if (isset($_GET['campeonato_brasil']) && isset($campeonatosBrasil[$_GET['campeonato_brasil']])) {
+// Verificar se campeonatos foram selecionados via checkboxes
+$campeonatosSelecionados = isset($_GET['campeonatos']) ? (array)$_GET['campeonatos'] : [];
+
+if (!empty($campeonatosSelecionados) && isset($_GET['buscar'])) {
+    $incluirSemHorario = isset($_GET['incluir_sem_horario']) && $_GET['incluir_sem_horario'] == '1';
+    
+    // Debug: Log dos campeonatos selecionados
+    error_log("Campeonatos selecionados: " . implode(', ', $campeonatosSelecionados));
+    error_log("Incluir sem horário: " . ($incluirSemHorario ? 'Sim' : 'Não'));
+    
+    // Buscar jogos para cada campeonato selecionado
+    foreach ($campeonatosSelecionados as $campeonatoId) {
+        $jogosTemp = buscarJogosNaoUtilizados((int)$campeonatoId, $anoAtual, $incluirSemHorario, $_GET['data_inicio'] ?? null, $_GET['data_fim'] ?? null);
+        error_log("Campeonato $campeonatoId: " . count($jogosTemp) . " jogos encontrados");
+        $jogos = array_merge($jogos, $jogosTemp);
+    }
+    
+    error_log("Total de jogos encontrados: " . count($jogos));
+} elseif (isset($_GET['campeonato_brasil']) && isset($campeonatosBrasil[$_GET['campeonato_brasil']])) {
     $campeonatoId = (int)$_GET['campeonato_brasil'];
     $incluirSemHorario = isset($_GET['incluir_sem_horario']) && $_GET['incluir_sem_horario'] == '1';
     
@@ -170,25 +188,53 @@ if (isset($_GET['campeonato_brasil']) && isset($campeonatosBrasil[$_GET['campeon
 /**
  * Busca jogos de uma rodada específica
  */
-function buscarJogosRodada($campeonatoId, $temporada, $rodada) {
-    return fetchApiFootballData('fixtures', [
+function buscarJogosRodada($campeonatoId, $temporada, $rodada, $dataInicio = null, $dataFim = null) {
+    $params = [
         'league' => $campeonatoId,
-        'season' => $temporada,
-        'round' => $rodada
-    ]) ?? [];
+        'season' => $temporada
+    ];
+    
+    // Só adicionar round se não for null
+    if ($rodada !== null) {
+        $params['round'] = $rodada;
+    }
+    
+    // Adicionar filtros de data se fornecidos
+    if ($dataInicio !== null) {
+        $params['from'] = $dataInicio;
+    }
+    
+    if ($dataFim !== null) {
+        $params['to'] = $dataFim;
+    }
+    
+    error_log("buscarJogosRodada - Parâmetros: " . json_encode($params));
+    
+    $resultado = fetchApiFootballData('fixtures', $params);
+    
+    error_log("buscarJogosRodada - Resultado: " . (is_array($resultado) ? count($resultado) . " jogos" : "null/erro"));
+    
+    return $resultado ?? [];
 }
 
 /**
  * Busca jogos que não estão sendo utilizados em outros bolões
  */
-function buscarJogosNaoUtilizados($campeonatoId, $ano, $incluirSemHorario = false) {
+function buscarJogosNaoUtilizados($campeonatoId, $ano, $incluirSemHorario = false, $dataInicio = null, $dataFim = null) {
     global $pdo;
     
     try {
+        // Debug: Log dos parâmetros
+        error_log("buscarJogosNaoUtilizados - Campeonato: $campeonatoId, Ano: $ano, Incluir sem horário: " . ($incluirSemHorario ? 'Sim' : 'Não'));
+        error_log("Datas: Início: $dataInicio, Fim: $dataFim");
+        
         // Buscar jogos da API
-        $jogosApi = buscarJogosRodada($campeonatoId, $ano, null);
+        $jogosApi = buscarJogosRodada($campeonatoId, $ano, null, $dataInicio, $dataFim);
+        
+        error_log("Jogos retornados da API: " . count($jogosApi));
         
         if (empty($jogosApi)) {
+            error_log("Nenhum jogo retornado da API para campeonato $campeonatoId");
             return [];
         }
         
@@ -276,7 +322,7 @@ include '../templates/admin/header.php';
                         <div class="row">
                             <div class="col-md-3 mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="71" id="checkA">
+                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="71" id="checkA" <?= in_array('71', $campeonatosSelecionados) ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="checkA">
                                         <i class="fas fa-shield-halved"></i> Brasileirão Série A
                                     </label>
@@ -284,7 +330,7 @@ include '../templates/admin/header.php';
                             </div>
                             <div class="col-md-3 mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="72" id="checkB">
+                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="72" id="checkB" <?= in_array('72', $campeonatosSelecionados) ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="checkB">
                                         <i class="fas fa-shield-halved"></i> Brasileirão Série B
                                     </label>
@@ -292,7 +338,7 @@ include '../templates/admin/header.php';
                             </div>
                             <div class="col-md-3 mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="73" id="checkCopa">
+                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="73" id="checkCopa" <?= in_array('73', $campeonatosSelecionados) ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="checkCopa">
                                         <i class="fas fa-trophy"></i> Copa do Brasil
                                     </label>
@@ -300,7 +346,7 @@ include '../templates/admin/header.php';
                             </div>
                             <div class="col-md-3 mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="13" id="checkLib">
+                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="13" id="checkLib" <?= in_array('13', $campeonatosSelecionados) ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="checkLib">
                                         <i class="fas fa-globe"></i> Libertadores
                                     </label>
