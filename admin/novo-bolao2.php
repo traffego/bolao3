@@ -406,148 +406,112 @@ include '../templates/admin/header.php';
     <!-- Formulário de Criação do Bolão -->
     <?php if (!empty($jogos)): ?>
     <form method="post" action="salvar-bolao.php" enctype="multipart/form-data" id="formBolao">
-        <div class="row">
-            <!-- Informações Básicas -->
-            <div class="col-md-6">
-                <div class="card mb-4 futebol-card" style="border: 2px solid #c8e6c9;">
-                    <div class="card-header" style="background: linear-gradient(90deg, #c8e6c9 60%, #43a047 100%); color: #222;">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Informações Básicas
+        <!-- Card Dados do Bolão -->
+        <div class="card mb-4 futebol-card" style="border: 2px solid #ffd600;">
+            <div class="card-header" style="background: linear-gradient(90deg, #ffd600 60%, #43a047 100%); color: #222;">
+                <i class="fa-solid fa-pen-nib"></i> Dados do Bolão
+            </div>
+            <div class="card-body">
+                <!-- Dados do Bolão em linha horizontal -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <label for="nome" class="form-label futebol-label">Nome do Bolão</label>
+                        <input type="text" class="form-control" id="nome" name="nome" 
+                               value="<?= htmlspecialchars($formData['nome']) ?>" required>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="nome" class="form-label futebol-label">Nome do Bolão *</label>
-                            <input type="text" class="form-control" id="nome" name="nome" 
-                                   value="<?= htmlspecialchars($formData['nome']) ?>" required>
+                    <div class="col-md-3">
+                        <label for="valor_participacao" class="form-label futebol-label">Valor Participação</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="text" class="form-control" id="valor_participacao" name="valor_participacao" 
+                                   value="<?= htmlspecialchars($formData['valor_participacao'] ?? '') ?>">
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="descricao" class="form-label futebol-label">Descrição</label>
-                            <textarea class="form-control" id="descricao" name="descricao" rows="3"><?= htmlspecialchars($formData['descricao']) ?></textarea>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="premio_total" class="form-label futebol-label">Prêmio Total</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="text" class="form-control" id="premio_total" name="premio_total" 
+                                   value="<?= htmlspecialchars($formData['premio_total'] ?? '') ?>">
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="data_inicio" class="form-label">Data de Início *</label>
-                                <input type="date" class="form-control" id="data_inicio" name="data_inicio" 
-                                       value="<?= $formData['data_inicio'] ?>" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="data_fim" class="form-label">Data de Fim *</label>
-                                <input type="date" class="form-control" id="data_fim" name="data_fim" 
-                                       value="<?= $formData['data_fim'] ?>" required>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="valor_participacao" class="form-label futebol-label">Valor de Participação (R$) *</label>
-                                <input type="number" class="form-control" id="valor_participacao" name="valor_participacao" 
-                                       step="0.01" min="0" value="<?= $formData['valor_participacao'] ?>" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="max_participantes" class="form-label futebol-label">Máx. Participantes</label>
-                                <input type="number" class="form-control" id="max_participantes" name="max_participantes" 
-                                       min="1" value="<?= $formData['max_participantes'] ?>">
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="premio_total" class="form-label">Prêmio Total (R$)</label>
-                                <input type="number" class="form-control" id="premio_total" name="premio_total" 
-                                       step="0.01" min="0" value="<?= $formData['premio_total'] ?>">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="premio_rodada" class="form-label">Prêmio da Rodada (R$)</label>
-                                <input type="number" class="form-control" id="premio_rodada" name="premio_rodada" 
-                                       step="0.01" min="0" value="<?= $formData['premio_rodada'] ?? '' ?>">
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="publico" name="publico" value="1" 
-                                           <?= $formData['publico'] ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="publico">
-                                        Bolão Público
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="imagem_bolao" class="form-label">Imagem do Bolão</label>
-                                <input type="file" class="form-control" id="imagem_bolao" name="imagem_bolao" accept="image/*">
-                                <div id="preview-imagem-bolao" class="mt-2"></div>
-                            </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="premio_rodada" class="form-label futebol-label">Prêmio da Rodada</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="text" class="form-control" id="premio_rodada" name="premio_rodada" 
+                                   value="<?= htmlspecialchars($formData['premio_rodada'] ?? '') ?>">
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Seleção de Jogos -->
-            <div class="col-md-6">
-                <div class="card mb-4 futebol-card" style="border: 2px solid #81c784;">
-                    <div class="card-header" style="background: linear-gradient(90deg, #81c784 60%, #43a047 100%); color: #222;">
-                        <i class="fas fa-futbol me-1"></i>
-                        Jogos Disponíveis (<?= count($jogos) ?>)
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="quantidade_jogos" class="form-label">Quantidade de Jogos</label>
-                                <input type="number" class="form-control" id="quantidade_jogos" name="quantidade_jogos" 
-                                       min="1" max="<?= count($jogos) ?>" value="<?= $formData['quantidade_jogos'] ?? 11 ?>">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Jogos Disponíveis</label>
-                                <div class="form-control-plaintext">
-                                    <strong><?= count($jogos) ?></strong> jogos encontrados
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Jogos Selecionados</label>
-                                <div class="form-control-plaintext">
-                                    <strong id="contador-selecionados">0</strong> jogos selecionados
-                                </div>
+                
+                <!-- Botões de ação -->
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button type="button" id="buscar-jogos-btn" class="btn futebol-btn" style="flex: 1; max-width: 400px;">
+                        <i class="fa-solid fa-search"></i> Buscar Jogos Disponíveis
+                    </button>
+                    <button type="submit" class="btn futebol-btn" style="flex: 1; max-width: 400px;">
+                        <i class="fa-solid fa-futbol"></i> Criar Bolão com Jogos Selecionados
+                    </button>
+                </div>
+
+                <div class="table-responsive mt-4" id="jogos-table-container">
+                    <h5 class="mb-3"><i class="fas fa-futbol"></i> Jogos Disponíveis (<?= count($jogos) ?>)</h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="quantidade_jogos" class="form-label futebol-label">Qtd. Jogos</label>
+                            <input type="number" class="form-control" id="quantidade_jogos" name="quantidade_jogos" 
+                                   min="1" max="<?= count($jogos) ?>" value="<?= $formData['quantidade_jogos'] ?? 11 ?>">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Jogos Disponíveis</label>
+                            <div class="form-control-plaintext">
+                                <strong><?= count($jogos) ?></strong> encontrados
                             </div>
                         </div>
-                        
-                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                            <table class="table table-sm table-striped">
-                                <thead class="table-dark sticky-top">
-                                    <tr>
-                                        <th width="40">Sel.</th>
-                                        <th>Data/Hora</th>
-                                        <th>Jogo</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="jogos-tbody">
-                                    <?php foreach ($jogos as $index => $jogo): ?>
-                                        <tr>
-                                            <td>
-                                                <input type="checkbox" class="form-check-input jogo-checkbox" 
-                                                       name="jogos_selecionados[]" 
-                                                       value="<?= $jogo['fixture']['id'] ?>"
-                                                       data-index="<?= $index ?>">
-                                            </td>
-                                            <td>
-                                                <?php 
-                                                $dataJogo = $jogo['fixture']['date'];
-                                                $timestamp = strtotime($dataJogo);
-                                                if (date('H:i:s', $timestamp) === '00:00:00') {
-                                                    echo date('d/m/Y', $timestamp) . '<br><small class="text-muted">Horário a definir</small>';
-                                                } else {
-                                                    echo date('d/m/Y H:i', $timestamp);
-                                                }
-                                                ?>
-                                            </td>
-                                            <td>
-                                                <small>
-                                                    <?= htmlspecialchars($jogo['teams']['home']['name']) ?>
-                                                    <strong>vs</strong>
-                                                    <?= htmlspecialchars($jogo['teams']['away']['name']) ?>
-                                                </small>
+                        <div class="col-md-4">
+                            <label class="form-label">Jogos Selecionados</label>
+                            <div class="form-control-plaintext">
+                                <strong id="contador-selecionados">0</strong> selecionados
+                            </div>
+                        </div>
+                     
+                     <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                         <table class="table table-sm table-striped">
+                             <thead class="table-dark sticky-top">
+                                 <tr>
+                                     <th width="40">Sel.</th>
+                                     <th>Data/Hora</th>
+                                     <th>Jogo</th>
+                                 </tr>
+                             </thead>
+                             <tbody id="jogos-tbody">
+                                 <?php foreach ($jogos as $index => $jogo): ?>
+                                     <tr>
+                                         <td>
+                                             <input type="checkbox" class="form-check-input jogo-checkbox" 
+                                                    name="jogos_selecionados[]" 
+                                                    value="<?= $jogo['fixture']['id'] ?>"
+                                                    data-index="<?= $index ?>">
+                                         </td>
+                                         <td>
+                                             <?php 
+                                             $dataJogo = $jogo['fixture']['date'];
+                                             $timestamp = strtotime($dataJogo);
+                                             if (date('H:i:s', $timestamp) === '00:00:00') {
+                                                 echo date('d/m/Y', $timestamp) . '<br><small class="text-muted">Horário a definir</small>';
+                                             } else {
+                                                 echo date('d/m/Y H:i', $timestamp);
+                                             }
+                                             ?>
+                                         </td>
+                                         <td>
+                                             <small>
+                                                 <?= htmlspecialchars($jogo['teams']['home']['name']) ?>
+                                                 <strong>vs</strong>
+                                                 <?= htmlspecialchars($jogo['teams']['away']['name']) ?>
+                                             </small>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -646,22 +610,6 @@ include '../templates/admin/header.php';
 </style>
 
 <script>
-// Preview da imagem do bolão
-const inputImagem = document.getElementById('imagem_bolao');
-const previewDiv = document.getElementById('preview-imagem-bolao');
-if (inputImagem) {
-    inputImagem.addEventListener('change', function(e) {
-        previewDiv.innerHTML = '';
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                previewDiv.innerHTML = `<img src='${ev.target.result}' alt='Preview' style='max-width: 100%; max-height: 120px; border-radius: 10px; box-shadow: 0 2px 8px #ccc;'>`;
-            };
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-}
-
 // Atualizar contador de jogos selecionados
 function atualizarContador() {
     const checkboxes = document.querySelectorAll('.jogo-checkbox:checked');
