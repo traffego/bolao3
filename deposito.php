@@ -493,7 +493,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     window.redirecionarParaConta = function() {
-        window.location.href = 'minha-conta.php';
+        // Verificar se há palpites preservados para restaurar
+        fetch('api/verificar_palpites_temp.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.tem_palpites && data.bolao_redirect) {
+                    // Redirecionar de volta ao bolão com palpites preservados
+                    window.location.href = data.bolao_redirect;
+                } else {
+                    // Redirecionamento normal para minha conta
+                    window.location.href = 'minha-conta.php';
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao verificar palpites:', error);
+                // Fallback para minha conta em caso de erro
+                window.location.href = 'minha-conta.php';
+            });
     };
 });
 </script>

@@ -98,8 +98,31 @@ if ($usuarioId) {
     }
 } 
 // Verificar se há palpites salvos na sessão
-else if (isset($_SESSION['palpites_temp'][$bolao['id']])) {
-    $palpitesSessao = $_SESSION['palpites_temp'][$bolao['id']];
+else if (isset($_SESSION['palpites_temp'])) {
+    // Verificar se é um array de palpites preservados após depósito
+    if (isset($_SESSION['palpites_temp']['bolao_id']) && $_SESSION['palpites_temp']['bolao_id'] == $bolao['id']) {
+        // Restaurar palpites preservados
+        $palpitesSessao = [];
+        foreach ($_SESSION['palpites_temp'] as $key => $value) {
+            if (strpos($key, 'resultado_') === 0) {
+                $jogoId = substr($key, strlen('resultado_'));
+                $palpitesSessao[$jogoId] = $value;
+            }
+        }
+        
+        // Limpar flag de saldo insuficiente se existir e mostrar mensagem
+        if (isset($_SESSION['saldo_insuficiente'])) {
+            unset($_SESSION['saldo_insuficiente']);
+            $mensagem = [
+                'tipo' => 'success',
+                'texto' => 'Seus palpites foram restaurados! Agora você pode continuar de onde parou.'
+            ];
+        }
+    }
+    // Formato antigo de palpites temporários
+    else if (isset($_SESSION['palpites_temp'][$bolao['id']])) {
+        $palpitesSessao = $_SESSION['palpites_temp'][$bolao['id']];
+    }
 }
 
 // Processar envio de palpites

@@ -80,8 +80,13 @@ if ($bolao['valor_participacao'] > 0) {
         // Verificar se tem saldo suficiente
         $saldoInfo = verificarSaldoJogador($usuarioId);
         if (!$saldoInfo['tem_saldo'] || $saldoInfo['saldo_atual'] < $bolao['valor_participacao']) {
-            setFlashMessage('danger', 'Saldo insuficiente para participar do bolão.');
-            redirect(APP_URL . '/minha-conta.php');
+            // Preservar palpites na sessão para restaurar após depósito
+            $_SESSION['palpites_temp'] = $_POST;
+            $_SESSION['bolao_redirect'] = APP_URL . '/bolao.php?slug=' . $bolaoSlug;
+            $_SESSION['saldo_insuficiente'] = true;
+            
+            setFlashMessage('info', 'Saldo insuficiente. Faça um depósito para continuar com seus palpites.');
+            redirect(APP_URL . '/deposito.php?valor=' . number_format($bolao['valor_participacao'] - $saldoInfo['saldo_atual'], 2, '.', ''));
         }
         $contaId = $saldoInfo['conta_id'];
     }
