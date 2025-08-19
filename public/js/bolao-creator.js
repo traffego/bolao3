@@ -360,16 +360,18 @@ function atualizarTabelaJogos() {
 
         // NOVA LÓGICA: Só desabilitar se já está em uso OU se atingiu o limite E não está selecionado
         // Jogos livres (não em uso) devem SEMPRE poder ser marcados/desmarcados
+        // Na busca ampliada, permitir seleção de novos jogos mesmo se o limite foi atingido
         let finalDisabled = false;
         
         if (jaUtilizado) {
             // Jogo em outro bolão - sempre desabilitado
             finalDisabled = true;
-        } else if (!isSelected && state.jogosSelecionados.size >= state.maxJogos) {
-            // Só desabilitar se não está selecionado E atingiu o limite
+        } else if (!isSelected && state.jogosSelecionados.size >= state.maxJogos && !state.buscaAmpliada) {
+            // Só desabilitar se não está selecionado E atingiu o limite E não está em busca ampliada
             finalDisabled = true;
         }
         // Jogos livres e já selecionados ficam sempre habilitados para desmarcação
+        // Na busca ampliada, todos os jogos livres ficam habilitados
         
         // Adicionar classes CSS apropriadas
         if (jaUtilizado) {
