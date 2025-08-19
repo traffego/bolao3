@@ -262,13 +262,54 @@ include '../templates/admin/header.php';
     <?php endif; ?>
 
     <!-- Formulário de Filtros -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
+    <div class="card mb-4 futebol-card" style="border: 2px solid #ffd600;">
+        <div class="card-header" style="background: linear-gradient(90deg, #ffd600 60%, #43a047 100%); color: #222;">
             <i class="fas fa-filter me-1"></i>
             Filtros de Jogos
         </div>
         <div class="card-body">
             <form method="get" action="" id="formFiltros">
+                <!-- Seção de Campeonatos Principais -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Campeonatos Principais</label>
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="71" id="checkA">
+                                    <label class="form-check-label" for="checkA">
+                                        <i class="fas fa-shield-halved"></i> Brasileirão Série A
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="72" id="checkB">
+                                    <label class="form-check-label" for="checkB">
+                                        <i class="fas fa-shield-halved"></i> Brasileirão Série B
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="73" id="checkCopa">
+                                    <label class="form-check-label" for="checkCopa">
+                                        <i class="fas fa-trophy"></i> Copa do Brasil
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input campeonato-checkbox" type="checkbox" name="campeonatos[]" value="13" id="checkLib">
+                                    <label class="form-check-label" for="checkLib">
+                                        <i class="fas fa-globe"></i> Libertadores
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="row">
                     <!-- País -->
                     <div class="col-md-3 mb-3">
@@ -353,7 +394,7 @@ include '../templates/admin/header.php';
                     
                     <!-- Botão de buscar -->
                     <div class="col-md-3 mb-3">
-                        <button type="submit" class="btn btn-primary mt-4" name="buscar">
+                        <button type="submit" class="btn futebol-btn mt-4" name="buscar">
                             <i class="fas fa-search"></i> Buscar Jogos
                         </button>
                     </div>
@@ -368,20 +409,20 @@ include '../templates/admin/header.php';
         <div class="row">
             <!-- Informações Básicas -->
             <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-header bg-success text-white">
+                <div class="card mb-4 futebol-card" style="border: 2px solid #c8e6c9;">
+                    <div class="card-header" style="background: linear-gradient(90deg, #c8e6c9 60%, #43a047 100%); color: #222;">
                         <i class="fas fa-info-circle me-1"></i>
                         Informações Básicas
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="nome" class="form-label">Nome do Bolão *</label>
+                            <label for="nome" class="form-label futebol-label">Nome do Bolão *</label>
                             <input type="text" class="form-control" id="nome" name="nome" 
                                    value="<?= htmlspecialchars($formData['nome']) ?>" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="descricao" class="form-label">Descrição</label>
+                            <label for="descricao" class="form-label futebol-label">Descrição</label>
                             <textarea class="form-control" id="descricao" name="descricao" rows="3"><?= htmlspecialchars($formData['descricao']) ?></textarea>
                         </div>
                         
@@ -400,12 +441,12 @@ include '../templates/admin/header.php';
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="valor_participacao" class="form-label">Valor de Participação (R$) *</label>
+                                <label for="valor_participacao" class="form-label futebol-label">Valor de Participação (R$) *</label>
                                 <input type="number" class="form-control" id="valor_participacao" name="valor_participacao" 
                                        step="0.01" min="0" value="<?= $formData['valor_participacao'] ?>" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="max_participantes" class="form-label">Máx. Participantes</label>
+                                <label for="max_participantes" class="form-label futebol-label">Máx. Participantes</label>
                                 <input type="number" class="form-control" id="max_participantes" name="max_participantes" 
                                        min="1" value="<?= $formData['max_participantes'] ?>">
                             </div>
@@ -437,6 +478,7 @@ include '../templates/admin/header.php';
                             <div class="col-md-6 mb-3">
                                 <label for="imagem_bolao" class="form-label">Imagem do Bolão</label>
                                 <input type="file" class="form-control" id="imagem_bolao" name="imagem_bolao" accept="image/*">
+                                <div id="preview-imagem-bolao" class="mt-2"></div>
                             </div>
                         </div>
                     </div>
@@ -445,22 +487,28 @@ include '../templates/admin/header.php';
             
             <!-- Seleção de Jogos -->
             <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-header bg-info text-white">
+                <div class="card mb-4 futebol-card" style="border: 2px solid #81c784;">
+                    <div class="card-header" style="background: linear-gradient(90deg, #81c784 60%, #43a047 100%); color: #222;">
                         <i class="fas fa-futbol me-1"></i>
                         Jogos Disponíveis (<?= count($jogos) ?>)
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label for="quantidade_jogos" class="form-label">Quantidade de Jogos</label>
                                 <input type="number" class="form-control" id="quantidade_jogos" name="quantidade_jogos" 
-                                       min="1" max="<?= count($jogos) ?>" value="<?= $formData['quantidade_jogos'] ?>">
+                                       min="1" max="<?= count($jogos) ?>" value="<?= $formData['quantidade_jogos'] ?? 11 ?>">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Jogos Disponíveis</label>
                                 <div class="form-control-plaintext">
                                     <strong><?= count($jogos) ?></strong> jogos encontrados
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Jogos Selecionados</label>
+                                <div class="form-control-plaintext">
+                                    <strong id="contador-selecionados">0</strong> jogos selecionados
                                 </div>
                             </div>
                         </div>
@@ -522,9 +570,9 @@ include '../templates/admin/header.php';
         </div>
         
         <!-- Botões de Ação -->
-        <div class="card">
+        <div class="card futebol-card">
             <div class="card-body text-center">
-                <button type="submit" class="btn btn-success btn-lg me-3">
+                <button type="submit" class="btn futebol-btn btn-lg me-3">
                     <i class="fas fa-save"></i> Criar Bolão
                 </button>
                 <a href="boloes.php" class="btn btn-secondary btn-lg">
@@ -545,5 +593,198 @@ include '../templates/admin/header.php';
 </div>
 
 <script src="../public/js/bolao-creator2.js"></script>
+
+<style>
+/* Estilos personalizados do futebol */
+.futebol-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.futebol-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.futebol-label {
+    font-weight: 600;
+    color: #2e7d32;
+    margin-bottom: 8px;
+}
+
+.futebol-btn {
+    background: linear-gradient(45deg, #43a047, #66bb6a);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.futebol-btn:hover {
+    background: linear-gradient(45deg, #388e3c, #43a047);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(67, 160, 71, 0.4);
+    color: white;
+}
+
+.campeonato-checkbox:checked + label {
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.form-check-label {
+    cursor: pointer;
+}
+
+.form-check-label i {
+    margin-right: 5px;
+    color: #ffd600;
+}
+</style>
+
+<script>
+// Preview da imagem do bolão
+const inputImagem = document.getElementById('imagem_bolao');
+const previewDiv = document.getElementById('preview-imagem-bolao');
+if (inputImagem) {
+    inputImagem.addEventListener('change', function(e) {
+        previewDiv.innerHTML = '';
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                previewDiv.innerHTML = `<img src='${ev.target.result}' alt='Preview' style='max-width: 100%; max-height: 120px; border-radius: 10px; box-shadow: 0 2px 8px #ccc;'>`;
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+}
+
+// Atualizar contador de jogos selecionados
+function atualizarContador() {
+    const checkboxes = document.querySelectorAll('.jogo-checkbox:checked');
+    const contador = document.getElementById('contador-selecionados');
+    if (contador) {
+        contador.textContent = checkboxes.length;
+    }
+    
+    // Atualizar também o contador original
+    const contadorOriginal = document.getElementById('contador-jogos');
+    if (contadorOriginal) {
+        contadorOriginal.textContent = checkboxes.length + ' jogos selecionados';
+    }
+}
+
+// Adicionar event listeners aos checkboxes
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.jogo-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', atualizarContador);
+    });
+    
+    // Botões de seleção
+    const btnSelecionarTodos = document.getElementById('selecionar-todos');
+    const btnLimparSelecao = document.getElementById('limpar-selecao');
+    
+    if (btnSelecionarTodos) {
+        btnSelecionarTodos.addEventListener('click', function() {
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            atualizarContador();
+        });
+    }
+    
+    if (btnLimparSelecao) {
+        btnLimparSelecao.addEventListener('click', function() {
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            atualizarContador();
+        });
+    }
+});
+</script>
+
+<!-- Loader overlay -->
+<div id="loader-overlay" style="display: none;">
+    <div class="loader-content">
+        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+        <h4 class="mt-3 text-light">BUSCANDO INFORMAÇÕES DOS JOGOS</h4>
+    </div>
+</div>
+
+<style>
+/* Loader styles */
+#loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader-content {
+    text-align: center;
+    padding: 2rem;
+    border-radius: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Animação de fade */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+.fade-out {
+    animation: fadeOut 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+</style>
+
+<script>
+// Adicionar loader ao botão de buscar jogos
+document.addEventListener('DOMContentLoaded', function() {
+    const buscarJogosBtn = document.querySelector('button[name="buscar"]');
+    const loaderOverlay = document.getElementById('loader-overlay');
+    
+    if (buscarJogosBtn && loaderOverlay) {
+        buscarJogosBtn.addEventListener('click', function(e) {
+            // Mostra o loader com animação
+            loaderOverlay.style.display = 'flex';
+            loaderOverlay.classList.add('fade-in');
+            
+            // Esconde o loader após um delay para garantir que os dados foram carregados
+            setTimeout(() => {
+                loaderOverlay.classList.add('fade-out');
+                setTimeout(() => {
+                    loaderOverlay.style.display = 'none';
+                    loaderOverlay.classList.remove('fade-in', 'fade-out');
+                }, 300);
+            }, 2000); // 2 segundos de delay
+        });
+    }
+});
+</script>
 
 <?php include '../templates/admin/footer.php'; ?>
