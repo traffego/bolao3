@@ -85,18 +85,11 @@ $campeonatosSelecionados = isset($_GET['campeonatos']) ? (array)$_GET['campeonat
 if (!empty($campeonatosSelecionados) && isset($_GET['buscar'])) {
     $incluirSemHorario = isset($_GET['incluir_sem_horario']) && $_GET['incluir_sem_horario'] == '1';
     
-    // Debug: Log dos campeonatos selecionados
-    error_log("Campeonatos selecionados: " . implode(', ', $campeonatosSelecionados));
-    error_log("Incluir sem horário: " . ($incluirSemHorario ? 'Sim' : 'Não'));
-    
     // Buscar jogos para cada campeonato selecionado
     foreach ($campeonatosSelecionados as $campeonatoId) {
         $jogosTemp = buscarJogosNaoUtilizados((int)$campeonatoId, $anoAtual, $incluirSemHorario, $_GET['data_inicio'] ?? null, $_GET['data_fim'] ?? null);
-        error_log("Campeonato $campeonatoId: " . count($jogosTemp) . " jogos encontrados");
         $jogos = array_merge($jogos, $jogosTemp);
     }
-    
-    error_log("Total de jogos encontrados: " . count($jogos));
 } elseif (isset($_GET['campeonato_brasil']) && isset($campeonatosBrasil[$_GET['campeonato_brasil']])) {
     $campeonatoId = (int)$_GET['campeonato_brasil'];
     $incluirSemHorario = isset($_GET['incluir_sem_horario']) && $_GET['incluir_sem_horario'] == '1';
@@ -208,11 +201,7 @@ function buscarJogosRodada($campeonatoId, $temporada, $rodada, $dataInicio = nul
         $params['to'] = $dataFim;
     }
     
-    error_log("buscarJogosRodada - Parâmetros: " . json_encode($params));
-    
     $resultado = fetchApiFootballData('fixtures', $params);
-    
-    error_log("buscarJogosRodada - Resultado: " . (is_array($resultado) ? count($resultado) . " jogos" : "null/erro"));
     
     return $resultado ?? [];
 }
@@ -224,17 +213,10 @@ function buscarJogosNaoUtilizados($campeonatoId, $ano, $incluirSemHorario = fals
     global $pdo;
     
     try {
-        // Debug: Log dos parâmetros
-        error_log("buscarJogosNaoUtilizados - Campeonato: $campeonatoId, Ano: $ano, Incluir sem horário: " . ($incluirSemHorario ? 'Sim' : 'Não'));
-        error_log("Datas: Início: $dataInicio, Fim: $dataFim");
-        
         // Buscar jogos da API
         $jogosApi = buscarJogosRodada($campeonatoId, $ano, null, $dataInicio, $dataFim);
         
-        error_log("Jogos retornados da API: " . count($jogosApi));
-        
         if (empty($jogosApi)) {
-            error_log("Nenhum jogo retornado da API para campeonato $campeonatoId");
             return [];
         }
         
