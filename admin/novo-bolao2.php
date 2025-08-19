@@ -310,60 +310,7 @@ include '../templates/admin/header.php';
                     </div>
                 </div>
                 
-                <div class="row">
-                    <!-- País -->
-                    <div class="col-md-3 mb-3">
-                        <label for="pais" class="form-label">País</label>
-                        <select class="form-select" id="pais" name="pais">
-                            <option value="">Todos os países</option>
-                            <?php foreach ($paises as $pais): ?>
-                                <option value="<?= htmlspecialchars($pais['name']) ?>" 
-                                        <?= $formData['pais'] == $pais['name'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($paisesAmericaLatina[$pais['name']] ?? $pais['name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
-                    <!-- Campeonato -->
-                    <div class="col-md-3 mb-3">
-                        <label for="campeonato" class="form-label">Campeonato</label>
-                        <select class="form-select" id="campeonato" name="campeonato">
-                            <option value="">Todos os campeonatos</option>
-                            <?php foreach ($campeonatos as $campeonato): ?>
-                                <option value="<?= $campeonato['league']['id'] ?>" 
-                                        <?= $formData['campeonato'] == $campeonato['league']['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($campeonato['league']['name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
-                    <!-- Campeonato Brasil (fallback) -->
-                    <div class="col-md-3 mb-3">
-                        <label for="campeonato_brasil" class="form-label">Campeonatos Brasil</label>
-                        <select class="form-select" id="campeonato_brasil" name="campeonato_brasil">
-                            <option value="">Selecione um campeonato</option>
-                            <?php foreach ($campeonatosBrasil as $id => $nome): ?>
-                                <option value="<?= $id ?>" 
-                                        <?= isset($_GET['campeonato_brasil']) && $_GET['campeonato_brasil'] == $id ? 'selected' : '' ?>>
-                                    <?= $nome ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
-                    <!-- Status do Jogo -->
-                    <div class="col-md-3 mb-3">
-                        <label for="status" class="form-label">Status</label>
-                        <select class="form-select" id="status" name="status">
-                            <option value="" <?= $formData['status'] == '' ? 'selected' : '' ?>>Todos</option>
-                            <option value="NS" <?= $formData['status'] == 'NS' ? 'selected' : '' ?>>Não iniciado</option>
-                            <option value="LIVE" <?= $formData['status'] == 'LIVE' ? 'selected' : '' ?>>Ao vivo</option>
-                            <option value="FT" <?= $formData['status'] == 'FT' ? 'selected' : '' ?>>Finalizado</option>
-                        </select>
-                    </div>
-                </div>
+
                 
                 <div class="row">
                     <!-- Data Início -->
