@@ -201,9 +201,22 @@ function buscarJogosRodada($campeonatoId, $temporada, $rodada, $dataInicio = nul
         $params['to'] = $dataFim;
     }
     
+    // DEBUG: Log dos parâmetros enviados para a API
+    error_log("DEBUG buscarJogosRodada - Parâmetros: " . json_encode($params));
+    
     $resultado = fetchApiFootballData('fixtures', $params);
     
-    return $resultado ?? [];
+    // DEBUG: Log do resultado da API
+    error_log("DEBUG buscarJogosRodada - Resultado da API: " . json_encode($resultado));
+    
+    // Retornar apenas os jogos da resposta da API
+    if ($resultado && isset($resultado['response'])) {
+        error_log("DEBUG buscarJogosRodada - Jogos encontrados: " . count($resultado['response']));
+        return $resultado['response'];
+    }
+    
+    error_log("DEBUG buscarJogosRodada - Nenhum jogo encontrado ou erro na API");
+    return [];
 }
 
 /**
@@ -213,10 +226,17 @@ function buscarJogosNaoUtilizados($campeonatoId, $ano, $incluirSemHorario = fals
     global $pdo;
     
     try {
+        // DEBUG: Log dos parâmetros
+        error_log("DEBUG buscarJogosNaoUtilizados - Campeonato: $campeonatoId, Ano: $ano, DataInicio: $dataInicio, DataFim: $dataFim, IncluirSemHorario: " . ($incluirSemHorario ? 'true' : 'false'));
+        
         // Buscar jogos da API
         $jogosApi = buscarJogosRodada($campeonatoId, $ano, null, $dataInicio, $dataFim);
         
+        // DEBUG: Log da quantidade de jogos retornados
+        error_log("DEBUG buscarJogosNaoUtilizados - Jogos da API: " . count($jogosApi));
+        
         if (empty($jogosApi)) {
+            error_log("DEBUG buscarJogosNaoUtilizados - Nenhum jogo retornado da API");
             return [];
         }
         
