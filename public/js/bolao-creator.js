@@ -694,34 +694,44 @@ function handleJogoSelection(event) {
         if (state.jogosSelecionados.size < state.maxJogos) {
             state.jogosSelecionados.add(jogoId);
         } else {
-            // Atingiu o limite - desmarcar um jogo livre para dar lugar ao novo
-            const jogosLivresSelecionados = Array.from(state.jogosSelecionados).filter(id => {
-                const jogoSelecionado = state.todosJogos.find(j => j.id === id);
-                return jogoSelecionado && !jogoSelecionado.ja_utilizado;
-            });
-            
-            if (jogosLivresSelecionados.length > 0) {
-                // Desmarcar o primeiro jogo livre selecionado
-                const jogoParaDesmarcar = jogosLivresSelecionados[0];
-                state.jogosSelecionados.delete(jogoParaDesmarcar);
-                state.jogosSelecionados.add(jogoId);
-                console.log(`Trocou jogo ${jogoParaDesmarcar} por ${jogoId}`);
-            } else {
+            // Na busca ampliada, não fazer troca automática - apenas alertar
+            if (state.buscaAmpliada) {
                 event.target.checked = false;
-                alert(`Você já selecionou o máximo de ${state.maxJogos} jogos.`);
+                alert(`Você já selecionou o máximo de ${state.maxJogos} jogos. Desmarque um jogo primeiro para selecionar este.`);
+            } else {
+                // Atingiu o limite - desmarcar um jogo livre para dar lugar ao novo
+                const jogosLivresSelecionados = Array.from(state.jogosSelecionados).filter(id => {
+                    const jogoSelecionado = state.todosJogos.find(j => j.id === id);
+                    return jogoSelecionado && !jogoSelecionado.ja_utilizado;
+                });
+                
+                if (jogosLivresSelecionados.length > 0) {
+                    // Desmarcar o primeiro jogo livre selecionado
+                    const jogoParaDesmarcar = jogosLivresSelecionados[0];
+                    state.jogosSelecionados.delete(jogoParaDesmarcar);
+                    state.jogosSelecionados.add(jogoId);
+                    console.log(`Trocou jogo ${jogoParaDesmarcar} por ${jogoId}`);
+                } else {
+                    event.target.checked = false;
+                    alert(`Você já selecionou o máximo de ${state.maxJogos} jogos.`);
+                }
             }
         }
     } else {
         state.jogosSelecionados.delete(jogoId);
-        // Selecionar o próximo jogo disponível (que não esteja sendo usado)
-        const proximoJogo = state.todosJogos.find(jogo => 
-            !state.jogosSelecionados.has(jogo.id) && 
-            !jogo.ja_utilizado &&
-            new Date(jogo.data) > new Date()
-        );
         
-        if (proximoJogo) {
-            state.jogosSelecionados.add(proximoJogo.id);
+        // Na busca ampliada, não fazer seleção automática
+        if (!state.buscaAmpliada) {
+            // Selecionar o próximo jogo disponível (que não esteja sendo usado)
+            const proximoJogo = state.todosJogos.find(jogo => 
+                !state.jogosSelecionados.has(jogo.id) && 
+                !jogo.ja_utilizado &&
+                new Date(jogo.data) > new Date()
+            );
+            
+            if (proximoJogo) {
+                state.jogosSelecionados.add(proximoJogo.id);
+            }
         }
     }
     
