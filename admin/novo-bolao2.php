@@ -1,8 +1,7 @@
 <?php
 require_once '../config/config.php';
-require_once '../includes/auth.php';
+require_once '../includes/auth_admin.php';
 require_once '../includes/functions.php';
-require_once '../includes/api_football.php';
 
 // Verificar se é admin
 if (!isAdmin()) {
