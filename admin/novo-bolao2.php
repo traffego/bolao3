@@ -1,21 +1,25 @@
 <?php
 require_once '../config/config.php';
+require_once '../includes/auth.php';
 require_once '../includes/functions.php';
+require_once '../includes/api_football.php';
 
-// Check if admin is logged in
+// Verificar se é admin
 if (!isAdmin()) {
-    setFlashMessage('danger', 'Acesso negado. Faça login como administrador.');
     redirect(APP_URL . '/admin/login.php');
 }
 
-// Initialize variables
+// Inicializar variáveis
+$paises = [];
+$campeonatos = [];
 $jogos = [];
-$errors = [];
-$apiConfig = getConfig('api_football');
+$formData = [];
 $anoAtual = date('Y');
 $prazo_dias = $_GET['prazo_dias'] ?? 30;
 
 // IDs dos campeonatos brasileiros
+$campeonatosBrasileiros = [71, 72, 73, 13]; // Série A, B, Copa do Brasil, Libertadores
+
 $campeonatosBrasil = [
     71 => 'Brasileirão Série A',
     72 => 'Brasileirão Série B',
@@ -24,27 +28,149 @@ $campeonatosBrasil = [
     73 => 'Copa do Brasil'
 ];
 
-// Default form data
-$formData = [
-    'nome' => '',
-    'descricao' => '',
-    'data_inicio' => date('Y-m-d'),
-    'data_fim' => date('Y-m-d', strtotime('+30 days')),
-    'valor_participacao' => '',
-    'max_participantes' => '',
-    'premio_total' => '',
-    'publico' => 1,
-    'quantidade_jogos' => '11',
-    'incluir_sem_horario' => false
+// IDs dos países da América Latina
+$paisesAmericaLatina = [
+    'Brazil' => 'Brasil',
+    'Argentina' => 'Argentina', 
+    'Chile' => 'Chile',
+    'Colombia' => 'Colômbia',
+    'Peru' => 'Peru',
+    'Uruguay' => 'Uruguai',
+    'Paraguay' => 'Paraguai',
+    'Ecuador' => 'Equador',
+    'Bolivia' => 'Bolívia',
+    'Venezuela' => 'Venezuela',
+    'Mexico' => 'México'
 ];
 
-// Processar seleção de campeonato brasileiro
+// Dados padrão do formulário
+$formData = [
+    'nome' => $_POST['nome'] ?? '',
+    'descricao' => $_POST['descricao'] ?? '',
+    'data_inicio' => $_POST['data_inicio'] ?? date('Y-m-d'),
+    'data_fim' => $_POST['data_fim'] ?? date('Y-m-d', strtotime('+30 days')),
+    'valor_participacao' => $_POST['valor_participacao'] ?? '',
+    'max_participantes' => $_POST['max_participantes'] ?? '',
+    'premio_total' => $_POST['premio_total'] ?? '',
+    'publico' => $_POST['publico'] ?? 1,
+    'quantidade_jogos' => $_POST['quantidade_jogos'] ?? '11',
+    'incluir_sem_horario' => isset($_GET['incluir_sem_horario']) || isset($_POST['incluir_sem_horario']),
+    'pais' => $_GET['pais'] ?? $_POST['pais'] ?? '',
+    'campeonato' => $_GET['campeonato'] ?? $_POST['campeonato'] ?? '',
+    'status' => $_GET['status'] ?? $_POST['status'] ?? 'NS'
+];
+
+// Carregar países se necessário
+if (empty($paises)) {
+    $dadosPaises = fetchApiFootballData('countries');
+    if ($dadosPaises && isset($dadosPaises['response'])) {
+        foreach ($dadosPaises['response'] as $pais) {
+            if (isset($paisesAmericaLatina[$pais['name']])) {
+                $paises[] = $pais;
+            }
+        }
+    }
+}
+
+// Carregar campeonatos se um país foi selecionado
+if (!empty($formData['pais'])) {
+    $dadosCampeonatos = fetchApiFootballData('leagues', [
+        'country' => $formData['pais'],
+        'season' => $anoAtual
+    ]);
+    
+    if ($dadosCampeonatos && isset($dadosCampeonatos['response'])) {
+        $campeonatos = $dadosCampeonatos['response'];
+    }
+}
+
+// Processar busca de jogos
 if (isset($_GET['campeonato_brasil']) && isset($campeonatosBrasil[$_GET['campeonato_brasil']])) {
     $campeonatoId = (int)$_GET['campeonato_brasil'];
     $incluirSemHorario = isset($_GET['incluir_sem_horario']) && $_GET['incluir_sem_horario'] == '1';
     
     // Buscar jogos não utilizados
     $jogos = buscarJogosNaoUtilizados($campeonatoId, $anoAtual, $incluirSemHorario);
+} elseif (isset($_GET['buscar']) || isset($_POST['buscar_jogos'])) {
+    $incluirSemHorario = $formData['incluir_sem_horario'];
+    
+    // Parâmetros base para busca
+    $parametros = [
+        'season' => $anoAtual,
+        'from' => $formData['data_inicio'],
+        'to' => $formData['data_fim']
+    ];
+    
+    // Adicionar filtros específicos
+    if (!empty($formData['pais'])) {
+        $parametros['country'] = $formData['pais'];
+    }
+    
+    if (!empty($formData['campeonato'])) {
+        $parametros['league'] = $formData['campeonato'];
+    }
+    
+    if (!empty($formData['status'])) {
+        $parametros['status'] = $formData['status'];
+    }
+    
+    // Se nenhum filtro específico, usar campeonatos brasileiros
+    if (empty($formData['pais']) && empty($formData['campeonato'])) {
+        foreach ($campeonatosBrasileiros as $ligaId) {
+            $parametros['league'] = $ligaId;
+            $dadosJogos = fetchApiFootballData('fixtures', $parametros);
+            
+            if ($dadosJogos && isset($dadosJogos['response'])) {
+                foreach ($dadosJogos['response'] as $jogo) {
+                    // Verificar se o jogo já está sendo usado em outro bolão
+                    $jogoJaUsado = verificarJogoJaUsado($jogo['fixture']['id']);
+                    
+                    if (!$jogoJaUsado) {
+                        // Verificar se deve incluir jogos sem horário definido
+                        $temHorarioDefinido = !empty($jogo['fixture']['date']) && 
+                                            $jogo['fixture']['date'] !== '1970-01-01T00:00:00+00:00' &&
+                                            !in_array($jogo['fixture']['status']['short'], ['TBD', 'TBA']);
+                        
+                        if ($incluirSemHorario || $temHorarioDefinido) {
+                            $jogos[] = $jogo;
+                        }
+                    }
+                }
+            }
+            unset($parametros['league']); // Remove para próxima iteração
+        }
+    } else {
+        // Busca com filtros específicos
+        $dadosJogos = fetchApiFootballData('fixtures', $parametros);
+        
+        if ($dadosJogos && isset($dadosJogos['response'])) {
+            foreach ($dadosJogos['response'] as $jogo) {
+                // Verificar se o jogo já está sendo usado em outro bolão
+                $jogoJaUsado = verificarJogoJaUsado($jogo['fixture']['id']);
+                
+                if (!$jogoJaUsado) {
+                    // Verificar se deve incluir jogos sem horário definido
+                    $temHorarioDefinido = !empty($jogo['fixture']['date']) && 
+                                        $jogo['fixture']['date'] !== '1970-01-01T00:00:00+00:00' &&
+                                        !in_array($jogo['fixture']['status']['short'], ['TBD', 'TBA']);
+                    
+                    if ($incluirSemHorario || $temHorarioDefinido) {
+                        $jogos[] = $jogo;
+                    }
+                }
+            }
+        }
+    }
+    
+    // Ordenar jogos por data
+    usort($jogos, function($a, $b) {
+        return strtotime($a['fixture']['date']) - strtotime($b['fixture']['date']);
+    });
+    
+    // Limitar quantidade de jogos
+    if (count($jogos) > 100) {
+        $jogos = array_slice($jogos, 0, 100);
+    }
 }
 
 /**
@@ -99,8 +225,22 @@ function buscarJogosNaoUtilizados($campeonatoId, $ano, $incluirSemHorario = fals
     }
 }
 
+// Função para verificar se um jogo já está sendo usado
+function verificarJogoJaUsado($fixtureId) {
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM bolao_jogos WHERE fixture_id = ?");
+        $stmt->execute([$fixtureId]);
+        return $stmt->fetchColumn() > 0;
+    } catch (PDOException $e) {
+        error_log("Erro ao verificar jogo usado: " . $e->getMessage());
+        return false;
+    }
+}
+
 // Include header
-$pageTitle = "Criar Bolão Simplificado";
+$pageTitle = "Criar Bolão Completo";
 $currentPage = "novo-bolao2";
 include '../templates/admin/header.php';
 ?>
@@ -125,9 +265,37 @@ include '../templates/admin/header.php';
         <div class="card-body">
             <form method="get" action="" id="formFiltros">
                 <div class="row">
+                    <!-- País -->
+                    <div class="col-md-3 mb-3">
+                        <label for="pais" class="form-label">País</label>
+                        <select class="form-select" id="pais" name="pais">
+                            <option value="">Todos os países</option>
+                            <?php foreach ($paises as $pais): ?>
+                                <option value="<?= htmlspecialchars($pais['name']) ?>" 
+                                        <?= $formData['pais'] == $pais['name'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($paisesAmericaLatina[$pais['name']] ?? $pais['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
                     <!-- Campeonato -->
-                    <div class="col-md-4 mb-3">
-                        <label for="campeonato_brasil" class="form-label">Campeonato</label>
+                    <div class="col-md-3 mb-3">
+                        <label for="campeonato" class="form-label">Campeonato</label>
+                        <select class="form-select" id="campeonato" name="campeonato">
+                            <option value="">Todos os campeonatos</option>
+                            <?php foreach ($campeonatos as $campeonato): ?>
+                                <option value="<?= $campeonato['league']['id'] ?>" 
+                                        <?= $formData['campeonato'] == $campeonato['league']['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($campeonato['league']['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <!-- Campeonato Brasil (fallback) -->
+                    <div class="col-md-3 mb-3">
+                        <label for="campeonato_brasil" class="form-label">Campeonatos Brasil</label>
                         <select class="form-select" id="campeonato_brasil" name="campeonato_brasil">
                             <option value="">Selecione um campeonato</option>
                             <?php foreach ($campeonatosBrasil as $id => $nome): ?>
@@ -139,15 +307,31 @@ include '../templates/admin/header.php';
                         </select>
                     </div>
                     
-                    <!-- Prazo em dias -->
+                    <!-- Status do Jogo -->
                     <div class="col-md-3 mb-3">
-                        <label for="prazo_dias" class="form-label">Prazo (dias)</label>
-                        <select class="form-select" id="prazo_dias" name="prazo_dias">
-                            <option value="7" <?= $prazo_dias == 7 ? 'selected' : '' ?>>7 dias</option>
-                            <option value="15" <?= $prazo_dias == 15 ? 'selected' : '' ?>>15 dias</option>
-                            <option value="30" <?= $prazo_dias == 30 ? 'selected' : '' ?>>30 dias</option>
-                            <option value="60" <?= $prazo_dias == 60 ? 'selected' : '' ?>>60 dias</option>
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="" <?= $formData['status'] == '' ? 'selected' : '' ?>>Todos</option>
+                            <option value="NS" <?= $formData['status'] == 'NS' ? 'selected' : '' ?>>Não iniciado</option>
+                            <option value="LIVE" <?= $formData['status'] == 'LIVE' ? 'selected' : '' ?>>Ao vivo</option>
+                            <option value="FT" <?= $formData['status'] == 'FT' ? 'selected' : '' ?>>Finalizado</option>
                         </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Data Início -->
+                    <div class="col-md-3 mb-3">
+                        <label for="data_inicio" class="form-label">Data Início</label>
+                        <input type="date" class="form-control" id="data_inicio" name="data_inicio" 
+                               value="<?= $formData['data_inicio'] ?>">
+                    </div>
+                    
+                    <!-- Data Fim -->
+                    <div class="col-md-3 mb-3">
+                        <label for="data_fim" class="form-label">Data Fim</label>
+                        <input type="date" class="form-control" id="data_fim" name="data_fim" 
+                               value="<?= $formData['data_fim'] ?>">
                     </div>
                     
                     <!-- Checkbox para incluir jogos sem horário -->
@@ -155,7 +339,7 @@ include '../templates/admin/header.php';
                         <div class="form-check mt-4">
                             <input class="form-check-input" type="checkbox" 
                                    id="incluir_sem_horario" name="incluir_sem_horario" value="1"
-                                   <?= isset($_GET['incluir_sem_horario']) && $_GET['incluir_sem_horario'] == '1' ? 'checked' : '' ?>>
+                                   <?= $formData['incluir_sem_horario'] ? 'checked' : '' ?>>
                             <label class="form-check-label" for="incluir_sem_horario">
                                 Incluir jogos sem horário definido
                             </label>
@@ -163,9 +347,9 @@ include '../templates/admin/header.php';
                     </div>
                     
                     <!-- Botão de buscar -->
-                    <div class="col-md-2 mb-3">
-                        <button type="submit" class="btn btn-primary mt-4">
-                            <i class="fas fa-search"></i> Buscar
+                    <div class="col-md-3 mb-3">
+                        <button type="submit" class="btn btn-primary mt-4" name="buscar">
+                            <i class="fas fa-search"></i> Buscar Jogos
                         </button>
                     </div>
                 </div>
@@ -222,18 +406,33 @@ include '../templates/admin/header.php';
                             </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="premio_total" class="form-label">Prêmio Total (R$)</label>
-                            <input type="number" class="form-control" id="premio_total" name="premio_total" 
-                                   step="0.01" min="0" value="<?= $formData['premio_total'] ?>">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="premio_total" class="form-label">Prêmio Total (R$)</label>
+                                <input type="number" class="form-control" id="premio_total" name="premio_total" 
+                                       step="0.01" min="0" value="<?= $formData['premio_total'] ?>">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="premio_rodada" class="form-label">Prêmio da Rodada (R$)</label>
+                                <input type="number" class="form-control" id="premio_rodada" name="premio_rodada" 
+                                       step="0.01" min="0" value="<?= $formData['premio_rodada'] ?? '' ?>">
+                            </div>
                         </div>
                         
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="publico" name="publico" value="1" 
-                                   <?= $formData['publico'] ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="publico">
-                                Bolão Público
-                            </label>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="publico" name="publico" value="1" 
+                                           <?= $formData['publico'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="publico">
+                                        Bolão Público
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="imagem_bolao" class="form-label">Imagem do Bolão</label>
+                                <input type="file" class="form-control" id="imagem_bolao" name="imagem_bolao" accept="image/*">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -247,10 +446,18 @@ include '../templates/admin/header.php';
                         Jogos Disponíveis (<?= count($jogos) ?>)
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
-                            <label for="quantidade_jogos" class="form-label">Quantidade de Jogos</label>
-                            <input type="number" class="form-control" id="quantidade_jogos" name="quantidade_jogos" 
-                                   min="1" max="<?= count($jogos) ?>" value="<?= $formData['quantidade_jogos'] ?>">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="quantidade_jogos" class="form-label">Quantidade de Jogos</label>
+                                <input type="number" class="form-control" id="quantidade_jogos" name="quantidade_jogos" 
+                                       min="1" max="<?= count($jogos) ?>" value="<?= $formData['quantidade_jogos'] ?>">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Jogos Disponíveis</label>
+                                <div class="form-control-plaintext">
+                                    <strong><?= count($jogos) ?></strong> jogos encontrados
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
