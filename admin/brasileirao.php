@@ -151,7 +151,7 @@ include '../templates/admin/header.php';
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="text-end me-2">
                                             <?php if (!empty($jogo['teams']['home']['logo'])): ?>
-                                                <img src="<?= $jogo['teams']['home']['logo'] ?>" alt="" style="height: 20px; margin-right: 5px;">
+                                                <img src="<?= $jogo['teams']['home']['logo'] ?>" alt="" style="height: 20px; margin-right: 5px;" crossorigin="anonymous" onerror="this.style.display='none'">
                                             <?php endif; ?>
                                             <?= htmlspecialchars($jogo['teams']['home']['name']) ?>
                                         </div>
@@ -159,7 +159,7 @@ include '../templates/admin/header.php';
                                         <div class="ms-2">
                                             <?= htmlspecialchars($jogo['teams']['away']['name']) ?>
                                             <?php if (!empty($jogo['teams']['away']['logo'])): ?>
-                                                <img src="<?= $jogo['teams']['away']['logo'] ?>" alt="" style="height: 20px; margin-left: 5px;">
+                                                <img src="<?= $jogo['teams']['away']['logo'] ?>" alt="" style="height: 20px; margin-left: 5px;" crossorigin="anonymous" onerror="this.style.display='none'">
                                             <?php endif; ?>
                                         </div>
                                     </div>
@@ -181,4 +181,4 @@ include '../templates/admin/header.php';
     <?php endif; ?>
 </div>
 
-<?php include '../templates/admin/footer.php'; ?> 
+<?php include '../templates/admin/footer.php'; ?>

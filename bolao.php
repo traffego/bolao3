@@ -506,7 +506,7 @@ include TEMPLATE_DIR . '/header.php';
                                                        <?= $disabled ?>>
                                                 <label class="btn btn-outline-success btn-palpite btn-time <?= ($palpiteJogo === '1') ? 'active' : '' ?>" 
                                                        for="casa_<?= $jogo['id'] ?>">
-                                                    <img src="<?= $jogo['logo_time_casa'] ?>" alt="<?= $jogo['nome_time_casa'] ?>" class="team-logo-btn">
+                                                    <img src="<?= $jogo['logo_time_casa'] ?>" alt="<?= $jogo['nome_time_casa'] ?>" class="team-logo-btn" crossorigin="anonymous" onerror="this.style.display='none'">
                                                     <span class="team-name-btn"><?= $jogo['nome_time_casa'] ?></span>
                                                 </label>
 
@@ -531,7 +531,7 @@ include TEMPLATE_DIR . '/header.php';
                                                        <?= $disabled ?>>
                                                 <label class="btn btn-outline-danger btn-palpite btn-time <?= ($palpiteJogo === '2') ? 'active' : '' ?>" 
                                                        for="fora_<?= $jogo['id'] ?>">
-                                                    <img src="<?= $jogo['logo_time_visitante'] ?>" alt="<?= $jogo['nome_time_visitante'] ?>" class="team-logo-btn">
+                                                    <img src="<?= $jogo['logo_time_visitante'] ?>" alt="<?= $jogo['nome_time_visitante'] ?>" class="team-logo-btn" crossorigin="anonymous" onerror="this.style.display='none'">
                                                     <span class="team-name-btn"><?= $jogo['nome_time_visitante'] ?></span>
                                                 </label>
                                             </div>

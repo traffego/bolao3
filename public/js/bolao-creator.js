@@ -203,8 +203,16 @@ function initBolaoCreator() {
 
     console.log('Estado inicial:', state);
 
-    // Não carregar jogos inicialmente
+    // Configurar delegação de eventos para checkboxes de jogos (criados dinamicamente)
     if (jogosTableContainer) {
+        jogosTableContainer.addEventListener('change', function(event) {
+            if (event.target.classList.contains('jogo-checkbox') && !event.target.disabled) {
+                console.log('🎯 Checkbox via delegação - ID:', event.target.value, 'Marcado:', event.target.checked);
+                handleJogoSelection(event);
+            }
+        });
+        
+        // Não carregar jogos inicialmente
         jogosTableContainer.style.display = 'none';
     }
 }
@@ -389,29 +397,10 @@ function atualizarTabelaJogos() {
         tbody.appendChild(tr);
     });
 
-    // Adicionar event listeners aos checkboxes
+    // Os event listeners são configurados via delegação de eventos no initBolaoCreator()
+    // Isso garante que funcionem para elementos criados dinamicamente
     const checkboxes = document.querySelectorAll('.jogo-checkbox');
-    console.log(`Configurando event listeners para ${checkboxes.length} checkboxes`);
-    
-    checkboxes.forEach((checkbox, index) => {
-        // Remover listener anterior se existir (evitar duplicação)
-        checkbox.removeEventListener('change', handleJogoSelection);
-        
-        // Verificar se o checkbox não está desabilitado antes de adicionar listener
-        if (!checkbox.disabled) {
-            // Adicionar novo listener
-            checkbox.addEventListener('change', handleJogoSelection);
-            console.log(`✅ Checkbox ${index + 1} configurado e HABILITADO (ID: ${checkbox.value})`);
-        } else {
-            console.log(`❌ Checkbox ${index + 1} DESABILITADO (ID: ${checkbox.value})`);
-        }
-    });
-    
-    // Teste adicional: verificar se os listeners foram aplicados
-    setTimeout(() => {
-        const checkboxesAtivos = document.querySelectorAll('.jogo-checkbox:not(:disabled)');
-        console.log(`🔍 Verificação: ${checkboxesAtivos.length} checkboxes ativos de ${checkboxes.length} total`);
-    }, 100);
+    console.log(`✅ Tabela atualizada com ${checkboxes.length} checkboxes (listeners via delegação)`);
     
     // Aplicar estado atual do toggle
     aplicarToggleJogosEmUso();
@@ -731,14 +720,13 @@ function handleJogoSelection(event) {
         
         if (proximoJogo) {
             state.jogosSelecionados.add(proximoJogo.id);
-            atualizarTabelaJogos();
         }
     }
     
     // Verificar se a quantidade selecionada é suficiente
     verificarQuantidadeJogos();
     
-    // Atualizar visual das linhas selecionadas
+    // Atualizar visual das linhas selecionadas (apenas uma vez)
     atualizarTabelaJogos();
 }
 
@@ -933,4 +921,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar o criador de bolão
     initBolaoCreator();
-}); 
+});
