@@ -145,4 +145,4 @@ if (!function_exists('is_localhost')) {
 }
 
 // Carregar classes principais
-require_once ROOT_DIR . '/includes/classes/NotificacaoManager.php'; 
+require_once ROOT_DIR . '/includes/classes/NotificacaoManager.php';

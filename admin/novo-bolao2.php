@@ -3,11 +3,6 @@ require_once '../config/config.php';
 require_once '../includes/auth_admin.php';
 require_once '../includes/functions.php';
 
-// Verificar se é admin
-if (!isAdmin()) {
-    redirect(APP_URL . '/admin/login.php');
-}
-
 // Inicializar variáveis
 $paises = [];
 $campeonatos = [];
