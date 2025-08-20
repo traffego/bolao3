@@ -667,7 +667,7 @@ include '../templates/admin/header.php';
                         <a href="editar-bolao.php?id=<?= $bolao['id'] ?>" class="btn-action">
                             <i class="fas fa-edit"></i> Editar
                         </a>
-                        <a href="jogos-bolao.php?id=<?= $bolao['id'] ?>" class="btn-action">
+                        <a href="jogos-bolao.php?bolao_id=<?= $bolao['id'] ?>" class="btn-action">
                             <i class="fas fa-futbol"></i> Jogos
                         </a>
                         <a href="palpites-bolao.php?bolao_id=<?= $bolao['id'] ?>" class="btn-action">
@@ -693,4 +693,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include '../templates/admin/footer.php'; ?> 
+<?php include '../templates/admin/footer.php'; ?>
