@@ -2284,7 +2284,8 @@ footer a:hover {
 @media (max-width: 768px) {
     .slider-container,
     .swiper-container,
-    .hero-slider {
+    .hero-slider,
+    .main-slider {
         display: none !important;
     }
     
