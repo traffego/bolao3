@@ -407,8 +407,8 @@
   
   /* Botão do slider mobile */
   .slide-action .btn {
-    min-height: 50px;
-    padding: 6px 12px;
+    min-height: 40px;
+    padding: 4px 10px;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -422,7 +422,7 @@
   }
   
   .slide-action .btn-content {
-    gap: 8px;
+    gap: 6px;
   }
   
   .slide-action .btn-info {
@@ -909,8 +909,8 @@ h6 { font-size: 1rem; font-weight: 600; }
 /* Botão do slider com informações */
 .slide-action .btn {
   position: relative;
-  min-height: 60px;
-  padding: 8px 16px;
+  min-height: 45px;
+  padding: 6px 12px;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -928,22 +928,22 @@ h6 { font-size: 1rem; font-weight: 600; }
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  gap: 12px;
+  gap: 8px;
 }
 
 .slide-action .btn-info {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  font-size: 0.75rem;
-  line-height: 1.2;
+  font-size: 0.7rem;
+  line-height: 1.1;
   color: rgba(255, 255, 255, 0.9);
 }
 
 .slide-action .btn-participation {
   font-weight: 700;
   color: #fff;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .slide-action .btn-prize {
@@ -954,9 +954,9 @@ h6 { font-size: 1rem; font-weight: 600; }
 .slide-action .btn-text {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   white-space: nowrap;
 }
 
