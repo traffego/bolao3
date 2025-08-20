@@ -2280,6 +2280,11 @@ footer a:hover {
     }
 }
 
+
+.boloes-desktop-section {
+        display: none !important;
+    }
+
 /* Mobile: Ocultar slider, mostrar seção de bolões */
 @media (max-width: 768px) {
     .slider-container,
