@@ -241,11 +241,7 @@ include '../templates/admin/header.php';
                                                     <div class="teams-container">
                                                         <div class="d-flex align-items-center justify-content-between">
                                                             <div class="team-home text-center flex-fill">
-                                                                <div class="team-logo mb-2">
-                                                                    <div class="team-avatar" style="width: 50px; height: 50px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                                                        <i class="fas fa-shield-alt text-white fa-lg"></i>
-                                                                    </div>
-                                                                </div>
+                                                                
                                                                 <div class="team-name fw-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($jogo['time_casa']) ?></div>
                                                             </div>
                                                             
@@ -262,11 +258,7 @@ include '../templates/admin/header.php';
                                                             </div>
                                                             
                                                             <div class="team-away text-center flex-fill">
-                                                                <div class="team-logo mb-2">
-                                                                    <div class="team-avatar" style="width: 50px; height: 50px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                                                        <i class="fas fa-shield-alt text-white fa-lg"></i>
-                                                                    </div>
-                                                                </div>
+                                                                
                                                                 <div class="team-name fw-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($jogo['time_visitante']) ?></div>
                                                             </div>
                                                         </div>
