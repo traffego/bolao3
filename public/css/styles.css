@@ -134,7 +134,7 @@
 /* Mobile slider - melhorias para UX mobile */
 @media (max-width: 767.98px) {
   .slider-container {
-    margin: 0 10px 2rem 10px; /* Pequena margem para não tocar as bordas */
+    margin: 0 10px; /* Pequena margem para não tocar as bordas */
     border-radius: 8px;
   }
   
