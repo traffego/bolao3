@@ -67,16 +67,12 @@
 .main-slider {
   height: 600px;
   overflow: hidden;
-  padding: 0 !important;
-  margin: 0 !important;
 }
 
 .main-slider .swiper-slide {
   height: 600px;
   position: relative;
   overflow: hidden;
-  padding: 0 !important;
-  margin: 0 !important;
 }
 
 .main-slider .swiper-slide img,
@@ -86,10 +82,6 @@
   max-height: 600px !important;
   object-fit: cover !important;
   object-position: center !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: none !important;
-  display: block !important;
 }
 
 /* Ajustes para controles do swiper */
@@ -129,7 +121,6 @@
   .slider-container {
     margin: 0 10px 2rem 10px; /* Pequena margem para não tocar as bordas */
     border-radius: 8px;
-    padding: 0 !important;
   }
   
   .main-slider {
@@ -138,8 +129,6 @@
     width: 100%;
     max-width: none;
     overflow: hidden;
-    padding: 0 !important;
-    margin: 0 !important;
   }
   
   .main-slider .swiper-slide {
@@ -148,8 +137,6 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    padding: 0 !important;
-    margin: 0 !important;
   }
   
   .main-slider .swiper-slide img,
@@ -159,10 +146,6 @@
     max-height: 280px !important;
     object-fit: cover !important; /* Preserva altura, corta largura se necessário */
     object-position: center !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    display: block !important;
   }
   
   /* Ajustar conteúdo sobreposto para mobile */
