@@ -2271,3 +2271,24 @@ footer a:hover {
         padding: 3rem 0 !important;
     }
 }
+
+/* Controle de visibilidade responsiva para slider e bolões */
+/* Desktop: Mostrar slider, ocultar seção de bolões mobile */
+@media (min-width: 769px) {
+    .boloes-mobile-section {
+        display: none !important;
+    }
+}
+
+/* Mobile: Ocultar slider, mostrar seção de bolões */
+@media (max-width: 768px) {
+    .slider-container,
+    .swiper-container,
+    .hero-slider {
+        display: none !important;
+    }
+    
+    .boloes-mobile-section {
+        display: block !important;
+    }
+}
