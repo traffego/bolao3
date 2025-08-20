@@ -371,18 +371,10 @@
     padding: var(--slider-mobile-btn-padding) !important;
   }
   
-  /* Controles mobile */
+  /* Controles mobile - ocultar setas */
   .main-slider .swiper-button-next,
   .main-slider .swiper-button-prev {
-    width: var(--swiper-control-size-mobile);
-    height: var(--swiper-control-size-mobile);
-    margin-top: calc(var(--swiper-control-size-mobile) / -2);
-    font-size: 10px;
-  }
-  
-  .main-slider .swiper-button-next:after,
-  .main-slider .swiper-button-prev:after {
-    font-size: 10px;
+    display: none;
   }
   
   .main-slider .swiper-pagination {
@@ -398,6 +390,16 @@
   .slide-action .btn {
     min-height: 50px;
     padding: 6px 12px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .slide-action .btn:hover,
+  .slide-action .btn:focus {
+    text-decoration: none;
+    color: inherit;
   }
   
   .slide-action .btn-content {
@@ -890,6 +892,16 @@ h6 { font-size: 1rem; font-weight: 600; }
   position: relative;
   min-height: 60px;
   padding: 8px 16px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide-action .btn:hover,
+.slide-action .btn:focus {
+  text-decoration: none;
+  color: inherit;
 }
 
 .slide-action .btn-content {

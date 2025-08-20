@@ -146,10 +146,11 @@ if (empty($slideBoloes)) {
                                     
                                     <!-- Botão de ação -->
                                     <div class="slide-action">
-                                        <span class="btn btn-primary btn-lg" 
-                                              role="button" 
-                                              tabindex="-1"
-                                              aria-label="Palpitar no bolão <?= htmlspecialchars($bolao['nome']) ?> - Participação: <?= formatMoney($bolao['valor_participacao']) ?> - Prêmio: <?= formatMoney($bolao['premio_total']) ?>">
+                                        <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" 
+                                           class="btn btn-primary btn-lg" 
+                                           role="button" 
+                                           tabindex="0"
+                                           aria-label="Palpitar no bolão <?= htmlspecialchars($bolao['nome']) ?> - Participação: <?= formatMoney($bolao['valor_participacao']) ?> - Prêmio: <?= formatMoney($bolao['premio_total']) ?>">
                                             <div class="btn-content">
                                                 <div class="btn-info">
                                                     <small class="btn-participation"><?= formatMoney($bolao['valor_participacao']) ?></small>
@@ -160,7 +161,7 @@ if (empty($slideBoloes)) {
                                                     Palpitar
                                                 </div>
                                             </div>
-                                        </span>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
