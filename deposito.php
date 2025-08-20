@@ -62,13 +62,49 @@ $pageTitle = "Realizar Depósito";
 include 'templates/header.php';
 ?>
 
+<!-- Hero Section -->
+<div class="hero-section bg-gradient-primary text-white py-5 mb-4">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <div class="hero-icon mb-3">
+                    <i class="fas fa-wallet fa-3x"></i>
+                </div>
+                <h1 class="hero-title mb-3">Realizar Depósito</h1>
+                <p class="hero-subtitle mb-4">Adicione créditos à sua conta de forma rápida e segura via PIX</p>
+                
+                <!-- Informações de Segurança -->
+                <div class="row g-3 justify-content-center">
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            <span class="small">100% Seguro</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-bolt me-2"></i>
+                            <span class="small">Instantâneo</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center">
+                            <i class="fab fa-pix me-2"></i>
+                            <span class="small">PIX</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <!-- Card Principal -->
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <h4 class="card-title mb-4">Realizar Depósito</h4>
                     
                     <!-- Etapa 1: Formulário de Valor -->
                     <div id="etapaValor">
