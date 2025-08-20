@@ -198,15 +198,29 @@
   transition: var(--slider-transition);
 }
 
+/* Artigo do slide */
+.slide-article {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 /* Links dos slides */
 .slide-link {
   display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
   transition: var(--slider-transition);
   border: 2px solid transparent;
   border-radius: var(--slider-border-radius);
+  z-index: 3;
 }
 
 .slide-link:hover {
@@ -248,13 +262,12 @@
   right: 0;
   background: var(--slider-overlay-gradient);
   pointer-events: none;
+  z-index: 2;
 }
 
 /* Permitir cliques no botão de ação */
 .slide-action {
   pointer-events: auto;
-}
-  z-index: 2;
 }
 
 /* ========================================
