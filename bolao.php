@@ -784,6 +784,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Adicionar evento de mudança para os radio buttons (para capturar cliques diretos nos inputs)
+    document.querySelectorAll('input[type="radio"][name^="resultado_"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Encontrar o label correspondente e adicionar classe active
+            const label = document.querySelector(`label[for="${this.id}"]`);
+            if (label) {
+                // Encontrar o grupo de botões do mesmo jogo
+                const btnGroup = label.closest('.palpites-buttons');
+                // Remover classe active de todos os botões do grupo
+                btnGroup.querySelectorAll('.btn-palpite').forEach(groupBtn => {
+                    groupBtn.classList.remove('active');
+                });
+                // Adicionar classe active apenas ao label do radio selecionado
+                label.classList.add('active');
+            }
+            
+            // Atualizar botão flutuante
+            updateFloatingButton();
+        });
+    });
+    
 
     
     // Inicializar estado do botão flutuante
