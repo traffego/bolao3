@@ -63,6 +63,27 @@
   filter: brightness(1.1);
 }
 
+/* Estilos base para imagens do slider */
+.main-slider {
+  height: 600px;
+  overflow: hidden;
+}
+
+.main-slider .swiper-slide {
+  height: 600px;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-slider .swiper-slide img,
+.main-slider .slide-image {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 600px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
 /* Ajustes para controles do swiper */
 .main-slider .swiper-button-next,
 .main-slider .swiper-button-prev {
@@ -120,10 +141,11 @@
   
   .main-slider .swiper-slide img,
   .main-slider .slide-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Preserva altura, corta largura se necessário */
-    object-position: center;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 280px !important;
+    object-fit: cover !important; /* Preserva altura, corta largura se necessário */
+    object-position: center !important;
   }
   
   /* Ajustar conteúdo sobreposto para mobile */
