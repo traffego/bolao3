@@ -2285,11 +2285,23 @@ footer a:hover {
     .slider-container,
     .swiper-container,
     .hero-slider,
-    .main-slider {
+    .main-slider,
+    .boloes-desktop-section {
         display: none !important;
     }
     
     .boloes-mobile-section {
+        display: block !important;
+    }
+}
+
+/* Desktop - ocultar seção mobile */
+@media (min-width: 769px) {
+    .boloes-mobile-section {
+        display: none !important;
+    }
+    
+    .boloes-desktop-section {
         display: block !important;
     }
 }
