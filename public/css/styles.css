@@ -954,7 +954,7 @@ h6 { font-size: 1rem; font-weight: 600; }
 .slide-action .btn-text {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   font-weight: 600;
   font-size: 1.1rem;
   order: -1;
@@ -963,6 +963,8 @@ h6 { font-size: 1rem; font-weight: 600; }
 .slide-action .btn-text i {
   font-size: 1.2rem;
   color: var(--globo-branco);
+  float: left;
+  margin-right: 8px;
 }
 
 /* Cards */
