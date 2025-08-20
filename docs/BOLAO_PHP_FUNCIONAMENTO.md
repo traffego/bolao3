@@ -559,6 +559,39 @@ document.querySelectorAll('input[type="radio"][name^="resultado_"]').forEach(rad
 
 **Resultado:** Agora a contagem de palpites funciona corretamente tanto para seleção manual quanto automática, garantindo que a função `updateFloatingButton()` seja chamada em ambos os cenários.
 
+### 2. Validação de Formulário Desabilitada
+
+**Problema:** O alerta que deveria impedir o envio de palpites incompletos estava sendo "desabilitado" para usuários sem saldo suficiente ou não logados. Isso permitia que usuários tentassem enviar formulários incompletos sem receber o aviso adequado.
+
+**Causa:** A validação JavaScript estava condicionada às verificações PHP de login e saldo, executando apenas se o usuário estivesse logado E pudesse apostar. Para usuários sem saldo, o sistema redirecionava para a página de depósito sem validar se todos os palpites estavam preenchidos.
+
+**Solução Implementada:**
+```javascript
+// SEMPRE validar se todos os palpites foram preenchidos PRIMEIRO
+const radioInputs = this.querySelectorAll('input[type="radio"][name^="resultado_"]');
+const jogosIds = new Set();
+const palpitesPreenchidos = new Set();
+
+// Coletar todos os IDs de jogos
+radioInputs.forEach(input => {
+    const jogoId = input.name.replace('resultado_', '');
+    jogosIds.add(jogoId);
+    if (input.checked) {
+        palpitesPreenchidos.add(jogoId);
+    }
+});
+
+// Verificar se todos os jogos têm palpites
+if (palpitesPreenchidos.size !== jogosIds.size) {
+    alert('Você precisa dar palpites para todos os jogos antes de enviar.');
+    return false;
+}
+
+// Após validação dos palpites, verificar outras condições (login, saldo, etc.)
+```
+
+**Resultado:** A validação de palpites completos agora é executada SEMPRE, independentemente do status de login ou saldo do usuário, garantindo que o alerta seja exibido corretamente em todos os cenários.
+
 ## Conclusão
 
 O arquivo `bolao.php` é uma implementação robusta e completa de um sistema de palpites esportivos, oferecendo:
