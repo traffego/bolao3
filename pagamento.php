@@ -88,7 +88,7 @@ if (isLoggedIn()) {
             
             // Limpar sessão e redirecionar
             unset($_SESSION['palpite_pendente']);
-            setFlashMessage('success', 'Pagamento realizado com sucesso via saldo!');
+            setFlashMessage('success', '🎉 SUCESSO! Pagamento confirmado via saldo! Seu palpite está ativo no bolão! 🏆');
             redirect(APP_URL . '/ver-palpite.php?id=' . $palpiteId);
             
         } catch (Exception $e) {
@@ -528,4 +528,4 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php endif; ?>
 </script>
 
-<?php require_once __DIR__ . '/templates/footer.php'; ?> 
+<?php require_once __DIR__ . '/templates/footer.php'; ?>

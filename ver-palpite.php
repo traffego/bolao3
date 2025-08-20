@@ -227,34 +227,73 @@ include 'templates/header.php';
 // Adicionar feedback visual especial para pagamentos confirmados
 document.addEventListener('DOMContentLoaded', function() {
     const flashMessage = document.querySelector('.alert-success');
-    if (flashMessage && flashMessage.textContent.includes('Pagamento realizado com sucesso')) {
-        // Adicionar confetti ou animação especial
-        flashMessage.style.border = '2px solid #28a745';
-        flashMessage.style.boxShadow = '0 0 20px rgba(40, 167, 69, 0.3)';
+    if (flashMessage && (flashMessage.textContent.includes('SUCESSO! Pagamento confirmado') || flashMessage.textContent.includes('Pagamento realizado com sucesso'))) {
+        // Estilo mais impactante
+        flashMessage.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+        flashMessage.style.border = '3px solid #ffd700';
+        flashMessage.style.boxShadow = '0 8px 32px rgba(40, 167, 69, 0.4), 0 0 0 3px rgba(255, 215, 0, 0.3)';
+        flashMessage.style.borderRadius = '15px';
+        flashMessage.style.fontSize = '1.2em';
+        flashMessage.style.fontWeight = 'bold';
+        flashMessage.style.color = 'white';
+        flashMessage.style.textAlign = 'center';
+        flashMessage.style.padding = '20px';
+        flashMessage.style.margin = '20px 0';
         
-        // Animação de pulse
-        flashMessage.style.animation = 'pulse 2s ease-in-out 3';
+        // Animação mais chamativa
+        flashMessage.style.animation = 'successPulse 3s ease-in-out, shake 0.5s ease-in-out 0.5s';
         
-        // Adicionar ícone especial
+        // Adicionar ícone especial maior
         const icon = flashMessage.querySelector('i') || document.createElement('i');
-        icon.className = 'bi bi-check-circle-fill me-2';
-        icon.style.fontSize = '1.2em';
+        icon.className = 'bi bi-trophy-fill me-2';
+        icon.style.fontSize = '1.5em';
+        icon.style.color = '#ffd700';
         
         if (!flashMessage.querySelector('i')) {
             flashMessage.insertBefore(icon, flashMessage.firstChild);
         }
         
         // Scroll suave para a mensagem
-        flashMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+            flashMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
         
         // Destacar o card do status do palpite
         const statusBadge = document.querySelector('.badge.bg-success');
         if (statusBadge && statusBadge.textContent.includes('Pago')) {
-            statusBadge.style.animation = 'pulse 1s ease-in-out 5';
-            statusBadge.style.fontSize = '1.1em';
+            statusBadge.style.animation = 'successPulse 2s ease-in-out 3';
+            statusBadge.style.fontSize = '1.2em';
+            statusBadge.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+            statusBadge.style.border = '2px solid #ffd700';
         }
+        
+        // Efeito de confetti simples
+        createConfetti();
     }
 });
+
+// Função para criar efeito de confetti simples
+function createConfetti() {
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.style.position = 'fixed';
+        confetti.style.width = '10px';
+        confetti.style.height = '10px';
+        confetti.style.backgroundColor = ['#ffd700', '#28a745', '#20c997', '#ff6b6b', '#4ecdc4'][Math.floor(Math.random() * 5)];
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.top = '-10px';
+        confetti.style.borderRadius = '50%';
+        confetti.style.pointerEvents = 'none';
+        confetti.style.zIndex = '9999';
+        confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+        
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => {
+            confetti.remove();
+        }, 5000);
+    }
+}
 </script>
 
 <style>
@@ -263,6 +302,31 @@ document.addEventListener('DOMContentLoaded', function() {
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
 }
+
+@keyframes successPulse {
+    0% { transform: scale(1); box-shadow: 0 8px 32px rgba(40, 167, 69, 0.4), 0 0 0 3px rgba(255, 215, 0, 0.3); }
+    25% { transform: scale(1.08); box-shadow: 0 12px 40px rgba(40, 167, 69, 0.6), 0 0 0 6px rgba(255, 215, 0, 0.5); }
+    50% { transform: scale(1.05); box-shadow: 0 16px 48px rgba(40, 167, 69, 0.8), 0 0 0 8px rgba(255, 215, 0, 0.7); }
+    75% { transform: scale(1.08); box-shadow: 0 12px 40px rgba(40, 167, 69, 0.6), 0 0 0 6px rgba(255, 215, 0, 0.5); }
+    100% { transform: scale(1); box-shadow: 0 8px 32px rgba(40, 167, 69, 0.4), 0 0 0 3px rgba(255, 215, 0, 0.3); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
 </style>
 
-<?php include 'templates/footer.php'; ?> 
+<?php include 'templates/footer.php'; ?>
