@@ -650,6 +650,40 @@ include TEMPLATE_DIR . '/header.php';
     </div>
 </div>
 
+<!-- Modal de Confirmação de Palpites -->
+<div class="modal fade" id="confirmPalpitesModal" tabindex="-1" aria-labelledby="confirmPalpitesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmPalpitesModalLabel">Confirmar Palpites</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="confirmContent">
+                    <i class="bi bi-question-circle-fill text-warning" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3 mb-3">ESTES SÃO SEUS PALPITES. CONFIRMAR?</h4>
+                    <p class="text-muted">Após confirmar, seus palpites serão salvos no sistema.</p>
+                </div>
+                <div id="loadingContent" style="display: none;">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <h4 class="mt-3">Salvando seus palpites...</h4>
+                    <p class="text-muted">Aguarde um momento</p>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center" id="confirmButtons">
+                <button type="button" class="btn btn-outline-secondary btn-lg px-4" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-success btn-lg px-4" id="btnConfirmarPalpites">
+                    <i class="bi bi-check-circle me-2"></i>Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 // Função para mostrar o loader e esconder a área de palpites
 function showLoader() {
@@ -722,7 +756,9 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php elseif (!$podeApostar && getModeloPagamento() === 'conta_saldo'): ?>
             window.location.href = '<?= APP_URL ?>/minha-conta.php';
         <?php else: ?>
-            this.submit();
+            // Mostrar modal de confirmação
+            const confirmModal = new bootstrap.Modal(document.getElementById('confirmPalpitesModal'));
+            confirmModal.show();
         <?php endif; ?>
     });
 
@@ -1642,6 +1678,29 @@ document.addEventListener('DOMContentLoaded', function() {
         setInterval(() => {
             updateCountdown(element, targetDate);
         }, 1000);
+    });
+    
+    // Handle confirmation modal
+    document.getElementById('btnConfirmarPalpites').addEventListener('click', function() {
+        // Esconder conteúdo de confirmação
+        document.getElementById('confirmContent').style.display = 'none';
+        document.getElementById('confirmButtons').style.display = 'none';
+        
+        // Mostrar indicador de carregamento
+        document.getElementById('loadingContent').style.display = 'block';
+        
+        // Aguardar 3 segundos e então submeter o formulário
+        setTimeout(function() {
+            document.getElementById('formPalpites').submit();
+        }, 3000);
+    });
+
+    // Reset modal when closed
+    document.getElementById('confirmPalpitesModal').addEventListener('hidden.bs.modal', function() {
+        // Restaurar estado inicial do modal
+        document.getElementById('confirmContent').style.display = 'block';
+        document.getElementById('confirmButtons').style.display = 'flex';
+        document.getElementById('loadingContent').style.display = 'none';
     });
 });
 </script>

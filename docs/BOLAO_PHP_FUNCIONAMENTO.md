@@ -592,6 +592,92 @@ if (palpitesPreenchidos.size !== jogosIds.size) {
 
 **Resultado:** A validação de palpites completos agora é executada SEMPRE, independentemente do status de login ou saldo do usuário, garantindo que o alerta seja exibido corretamente em todos os cenários.
 
+### 3. Modal de Confirmação de Palpites
+
+**Problema:** Não havia confirmação visual antes de salvar os palpites, o que poderia levar a envios acidentais ou sem revisão adequada dos palpites selecionados.
+
+**Solução Implementada:** Adicionado um modal de confirmação que é exibido quando o usuário clica em "Salvar palpites" com todos os palpites preenchidos e estando apto a salvá-los.
+
+**Funcionalidades do Modal:**
+- **Mensagem de Confirmação:** "ESTES SÃO SEUS PALPITES. CONFIRMAR?"
+- **Indicador de Carregamento:** Após confirmação, exibe um spinner por 3 segundos
+- **Botões de Ação:** Cancelar (fecha o modal) e Confirmar (inicia o processo de salvamento)
+- **Reset Automático:** Modal retorna ao estado inicial quando fechado
+
+**Estrutura HTML do Modal:**
+```html
+<div class="modal fade" id="confirmPalpitesModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Palpites</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <!-- Conteúdo de confirmação -->
+                <div id="confirmContent">
+                    <i class="bi bi-question-circle-fill text-warning"></i>
+                    <h4>ESTES SÃO SEUS PALPITES. CONFIRMAR?</h4>
+                </div>
+                <!-- Indicador de carregamento -->
+                <div id="loadingContent" style="display: none;">
+                    <div class="spinner-border text-primary"></div>
+                    <h4>Salvando seus palpites...</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnConfirmarPalpites">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+**JavaScript de Controle:**
+```javascript
+// Modificação no event listener do formulário
+<?php else: ?>
+    // Mostrar modal de confirmação
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmPalpitesModal'));
+    confirmModal.show();
+<?php endif; ?>
+
+// Event listener do botão de confirmação
+document.getElementById('btnConfirmarPalpites').addEventListener('click', function() {
+    // Esconder conteúdo de confirmação
+    document.getElementById('confirmContent').style.display = 'none';
+    document.getElementById('confirmButtons').style.display = 'none';
+    
+    // Mostrar indicador de carregamento
+    document.getElementById('loadingContent').style.display = 'block';
+    
+    // Aguardar 3 segundos e então submeter o formulário
+    setTimeout(function() {
+        document.getElementById('formPalpites').submit();
+    }, 3000);
+});
+
+// Reset do modal quando fechado
+document.getElementById('confirmPalpitesModal').addEventListener('hidden.bs.modal', function() {
+    document.getElementById('confirmContent').style.display = 'block';
+    document.getElementById('confirmButtons').style.display = 'flex';
+    document.getElementById('loadingContent').style.display = 'none';
+});
+```
+
+**Fluxo de Funcionamento:**
+1. Usuário preenche todos os palpites
+2. Clica no botão "Salvar palpites"
+3. Sistema valida se todos os palpites estão preenchidos
+4. Se usuário está logado e pode apostar, exibe modal de confirmação
+5. Usuário pode cancelar ou confirmar
+6. Ao confirmar, mostra indicador de carregamento por 3 segundos
+7. Após o tempo, submete o formulário normalmente
+8. Modal se reseta automaticamente quando fechado
+
+**Resultado:** Melhora significativa na experiência do usuário, proporcionando uma confirmação visual clara antes do salvamento e feedback durante o processo de envio dos palpites.
+
 ## Conclusão
 
 O arquivo `bolao.php` é uma implementação robusta e completa de um sistema de palpites esportivos, oferecendo:
