@@ -84,6 +84,17 @@
   object-position: center !important;
 }
 
+/* Remover completamente qualquer padding interno do slide - GERAL */
+.main-slider .position-absolute,
+.main-slider .p-4,
+.main-slider [class*="p-"],
+.main-slider [class*="px-"],
+.main-slider [class*="py-"],
+.main-slider .container,
+.main-slider .container-fluid {
+  padding: 0 !important;
+}
+
 /* Ajustes para controles do swiper */
 .main-slider .swiper-button-next,
 .main-slider .swiper-button-prev {
@@ -148,9 +159,13 @@
     object-position: center !important;
   }
   
-  /* Ajustar conteúdo sobreposto para mobile */
-  .main-slider .position-absolute {
-    padding: 1rem !important;
+  /* Remover completamente qualquer padding interno do slide */
+  .main-slider .position-absolute,
+  .main-slider .p-4,
+  .main-slider [class*="p-"],
+  .main-slider [class*="px-"],
+  .main-slider [class*="py-"] {
+    padding: 0 !important;
   }
   
   .main-slider .position-absolute h3 {
