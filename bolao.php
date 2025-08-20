@@ -774,8 +774,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Submit the palpites form after successful login
-                document.getElementById('formPalpites').submit();
+                // Trigger the save button click to go through validation and confirmation modal
+                document.getElementById('btnSalvarPalpites').click();
             } else {
                 document.getElementById('loginError').textContent = data.message;
                 document.getElementById('loginError').classList.remove('d-none');
@@ -795,8 +795,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Submit the palpites form after successful registration
-                document.getElementById('formPalpites').submit();
+                // Trigger the save button click to go through validation and confirmation modal
+                document.getElementById('btnSalvarPalpites').click();
             } else {
                 document.getElementById('registerError').textContent = data.message;
                 document.getElementById('registerError').classList.remove('d-none');

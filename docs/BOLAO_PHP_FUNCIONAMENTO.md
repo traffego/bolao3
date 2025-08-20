@@ -678,6 +678,55 @@ document.getElementById('confirmPalpitesModal').addEventListener('hidden.bs.moda
 
 **Resultado:** Melhora significativa na experiência do usuário, proporcionando uma confirmação visual clara antes do salvamento e feedback durante o processo de envio dos palpites.
 
+### 4. Simplificação do Fluxo de Palpites - Remoção do confirmar-palpite.php
+
+**Problema Identificado:**
+O arquivo `confirmar-palpite.php` estava duplicando funcionalidades já presentes em outros arquivos do sistema, criando redundância e complexidade desnecessária no fluxo.
+
+**Análise Realizada:**
+1. **Fluxo Atual Simplificado:**
+   - `bolao.php` → `salvar-palpite.php` → `pagamento.php` (se necessário) → `ver-palpite.php`
+   
+2. **Funcionalidades do confirmar-palpite.php já presentes em:**
+   - **Validação de palpites:** `bolao.php` + `salvar-palpite.php`
+   - **Processamento de pagamento:** `salvar-palpite.php` + `pagamento.php`
+   - **Geração de palpites aleatórios:** `bolao.php`
+   - **Verificação de status:** `pagamento.php`
+
+**Solução Implementada:**
+1. **Remoção do confirmar-palpite.php:** Arquivo movido para backup
+2. **Atualização do ver-palpite.php:** Redirecionamento direto para `pagamento.php`
+
+**Código Modificado:**
+
+```php
+// ANTES (ver-palpite.php):
+redirect(APP_URL . '/confirmar-palpite.php?id=' . $palpite['bolao_id']);
+
+// DEPOIS (ver-palpite.php):
+$_SESSION['palpite_pendente'] = [
+    'id' => $palpiteId,
+    'bolao_id' => $palpite['bolao_id'],
+    'valor' => $palpite['valor_participacao']
+];
+redirect(APP_URL . '/pagamento.php');
+```
+
+**Fluxo Simplificado:**
+1. Usuário preenche palpites em `bolao.php`
+2. Modal de confirmação (se implementado)
+3. Envio para `salvar-palpite.php`
+4. Se pagamento necessário → `pagamento.php`
+5. Conclusão em `ver-palpite.php`
+
+**Benefícios:**
+- **Menos arquivos para manter**
+- **Fluxo mais direto e intuitivo**
+- **Redução de redundância de código**
+- **Menor complexidade de debugging**
+
+**Resultado:** Sistema mais enxuto e eficiente, mantendo todas as funcionalidades essenciais.
+
 ## Conclusão
 
 O arquivo `bolao.php` é uma implementação robusta e completa de um sistema de palpites esportivos, oferecendo:
