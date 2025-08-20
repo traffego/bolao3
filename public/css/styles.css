@@ -95,57 +95,81 @@
   transform: scale(1.3);
 }
 
-/* Mobile slider - largura total com proporção 16:9 */
+/* Mobile slider - melhorias para UX mobile */
 @media (max-width: 767.98px) {
   .slider-container {
-    margin: 0 -15px 2rem -15px; /* Expande para as bordas do container */
-    border-radius: 0;
+    margin: 0 10px 2rem 10px; /* Pequena margem para não tocar as bordas */
+    border-radius: 8px;
   }
   
   .main-slider {
-    border-radius: 0;
-    aspect-ratio: 16/9; /* Proporção 16:9 */
-    width: 100vw; /* Largura total da viewport */
+    border-radius: 8px;
+    height: 280px; /* Altura fixa para mobile */
+    width: 100%;
     max-width: none;
     overflow: hidden;
   }
   
   .main-slider .swiper-slide {
-    aspect-ratio: 16/9;
+    height: 280px;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
   }
   
   .main-slider .swiper-slide img,
   .main-slider .slide-image {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover; /* Preserva altura, corta largura se necessário */
     object-position: center;
-    background-color: #f8f9fa;
   }
-
-  @media (max-width: 767.98px) {
-    .main-slider .swiper-slide img, .main-slider .slide-image {
-        width: 100% !important;
-        height: auto !important;
-        object-fit: contain;
-        object-position: center;
-        background-color: #f8f9fa;
-    }
-}
+  
+  /* Ajustar conteúdo sobreposto para mobile */
+  .main-slider .position-absolute {
+    padding: 1rem !important;
+  }
+  
+  .main-slider .position-absolute h3 {
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .main-slider .position-absolute h4 {
+    font-size: 0.9rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .main-slider .position-absolute p {
+    font-size: 0.8rem !important;
+    margin-bottom: 1rem !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limita a 2 linhas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .main-slider .btn-lg {
+    font-size: 0.9rem !important;
+    padding: 0.5rem 1rem !important;
+  }
   
   /* Ajustar controles para mobile */
   .main-slider .swiper-button-next,
   .main-slider .swiper-button-prev {
-    width: 40px;
-    height: 40px;
-    margin-top: -20px;
+    width: 35px;
+    height: 35px;
+    margin-top: -17px;
   }
   
   .main-slider .swiper-pagination {
-    bottom: 10px;
+    bottom: 8px;
+  }
+  
+  .main-slider .swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
   }
 }
 
