@@ -25,16 +25,15 @@ if (!$palpite) {
     redirect(APP_URL . '/meus-palpites.php');
 }
 
-// Se o palpite estiver pendente e o bolão tem valor de participação, redirecionar para pagamento
+// Se o palpite estiver pendente e o bolão tem valor de participação, redirecionar para confirmação
 if ($palpite['status'] === 'pendente' && $palpite['valor_participacao'] > 0) {
-    // Salvar dados do palpite na sessão para recuperar na página de pagamento
+    // Salvar dados do palpite na sessão para recuperar na página de confirmação
     $_SESSION['palpite_pendente'] = [
         'id' => $palpiteId,
-        'bolao_id' => $palpite['bolao_id'],
-        'valor' => $palpite['valor_participacao']
+        'bolao_id' => $palpite['bolao_id']
     ];
     
-    redirect(APP_URL . '/pagamento.php');
+    redirect(APP_URL . '/confirmar-palpite.php?id=' . $palpite['bolao_id']);
 }
 
 // Decodificar palpites e jogos
@@ -266,4 +265,4 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </style>
 
-<?php include 'templates/footer.php'; ?>
+<?php include 'templates/footer.php'; ?> 

@@ -678,54 +678,41 @@ document.getElementById('confirmPalpitesModal').addEventListener('hidden.bs.moda
 
 **Resultado:** Melhora significativa na experiência do usuário, proporcionando uma confirmação visual clara antes do salvamento e feedback durante o processo de envio dos palpites.
 
-### 4. Simplificação do Fluxo de Palpites - Remoção do confirmar-palpite.php
+### 4. Correção do Fluxo Login/Registro + Modal de Confirmação
 
-**Problema Identificado:**
-O arquivo `confirmar-palpite.php` estava duplicando funcionalidades já presentes em outros arquivos do sistema, criando redundância e complexidade desnecessária no fluxo.
+**Problema:** Quando usuários não logados preenchiam palpites e clicavam em "Salvar", após fazer login/registro, o formulário era submetido diretamente sem passar pelo modal de confirmação.
 
-**Análise Realizada:**
-1. **Fluxo Atual Simplificado:**
-   - `bolao.php` → `salvar-palpite.php` → `pagamento.php` (se necessário) → `ver-palpite.php`
-   
-2. **Funcionalidades do confirmar-palpite.php já presentes em:**
-   - **Validação de palpites:** `bolao.php` + `salvar-palpite.php`
-   - **Processamento de pagamento:** `salvar-palpite.php` + `pagamento.php`
-   - **Geração de palpites aleatórios:** `bolao.php`
-   - **Verificação de status:** `pagamento.php`
+**Causa:** Os event listeners de login e registro usavam `document.getElementById('formPalpites').submit()` que bypassa completamente o event listener do formulário, pulando a validação e o modal de confirmação.
 
-**Solução Implementada:**
-1. **Remoção do confirmar-palpite.php:** Arquivo movido para backup
-2. **Atualização do ver-palpite.php:** Redirecionamento direto para `pagamento.php`
+**Solução Implementada:** Substituição do `.submit()` direto por `.click()` no botão "Salvar palpites", garantindo que o fluxo completo de validação seja respeitado.
 
-**Código Modificado:**
-
-```php
-// ANTES (ver-palpite.php):
-redirect(APP_URL . '/confirmar-palpite.php?id=' . $palpite['bolao_id']);
-
-// DEPOIS (ver-palpite.php):
-$_SESSION['palpite_pendente'] = [
-    'id' => $palpiteId,
-    'bolao_id' => $palpite['bolao_id'],
-    'valor' => $palpite['valor_participacao']
-];
-redirect(APP_URL . '/pagamento.php');
+**Código Anterior (Problemático):**
+```javascript
+if (data.success) {
+    // Submit the palpites form after successful login
+    document.getElementById('formPalpites').submit();
+}
 ```
 
-**Fluxo Simplificado:**
-1. Usuário preenche palpites em `bolao.php`
-2. Modal de confirmação (se implementado)
-3. Envio para `salvar-palpite.php`
-4. Se pagamento necessário → `pagamento.php`
-5. Conclusão em `ver-palpite.php`
+**Código Corrigido:**
+```javascript
+if (data.success) {
+    // Trigger the save button click to go through validation and confirmation modal
+    document.getElementById('btnSalvarPalpites').click();
+}
+```
 
-**Benefícios:**
-- **Menos arquivos para manter**
-- **Fluxo mais direto e intuitivo**
-- **Redução de redundância de código**
-- **Menor complexidade de debugging**
+**Fluxo Corrigido:**
+1. Usuário não logado preenche palpites
+2. Clica em "Salvar palpites"
+3. Modal de login é exibido
+4. Após login/registro bem-sucedido, simula clique no botão
+5. Passa pela validação de palpites completos
+6. Exibe modal de confirmação
+7. Usuário confirma e vê o loading
+8. Formulário é submetido normalmente
 
-**Resultado:** Sistema mais enxuto e eficiente, mantendo todas as funcionalidades essenciais.
+**Resultado:** Agora o modal de confirmação funciona consistentemente, independentemente do status de login inicial do usuário.
 
 ## Conclusão
 
