@@ -44,7 +44,7 @@ include TEMPLATE_DIR . '/header.php';
 
 <?php if (!empty($slideBoloes)): ?>
 <!-- Slider Section -->
-<div class="slider-container">
+<div class="slider-container" style="margin-top: 3rem;">
     <div class="swiper main-slider" style="border-radius: 4px; overflow: hidden;">
         <div class="swiper-wrapper">
             <?php foreach ($slideBoloes as $bolao): ?>
