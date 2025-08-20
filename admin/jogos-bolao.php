@@ -202,8 +202,16 @@ include '../templates/admin/header.php';
                                     <?php foreach ($jogos as $jogo): ?>
                                         <tr>
                                             <td style="width: 160px;">
-                                                <div class="fw-bold"><?= date('d/m/Y', strtotime($jogo['data_iso'])) ?></div>
-                                                <small class="text-muted"><?= date('H:i', strtotime($jogo['data_iso'])) ?></small>
+                                                <?php 
+                                                $dataJogo = isset($jogo['data_iso']) ? $jogo['data_iso'] : $jogo['data'];
+                                                if ($dataJogo): 
+                                                ?>
+                                                    <div class="fw-bold"><?= date('d/m/Y', strtotime($dataJogo)) ?></div>
+                                                    <small class="text-muted"><?= date('H:i', strtotime($dataJogo)) ?></small>
+                                                <?php else: ?>
+                                                    <div class="fw-bold">Data não definida</div>
+                                                    <small class="text-muted">--:--</small>
+                                                <?php endif; ?>
                                             </td>
                                             <td>
                                                 <span class="badge bg-secondary">
@@ -321,4 +329,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include '../templates/admin/footer.php'; ?> 
+<?php include '../templates/admin/footer.php'; ?>
