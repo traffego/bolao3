@@ -248,6 +248,12 @@
   right: 0;
   background: var(--slider-overlay-gradient);
   pointer-events: none;
+}
+
+/* Permitir cliques no botão de ação */
+.slide-action {
+  pointer-events: auto;
+}
   z-index: 2;
 }
 
