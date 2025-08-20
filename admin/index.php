@@ -35,15 +35,9 @@ try {
     // Data atual
     $hoje = new DateTime();
 
-    // Debug: Log para verificar bolões encontrados
-    error_log("Dashboard Debug - Total de bolões ativos encontrados: " . count($boloes));
-    
     // Percorrer bolões para encontrar jogos
     foreach ($boloes as $bolao) {
         $jogos = json_decode($bolao['jogos'], true) ?: [];
-        
-        // Debug: Log para cada bolão
-        error_log("Dashboard Debug - Bolão '{$bolao['nome']}' (ID: {$bolao['id']}) tem " . count($jogos) . " jogos");
         
         // Contabilizar o número total de jogos
         $stats['total_jogos'] += count($jogos);
@@ -53,18 +47,6 @@ try {
             $jogo['bolao_nome'] = $bolao['nome'];
             $jogo['bolao_id'] = $bolao['id'];
             
-            // Debug: Log estrutura do jogo
-            $jogoDebug = [
-                'id' => $jogo['id'] ?? 'N/A',
-                'time_casa' => $jogo['time_casa'] ?? 'N/A',
-                'time_visitante' => $jogo['time_visitante'] ?? 'N/A',
-                'data_iso' => $jogo['data_iso'] ?? 'N/A',
-                'data' => $jogo['data'] ?? 'N/A',
-                'status' => $jogo['status'] ?? 'N/A',
-                'resultado_casa' => $jogo['resultado_casa'] ?? 'N/A',
-                'resultado_visitante' => $jogo['resultado_visitante'] ?? 'N/A'
-            ];
-            error_log("Dashboard Debug - Jogo: " . json_encode($jogoDebug));
             
             // Verificar se tem resultado para listar como atualizado
             if (isset($jogo['resultado_casa']) && $jogo['resultado_casa'] !== null && 
@@ -82,21 +64,14 @@ try {
             if ($dataParaVerificar) {
                 try {
                     $dataJogo = new DateTime($dataParaVerificar);
-                    $agora = new DateTime();
-                    error_log("Dashboard Debug - Comparando datas: Jogo={$dataJogo->format('Y-m-d H:i:s')} vs Agora={$agora->format('Y-m-d H:i:s')}");
                     
                     if ($dataJogo > $hoje) {
                         $proximosJogos[] = $jogo;
-                        error_log("Dashboard Debug - Jogo futuro adicionado: {$jogo['time_casa']} x {$jogo['time_visitante']}");
-                    } else {
-                        error_log("Dashboard Debug - Jogo não é futuro: {$jogo['time_casa']} x {$jogo['time_visitante']}");
                     }
                 } catch (Exception $e) {
                     // Se houver erro na conversão da data, logar e continuar
                     error_log("Erro ao processar data do jogo ID {$jogo['id']}: " . $e->getMessage());
                 }
-            } else {
-                error_log("Dashboard Debug - Jogo sem data válida: {$jogo['time_casa']} x {$jogo['time_visitante']}");
             }
         }
     }
@@ -126,12 +101,6 @@ try {
         return 0;
     });
 
-    // Debug: Log para verificar quantos jogos futuros foram encontrados
-    error_log("Dashboard Debug - Total de próximos jogos encontrados: " . count($proximosJogos));
-    if (!empty($proximosJogos)) {
-        error_log("Dashboard Debug - Primeiro jogo futuro: " . json_encode($proximosJogos[0]));
-    }
-    
     // Limitar para os 5 jogos mais recentes/próximos
     $jogosAtualizados = array_slice($jogosAtualizados, 0, 5);
     $proximosJogos = array_slice($proximosJogos, 0, 5);
@@ -280,7 +249,20 @@ include '../templates/admin/header.php';
                                 <tbody>
                                     <?php foreach ($jogosAtualizados as $jogo): ?>
                                         <tr>
-                                            <td><?= isset($jogo['data_iso']) ? date('d/m/Y H:i', strtotime($jogo['data_iso'])) : 'N/A' ?></td>
+                                            <td>
+                                                <?php 
+                                                    $dataParaExibir = isset($jogo['data_iso']) ? $jogo['data_iso'] : (isset($jogo['data']) ? $jogo['data'] : null);
+                                                    if ($dataParaExibir) {
+                                                        try {
+                                                            echo date('d/m/Y H:i', strtotime($dataParaExibir));
+                                                        } catch (Exception $e) {
+                                                            echo 'Data inválida';
+                                                        }
+                                                    } else {
+                                                        echo 'N/A';
+                                                    }
+                                                ?>
+                                            </td>
                                             <td>
                                                 <a href="ver-bolao.php?id=<?= $jogo['bolao_id'] ?? 0 ?>" class="text-decoration-none">
                                                     <?= htmlspecialchars($jogo['time_casa'] ?? '') ?> x <?= htmlspecialchars($jogo['time_visitante'] ?? '') ?>
@@ -356,7 +338,20 @@ include '../templates/admin/header.php';
                                 <tbody>
                                     <?php foreach ($proximosJogos as $jogo): ?>
                                         <tr>
-                                            <td><?= isset($jogo['data_iso']) ? date('d/m/Y H:i', strtotime($jogo['data_iso'])) : 'N/A' ?></td>
+                                            <td>
+                                                <?php 
+                                                    $dataParaExibir = isset($jogo['data_iso']) ? $jogo['data_iso'] : (isset($jogo['data']) ? $jogo['data'] : null);
+                                                    if ($dataParaExibir) {
+                                                        try {
+                                                            echo date('d/m/Y H:i', strtotime($dataParaExibir));
+                                                        } catch (Exception $e) {
+                                                            echo 'Data inválida';
+                                                        }
+                                                    } else {
+                                                        echo 'N/A';
+                                                    }
+                                                ?>
+                                            </td>
                                             <td>
                                                 <?= htmlspecialchars($jogo['time_casa'] ?? '') ?> x <?= htmlspecialchars($jogo['time_visitante'] ?? '') ?>
                                             </td>
