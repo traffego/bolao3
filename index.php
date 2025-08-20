@@ -38,110 +38,31 @@ $resultados = dbFetchAll("SELECT r.*, j.equipe_casa, j.equipe_visitante, j.campe
 // Include header
 include TEMPLATE_DIR . '/header.php';
 
-// Adicionar CSS do Swiper
+// Incluir componente do slider
+if (!empty($slideBoloes)) {
+    // Configurações customizadas do slider (opcional)
+    $swiperConfig = [
+        'loop' => true,
+        'autoplay' => [
+            'delay' => 5000,
+            'disableOnInteraction' => false
+        ],
+        'pagination' => [
+            'el' => '.swiper-pagination',
+            'clickable' => true
+        ],
+        'navigation' => [
+            'nextEl' => '.swiper-button-next',
+            'prevEl' => '.swiper-button-prev'
+        ],
+        'effect' => 'slide',
+        'speed' => 600
+    ];
+    
+    // Incluir o componente do slider
+    include TEMPLATE_DIR . '/components/slider.php';
+}
 ?>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
-
-<?php if (!empty($slideBoloes)): ?>
-<!-- Slider Section -->
-<div class="slider-container" style="margin-top: 3rem;">
-    <div class="swiper main-slider" style="border-radius: 4px; overflow: hidden;">
-        <div class="swiper-wrapper">
-            <?php foreach ($slideBoloes as $bolao): ?>
-                <div class="swiper-slide">
-                    <a href="<?= APP_URL ?>/bolao.php?id=<?= $bolao['id'] ?>" class="slide-link">
-                        <div class="position-relative">
-                            <?php if (!empty($bolao['imagem_bolao_url'])): ?>
-                                <img src="<?= APP_URL ?>/<?= $bolao['imagem_bolao_url'] ?>" 
-                                     alt="<?= htmlspecialchars($bolao['nome']) ?>"
-                                     class="w-100 slide-image"
-                                     style="height: 600px; object-fit: cover;">
-                            <?php else: ?>
-                                <img src="<?= APP_URL ?>/public/img/noimage.jpg" 
-                                     alt="Imagem não disponível"
-                                     class="w-100 slide-image"
-                                     style="height: 600px; object-fit: cover;">
-                            <?php endif; ?>
-                            <div class="position-absolute bottom-0 start-0 w-100 p-4" 
-                                 style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); pointer-events: none;">
-                                <div class="container">
-                                    <div class="mb-3">
-                                        <div class="text-start">
-                                            <h3 class="text-white mb-2">
-                                                <i class="bi bi-trophy-fill text-warning"></i> 
-                                                Prêmio Total: <?= formatMoney($bolao['premio_total']) ?>
-                                            </h3>
-                                            <?php if ($bolao['premio_rodada'] > 0): ?>
-                                                <h4 class="text-white mb-2">
-                                                    <i class="bi bi-award-fill text-success"></i> 
-                                                    Por Rodada: <?= formatMoney($bolao['premio_rodada']) ?>
-                                                </h4>
-                                            <?php else: ?>
-                                                <h4 class="text-white mb-2">
-                                                    <i class="bi bi-gift-fill text-warning"></i> 
-                                                    Por Rodada: Surpresa...
-                                                </h4>
-                                            <?php endif; ?>
-                                            <h4 class="text-white mb-3">
-                                                <i class="bi bi-ticket-fill text-info"></i> 
-                                                Participação: <?= formatMoney($bolao['valor_participacao']) ?>
-                                            </h4>
-                                        </div>
-                                    </div>
-                                    <?php if (!empty($bolao['descricao'])): ?>
-                                        <p class="text-white mb-3 text-start"><?= htmlspecialchars(substr($bolao['descricao'], 0, 150)) ?>...</p>
-                                    <?php endif; ?>
-                                    <div class="text-start">
-                                        <div class="btn btn-primary btn-lg" style="pointer-events: none;">
-                                            <i class="bi bi-play-fill"></i> Participar Agora
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        <div class="swiper-pagination"></div>
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
-    </div>
-</div>
-
-<!-- Swiper JS -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const swiper = new Swiper('.main-slider', {
-        loop: true,
-        autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
-        },
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-        },
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-        },
-
-    });
-
-
-
-    // Prevenir que os controles do swiper interfiram com o clique do slide
-    const swiperControls = document.querySelectorAll('.swiper-button-next, .swiper-button-prev, .swiper-pagination');
-    swiperControls.forEach(control => {
-        control.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-    });
-});
-</script>
-<?php endif; ?>
 
 
 
@@ -384,4 +305,4 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php
 // Include footer
 include TEMPLATE_DIR . '/footer.php';
-?> 
+?>

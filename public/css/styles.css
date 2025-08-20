@@ -34,57 +34,189 @@
 }
 
 /* ========================================
-   SLIDER WITH LIGHT SHADOW
+   ACESSIBILIDADE
    ======================================== */
+
+/* Classe para elementos ocultos visualmente mas acessíveis para leitores de tela */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Classe para elementos que ficam visíveis quando focados */
+.visually-hidden-focusable:not(:focus):not(:focus-within) {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Skip link para navegação por teclado */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #000;
+    color: #fff;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 9999;
+    font-weight: bold;
+    transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+    top: 6px;
+}
+
+/* Notificações do Swiper para leitores de tela */
+.swiper-notification {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    opacity: 0;
+    z-index: -1000;
+}
+
+/* ========================================
+   SLIDER COMPONENT - REFATORADO
+   ======================================== */
+
+/* Variáveis CSS para o slider */
+:root {
+  /* Dimensões */
+  --slider-height-desktop: 600px;
+  --slider-height-mobile: 280px;
+  --slider-border-radius: 8px;
+  
+  /* Efeitos visuais */
+  --slider-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --slider-overlay-gradient: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  --slider-transition: all 0.3s ease;
+  --slider-hover-scale: 1.02;
+  --slider-hover-brightness: 1.1;
+  
+  /* Controles do Swiper */
+  --swiper-control-bg: rgba(0,0,0,0.3);
+  --swiper-control-bg-hover: rgba(0,0,0,0.6);
+  --swiper-control-size: 50px;
+  --swiper-control-size-mobile: 35px;
+  --swiper-bullet-size: 12px;
+  --swiper-bullet-size-mobile: 8px;
+  --swiper-bullet-bg: rgba(255,255,255,0.7);
+  --swiper-bullet-active-bg: white;
+  --swiper-bullet-active-scale: 1.3;
+  
+  /* Mobile específico */
+  --slider-mobile-margin: 10px;
+  --slider-mobile-font-h3: 1rem;
+  --slider-mobile-font-h4: 0.9rem;
+  --slider-mobile-font-p: 0.8rem;
+  --slider-mobile-font-btn: 0.9rem;
+  --slider-mobile-btn-padding: 0.5rem 1rem;
+  --slider-mobile-pagination-bottom: 8px;
+}
+
+/* Container principal do slider */
 .slider-container {
   position: relative;
-  margin-bottom: 2rem;
+  margin: 3rem auto 2rem;
+  max-width: 1200px;
+  /* Performance optimizations */
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
+/* Slider base */
 .main-slider {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  height: var(--slider-height-desktop);
+  overflow: hidden;
+  box-shadow: var(--slider-shadow);
+  border-radius: var(--slider-border-radius);
+  border: 2px solid transparent;
+  transition: var(--slider-transition);
 }
 
+/* Foco no container do slider */
+.main-slider:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25), var(--slider-shadow);
+}
+
+.main-slider:focus-within {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25), var(--slider-shadow);
+}
+
+/* Slides individuais */
+.main-slider .swiper-slide {
+  height: var(--slider-height-desktop);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Imagens do slider */
+.main-slider .swiper-slide img,
+.main-slider .slide-image {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: var(--slider-height-desktop) !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  transition: var(--slider-transition);
+}
+
+/* Links dos slides */
 .slide-link {
   display: block;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: var(--slider-transition);
+  border: 2px solid transparent;
+  border-radius: var(--slider-border-radius);
 }
 
 .slide-link:hover {
   text-decoration: none;
   color: inherit;
-  transform: scale(1.02);
+  transform: scale(var(--slider-hover-scale));
+}
+
+.slide-link:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: inset 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
 .slide-link:hover .slide-image {
-  filter: brightness(1.1);
+  filter: brightness(var(--slider-hover-brightness));
 }
 
-/* Estilos base para imagens do slider */
-.main-slider {
-  height: 600px;
-  overflow: hidden;
+.slide-link:focus .slide-image {
+  filter: brightness(1.2) contrast(1.1);
 }
 
-.main-slider .swiper-slide {
-  height: 600px;
-  position: relative;
-  overflow: hidden;
-}
-
-.main-slider .swiper-slide img,
-.main-slider .slide-image {
-  width: 100% !important;
-  height: 100% !important;
-  max-height: 600px !important;
-  object-fit: cover !important;
-  object-position: center !important;
-}
-
-/* Remover completamente qualquer padding interno do slide - GERAL */
+/* Reset de padding para todos os elementos internos */
 .main-slider .position-absolute,
 .main-slider .p-4,
 .main-slider [class*="p-"],
@@ -95,118 +227,145 @@
   padding: 0 !important;
 }
 
-/* Ajustes para controles do swiper */
+/* Overlay de conteúdo */
+.main-slider .slide-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--slider-overlay-gradient);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ========================================
+   CONTROLES DO SWIPER
+   ======================================== */
+
+/* Botões de navegação */
 .main-slider .swiper-button-next,
 .main-slider .swiper-button-prev {
   z-index: 10;
   color: white;
-  background: rgba(0,0,0,0.3);
+  background: var(--swiper-control-bg);
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  margin-top: -25px;
+  width: var(--swiper-control-size);
+  height: var(--swiper-control-size);
+  margin-top: calc(var(--swiper-control-size) / -2);
+  transition: var(--slider-transition);
+  border: 2px solid transparent;
 }
 
 .main-slider .swiper-button-next:hover,
 .main-slider .swiper-button-prev:hover {
-  background: rgba(0,0,0,0.6);
+  background: var(--swiper-control-bg-hover);
 }
 
+/* Estilos de foco para acessibilidade */
+.main-slider .swiper-button-next:focus,
+.main-slider .swiper-button-prev:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Paginação */
 .main-slider .swiper-pagination {
   z-index: 10;
 }
 
 .main-slider .swiper-pagination-bullet {
-  background: rgba(255,255,255,0.7);
-  width: 12px;
-  height: 12px;
+  background: var(--swiper-bullet-bg);
+  width: var(--swiper-bullet-size);
+  height: var(--swiper-bullet-size);
+  transition: var(--slider-transition);
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.main-slider .swiper-pagination-bullet:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 .main-slider .swiper-pagination-bullet-active {
-  background: white;
-  transform: scale(1.3);
+  background: var(--swiper-bullet-active-bg);
+  transform: scale(var(--swiper-bullet-active-scale));
 }
 
-/* Mobile slider - melhorias para UX mobile */
+.main-slider .swiper-pagination-bullet:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: scale(1.1);
+}
+
+/* ========================================
+   RESPONSIVIDADE MOBILE
+   ======================================== */
+
 @media (max-width: 767.98px) {
+  /* Container mobile */
   .slider-container {
-    margin: 0 10px 2rem 10px; /* Pequena margem para não tocar as bordas */
-    border-radius: 8px;
+    margin: 0 var(--slider-mobile-margin) 2rem var(--slider-mobile-margin);
+    border-radius: var(--slider-border-radius);
   }
   
+  /* Slider mobile */
   .main-slider {
-    border-radius: 8px;
-    height: 280px; /* Altura fixa para mobile */
+    height: var(--slider-height-mobile);
     width: 100%;
     max-width: none;
-    overflow: hidden;
   }
   
   .main-slider .swiper-slide {
-    height: 280px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+    height: var(--slider-height-mobile);
   }
   
   .main-slider .swiper-slide img,
   .main-slider .slide-image {
-    width: 100% !important;
-    height: 100% !important;
-    max-height: 280px !important;
-    object-fit: cover !important; /* Preserva altura, corta largura se necessário */
-    object-position: center !important;
+    max-height: var(--slider-height-mobile) !important;
   }
   
-  /* Remover completamente qualquer padding interno do slide */
-  .main-slider .position-absolute,
-  .main-slider .p-4,
-  .main-slider [class*="p-"],
-  .main-slider [class*="px-"],
-  .main-slider [class*="py-"] {
-    padding: 0 !important;
-  }
-  
+  /* Tipografia mobile */
   .main-slider .position-absolute h3 {
-    font-size: 1rem !important;
+    font-size: var(--slider-mobile-font-h3) !important;
     margin-bottom: 0.5rem !important;
   }
   
   .main-slider .position-absolute h4 {
-    font-size: 0.9rem !important;
+    font-size: var(--slider-mobile-font-h4) !important;
     margin-bottom: 0.5rem !important;
   }
   
   .main-slider .position-absolute p {
-    font-size: 0.8rem !important;
+    font-size: var(--slider-mobile-font-p) !important;
     margin-bottom: 1rem !important;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Limita a 2 linhas */
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
   
   .main-slider .btn-lg {
-    font-size: 0.9rem !important;
-    padding: 0.5rem 1rem !important;
+    font-size: var(--slider-mobile-font-btn) !important;
+    padding: var(--slider-mobile-btn-padding) !important;
   }
   
-  /* Ajustar controles para mobile */
+  /* Controles mobile */
   .main-slider .swiper-button-next,
   .main-slider .swiper-button-prev {
-    width: 35px;
-    height: 35px;
-    margin-top: -17px;
+    width: var(--swiper-control-size-mobile);
+    height: var(--swiper-control-size-mobile);
+    margin-top: calc(var(--swiper-control-size-mobile) / -2);
   }
   
   .main-slider .swiper-pagination {
-    bottom: 8px;
+    bottom: var(--slider-mobile-pagination-bottom);
   }
   
   .main-slider .swiper-pagination-bullet {
-    width: 8px;
-    height: 8px;
+    width: var(--swiper-bullet-size-mobile);
+    height: var(--swiper-bullet-size-mobile);
   }
 }
 
