@@ -684,7 +684,7 @@ document.getElementById('confirmPalpitesModal').addEventListener('hidden.bs.moda
 
 **Causa:** Os event listeners de login e registro usavam `document.getElementById('formPalpites').submit()` que bypassa completamente o event listener do formulário, pulando a validação e o modal de confirmação.
 
-**Solução Implementada:** Substituição do `.submit()` direto por `.click()` no botão "Salvar palpites", garantindo que o fluxo completo de validação seja respeitado.
+**Solução Implementada:** Substituição da lógica de re-clique no botão por uma abordagem direta: após login/registro bem-sucedido, fechar o modal de login e abrir diretamente o modal de confirmação, evitando o loop infinito.
 
 **Código Anterior (Problemático):**
 ```javascript
@@ -697,8 +697,16 @@ if (data.success) {
 **Código Corrigido:**
 ```javascript
 if (data.success) {
-    // Trigger the save button click to go through validation and confirmation modal
-    document.getElementById('btnSalvarPalpites').click();
+    // Fechar modal de login
+    const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+    loginModal.hide();
+    
+    // Aguardar o modal fechar completamente antes de mostrar confirmação
+    document.getElementById('loginModal').addEventListener('hidden.bs.modal', function() {
+        // Agora que o usuário está logado, mostrar modal de confirmação diretamente
+        const confirmModal = new bootstrap.Modal(document.getElementById('confirmPalpitesModal'));
+        confirmModal.show();
+    }, { once: true });
 }
 ```
 

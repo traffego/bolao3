@@ -774,8 +774,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Trigger the save button click to go through validation and confirmation modal
-                document.getElementById('btnSalvarPalpites').click();
+                // Fechar modal de login
+                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                loginModal.hide();
+                
+                // Aguardar o modal fechar completamente antes de mostrar confirmação
+                document.getElementById('loginModal').addEventListener('hidden.bs.modal', function() {
+                    // Agora que o usuário está logado, mostrar modal de confirmação diretamente
+                    const confirmModal = new bootstrap.Modal(document.getElementById('confirmPalpitesModal'));
+                    confirmModal.show();
+                }, { once: true });
             } else {
                 document.getElementById('loginError').textContent = data.message;
                 document.getElementById('loginError').classList.remove('d-none');
@@ -795,8 +803,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Trigger the save button click to go through validation and confirmation modal
-                document.getElementById('btnSalvarPalpites').click();
+                // Fechar modal de login
+                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                loginModal.hide();
+                
+                // Aguardar o modal fechar completamente antes de mostrar confirmação
+                document.getElementById('loginModal').addEventListener('hidden.bs.modal', function() {
+                    // Agora que o usuário está registrado e logado, mostrar modal de confirmação diretamente
+                    const confirmModal = new bootstrap.Modal(document.getElementById('confirmPalpitesModal'));
+                    confirmModal.show();
+                }, { once: true });
             } else {
                 document.getElementById('registerError').textContent = data.message;
                 document.getElementById('registerError').classList.remove('d-none');
