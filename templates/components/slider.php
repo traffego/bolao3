@@ -135,34 +135,7 @@ if (empty($slideBoloes)) {
                                         </h3>
                                     </header>
                                     
-                                    <!-- Informações do prêmio -->
-                                    <div class="slide-prizes" role="group" aria-label="Informações de prêmios">
-                                        <div class="slide-prize-total">
-                                            <i class="bi bi-trophy-fill" aria-hidden="true"></i> 
-                                            <span class="prize-label">Prêmio Total:</span>
-                                            <span class="prize-value"><?= formatMoney($bolao['premio_total']) ?></span>
-                                        </div>
-                                        
-                                        <?php if ($bolao['premio_rodada'] > 0): ?>
-                                            <div class="slide-prize-round">
-                                                <i class="bi bi-award-fill" aria-hidden="true"></i> 
-                                                <span class="prize-label">Por Rodada:</span>
-                                                <span class="prize-value"><?= formatMoney($bolao['premio_rodada']) ?></span>
-                                            </div>
-                                        <?php else: ?>
-                                            <div class="slide-prize-round">
-                                                <i class="bi bi-gift-fill" aria-hidden="true"></i> 
-                                                <span class="prize-label">Por Rodada:</span>
-                                                <span class="prize-value">Surpresa...</span>
-                                            </div>
-                                        <?php endif; ?>
-                                        
-                                        <div class="slide-participation">
-                                            <i class="bi bi-ticket-fill" aria-hidden="true"></i> 
-                                            <span class="prize-label">Participação:</span>
-                                            <span class="prize-value"><?= formatMoney($bolao['valor_participacao']) ?></span>
-                                        </div>
-                                    </div>
+
                                     
                                     <!-- Descrição -->
                                     <?php if (!empty($bolao['descricao'])): ?>
