@@ -176,9 +176,17 @@ if (empty($slideBoloes)) {
                                         <span class="btn btn-primary btn-lg" 
                                               role="button" 
                                               tabindex="-1"
-                                              aria-label="Participar do bolão <?= htmlspecialchars($bolao['nome']) ?>">
-                                            <i class="bi bi-play-fill" aria-hidden="true"></i> 
-                                            Participar Agora
+                                              aria-label="Palpitar no bolão <?= htmlspecialchars($bolao['nome']) ?> - Participação: <?= formatMoney($bolao['valor_participacao']) ?> - Prêmio: <?= formatMoney($bolao['premio_total']) ?>">
+                                            <div class="btn-content">
+                                                <div class="btn-info">
+                                                    <small class="btn-participation"><?= formatMoney($bolao['valor_participacao']) ?></small>
+                                                    <small class="btn-prize">Prêmio: <?= formatMoney($bolao['premio_total']) ?></small>
+                                                </div>
+                                                <div class="btn-text">
+                                                    <i class="bi bi-bullseye" aria-hidden="true"></i> 
+                                                    Palpitar
+                                                </div>
+                                            </div>
                                         </span>
                                     </div>
                                 </div>

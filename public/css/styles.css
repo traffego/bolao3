@@ -380,6 +380,28 @@
     width: var(--swiper-bullet-size-mobile);
     height: var(--swiper-bullet-size-mobile);
   }
+  
+  /* Botão do slider mobile */
+  .slide-action .btn {
+    min-height: 50px;
+    padding: 6px 12px;
+  }
+  
+  .slide-action .btn-content {
+    gap: 8px;
+  }
+  
+  .slide-action .btn-info {
+    font-size: 0.7rem;
+  }
+  
+  .slide-action .btn-text {
+    font-size: 0.9rem;
+  }
+  
+  .slide-action .btn-text i {
+    font-size: 1rem;
+  }
 }
 
 
@@ -848,6 +870,54 @@ h6 { font-size: 1rem; font-weight: 600; }
   background: var(--gradient-warning);
   border: none;
   font-weight: 600;
+}
+
+/* Botão do slider com informações */
+.slide-action .btn {
+  position: relative;
+  min-height: 60px;
+  padding: 8px 16px;
+}
+
+.slide-action .btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+
+.slide-action .btn-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.slide-action .btn-participation {
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.slide-action .btn-prize {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.slide-action .btn-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.slide-action .btn-text i {
+  font-size: 1.1rem;
   color: var(--globo-branco);
 }
 
