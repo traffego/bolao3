@@ -384,4 +384,4 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php
 // Include footer
 include TEMPLATE_DIR . '/footer.php';
-?>
+?> 

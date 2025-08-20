@@ -67,15 +67,12 @@
 .main-slider {
   height: 600px;
   overflow: hidden;
-  border-radius: 8px;
-  padding: 0;
 }
 
 .main-slider .swiper-slide {
   height: 600px;
   position: relative;
   overflow: hidden;
-  padding: 0;
 }
 
 .main-slider .swiper-slide img,
@@ -85,18 +82,6 @@
   max-height: 600px !important;
   object-fit: cover !important;
   object-position: center !important;
-}
-
-/* Reduzir tamanho das setas de navegação */
-.swiper-button-next,
-.swiper-button-prev {
-  width: 35px !important;
-  height: 35px !important;
-}
-
-.swiper-button-next:after,
-.swiper-button-prev:after {
-  font-size: 16px !important;
 }
 
 /* Ajustes para controles do swiper */
@@ -144,7 +129,6 @@
     width: 100%;
     max-width: none;
     overflow: hidden;
-    padding: 0;
   }
   
   .main-slider .swiper-slide {
@@ -153,7 +137,6 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    padding: 0;
   }
   
   .main-slider .swiper-slide img,
@@ -197,14 +180,9 @@
   /* Ajustar controles para mobile */
   .main-slider .swiper-button-next,
   .main-slider .swiper-button-prev {
-    width: 25px;
-    height: 25px;
-    margin-top: -12px;
-  }
-  
-  .main-slider .swiper-button-next:after,
-  .main-slider .swiper-button-prev:after {
-    font-size: 12px !important;
+    width: 35px;
+    height: 35px;
+    margin-top: -17px;
   }
   
   .main-slider .swiper-pagination {
