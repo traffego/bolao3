@@ -1,9 +1,9 @@
-fix: Corrigido bug no salvamento de código de afiliado via URL
+debug: Criado debug específico para investigar fluxo real do usuário
 
-- PROBLEMA IDENTIFICADO: referral_code do POST sobrescrevia o da URL
-- Corrigida lógica para priorizar campo do formulário, mas usar URL se vazio
-- Debug confirmou que sistema salva corretamente quando dados corretos
-- Agora parâmetro ?ref= da URL é preservado durante o cadastro
-- Teste realizado com sucesso: código af2E4FAB3A → ref_indicacao salva
-- Sistema gera codigo_afiliado único para cada novo usuário
-- Todos os novos usuários são automaticamente afiliados ativos
+- Criado debug_fluxo_usuario.php para simular exatamente o fluxo real
+- Debug anterior funcionou, mas fluxo normal ainda apresenta problemas
+- Novo debug simula: captura URL → formulário → POST → validação → inserção
+- Inclui verificação detalhada de cada etapa do processo
+- Testa especificamente o cenário onde campo referral_code vem vazio no POST
+- Mostra estado da sessão e dados processados em cada etapa
+- Objetivo: identificar onde o ref_indicacao se perde no fluxo real
