@@ -4,14 +4,8 @@ require_once __DIR__ . '/config/database.php';
 // database_functions.php não é mais necessário pois está incluído em database.php
 require_once __DIR__ . '/includes/functions.php';
 
-// Capturar parâmetro de referência de afiliado e guardar em variável
-$referralCode = '';
-if (isset($_GET['ref']) && !empty($_GET['ref'])) {
-    $referralCode = trim($_GET['ref']);
-    $_SESSION['referral_code'] = $referralCode; // Manter na sessão também para compatibilidade
-} elseif (isset($_SESSION['referral_code']) && !empty($_SESSION['referral_code'])) {
-    $referralCode = $_SESSION['referral_code'];
-}
+// Inicializar sistema de afiliação
+initReferralSystem();
 
 // Obter o ID ou slug do bolão da URL
 $bolaoId = isset($_GET['id']) ? (int)$_GET['id'] : 0;

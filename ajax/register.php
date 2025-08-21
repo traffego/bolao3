@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $nome = $_POST['nome'] ?? '';
 $email = $_POST['email'] ?? '';
 $senha = $_POST['senha'] ?? '';
+$referralCode = $_POST['referral_code'] ?? '';
 
 // Validate input
 if (empty($nome) || empty($email) || empty($senha)) {
@@ -40,14 +41,22 @@ try {
     // Hash password
     $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
     
+    // Gerar código de afiliado único
+    $codigoAfiliado = generateUniqueAffiliateCode();
+    
     // Insert new user
-    $userId = dbInsert('jogador', [
+    $userData = [
         'nome' => $nome,
         'email' => $email,
         'senha' => $senhaHash,
         'data_cadastro' => date('Y-m-d H:i:s'),
-        'status' => 'ativo'
-    ]);
+        'status' => 'ativo',
+        'codigo_afiliado' => $codigoAfiliado,
+        'ref_indicacao' => !empty($referralCode) ? $referralCode : null,
+        'afiliado_ativo' => 'ativo'
+    ];
+    
+    $userId = dbInsert('jogador', $userData);
     
     if ($userId) {
         // Set session data
@@ -63,4 +72,4 @@ try {
 } catch (Exception $e) {
     error_log("Erro no cadastro: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Erro ao realizar cadastro']);
-} 
+}

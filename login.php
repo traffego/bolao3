@@ -6,14 +6,8 @@ require_once 'config/config.php';
 require_once 'includes/functions.php';
 require_once 'includes/classes/SecurityValidator.php';
 
-// Capturar parâmetro de referência de afiliado e guardar em variável
-$referralCode = '';
-if (isset($_GET['ref']) && !empty($_GET['ref'])) {
-    $referralCode = trim($_GET['ref']);
-    $_SESSION['referral_code'] = $referralCode; // Manter na sessão também para compatibilidade
-} elseif (isset($_SESSION['referral_code']) && !empty($_SESSION['referral_code'])) {
-    $referralCode = $_SESSION['referral_code'];
-}
+// Inicializar sistema de afiliação
+initReferralSystem();
 
 // Se já está logado, redireciona
 if (isLoggedIn()) {
@@ -41,24 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $usuario['id'];
             $_SESSION['user_name'] = $usuario['nome'];
             
-            // Verificar se usuário ainda não tem ref_indicacao e há código de referência na sessão
-            if (isset($_SESSION['referral_code']) && !empty($_SESSION['referral_code'])) {
-                // Verificar se o usuário ainda não tem ref_indicacao
-                $temRef = dbFetchOne("SELECT ref_indicacao FROM jogador WHERE id = ?", [$usuario['id']]);
-                
-                if (empty($temRef['ref_indicacao'])) {
-                    // Verificar se o código de referência existe e está ativo
-                    $afiliado = dbFetchOne("SELECT id FROM jogador WHERE codigo_afiliado = ? AND afiliado_ativo = 'ativo'", [$_SESSION['referral_code']]);
-                    
-                    if ($afiliado) {
-                        // Atualizar ref_indicacao do usuário
-                        dbExecute("UPDATE jogador SET ref_indicacao = ? WHERE id = ?", [$_SESSION['referral_code'], $usuario['id']]);
-                    }
-                }
-                
-                // Limpar código de referência da sessão
-                unset($_SESSION['referral_code']);
-            }
+            // Sistema de afiliação agora usa localStorage - não há ação necessária no login
             
             // Registrar log de sucesso
             dbInsert('logs', [

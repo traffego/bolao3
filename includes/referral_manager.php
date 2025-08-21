@@ -1,64 +1,31 @@
 <?php
 /**
- * Gerenciador Global de Códigos de Afiliação
- * Garante captura e persistência do parâmetro ?ref= em todas as páginas
+ * Gerenciador Simples de Códigos de Afiliação
+ * Funções básicas para trabalhar com localStorage
  */
 
 /**
- * Inicializa o sistema de afiliação global
- * Deve ser chamado no início de cada página
+ * Inicializa o sistema de afiliação
+ * Captura ?ref= da URL se presente
  */
 function initReferralSystem() {
-    // Capturar parâmetro ?ref= da URL
-    $referralCode = '';
-    
-    // Prioridade 1: Parâmetro da URL atual
+    // Capturar código da URL se presente
     if (isset($_GET['ref']) && !empty(trim($_GET['ref']))) {
         $referralCode = trim($_GET['ref']);
-        $_SESSION['referral_code'] = $referralCode;
         
-        // Log para debug
-        if (defined('DEBUG_REFERRAL') && DEBUG_REFERRAL) {
-            error_log("[REFERRAL] Código capturado da URL: {$referralCode} | Página: {$_SERVER['REQUEST_URI']}");
-        }
+        // Validar código
+         if (validateReferralCode($referralCode)) {
+             // Se usuário logado e não tem ref_indicacao, atualizar
+             updateUserReferralIfEmpty($referralCode);
+             
+             if (defined('DEBUG_REFERRAL') && DEBUG_REFERRAL) {
+                 error_log("[ReferralManager] Código capturado: {$referralCode}");
+             }
+         }
     }
-    // Prioridade 2: Código já existente na sessão
-    elseif (isset($_SESSION['referral_code']) && !empty($_SESSION['referral_code'])) {
-        $referralCode = $_SESSION['referral_code'];
-    }
-    
-    // Retornar código atual
-    return $referralCode;
 }
 
-/**
- * Obtém o código de afiliação atual
- */
-function getCurrentReferralCode() {
-    return isset($_SESSION['referral_code']) ? $_SESSION['referral_code'] : '';
-}
 
-/**
- * Define um código de afiliação na sessão
- */
-function setReferralCode($code) {
-    if (!empty(trim($code))) {
-        $_SESSION['referral_code'] = trim($code);
-        return true;
-    }
-    return false;
-}
-
-/**
- * Remove o código de afiliação da sessão
- */
-function clearReferralCode() {
-    if (isset($_SESSION['referral_code'])) {
-        unset($_SESSION['referral_code']);
-        return true;
-    }
-    return false;
-}
 
 /**
  * Valida se um código de afiliação existe e está ativo
@@ -81,50 +48,14 @@ function validateReferralCode($code) {
     }
 }
 
-/**
- * Adiciona código de afiliação a uma URL
- */
-function addReferralToUrl($url, $code = null) {
-    if ($code === null) {
-        $code = getCurrentReferralCode();
-    }
-    
-    if (empty($code) || empty($url)) {
-        return $url;
-    }
-    
-    // Verificar se já tem parâmetro ref
-    if (strpos($url, 'ref=') !== false) {
-        return $url;
-    }
-    
-    // Adicionar parâmetro
-    $separator = strpos($url, '?') !== false ? '&' : '?';
-    return $url . $separator . 'ref=' . urlencode($code);
-}
+
 
 /**
- * Gera HTML para incluir o JavaScript do gerenciador de afiliação
+ * Gera HTML para incluir o script do gerenciador de afiliação
  */
 function getReferralManagerScript() {
-    $referralCode = getCurrentReferralCode();
-    $appUrl = defined('APP_URL') ? APP_URL : '';
-    
-    $html = "\n<!-- Gerenciador de Afiliação -->\n";
-    $html .= "<script src='{$appUrl}/public/js/referral-manager.js'></script>\n";
-    
-    // Se há código na sessão, sincronizar com localStorage
-    if (!empty($referralCode)) {
-        $html .= "<script>\n";
-        $html .= "document.addEventListener('DOMContentLoaded', function() {\n";
-        $html .= "    if (window.referralManager) {\n";
-        $html .= "        window.referralManager.setReferralCode('" . addslashes($referralCode) . "');\n";
-        $html .= "    }\n";
-        $html .= "});\n";
-        $html .= "</script>\n";
-    }
-    
-    return $html;
+    return '
+<script src="/public/js/referral-manager.js"></script>';
 }
 
 /**
@@ -132,23 +63,35 @@ function getReferralManagerScript() {
  */
 function debugReferralSystem() {
     if (!defined('DEBUG_REFERRAL') || !DEBUG_REFERRAL) {
-        return '';
+        return;
     }
     
-    $refGet = isset($_GET['ref']) ? $_GET['ref'] : 'Não presente';
-    $refSession = getCurrentReferralCode() ?: 'Não definido';
-    $currentPage = basename($_SERVER['PHP_SELF']);
-    $currentTime = date('H:i:s');
+    $getRef = isset($_GET['ref']) ? $_GET['ref'] : 'não definido';
     
-    $html = "\n<!-- DEBUG AFILIAÇÃO -->\n";
-    $html .= "<div style='position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-size: 12px; z-index: 9999;'>\n";
-    $html .= "🔍 DEBUG AFILIAÇÃO:<br>\n";
-    $html .= "GET[ref]: {$refGet}<br>\n";
-    $html .= "SESSION[referral_code]: {$refSession}<br>\n";
-    $html .= "Página: {$currentPage} | Hora: {$currentTime}\n";
-    $html .= "</div>\n";
+    $userInfo = 'não logado';
+    if (function_exists('getCurrentUserId')) {
+        $userId = getCurrentUserId();
+        if ($userId) {
+            global $pdo;
+            $stmt = $pdo->prepare("SELECT nome, codigo_afiliado, ref_indicacao FROM jogador WHERE id = ?");
+            $stmt->execute([$userId]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($user) {
+                $userInfo = "ID: {$userId}, Nome: {$user['nome']}, Código: {$user['codigo_afiliado']}, Ref: {$user['ref_indicacao']}";
+            }
+        }
+    }
     
-    return $html;
+    echo "<div style='background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc; font-family: monospace; font-size: 12px;'>";
+    echo "<strong>DEBUG - Sistema de Afiliação (localStorage):</strong><br>";
+    echo "GET[ref]: {$getRef}<br>";
+    echo "Usuário: {$userInfo}<br>";
+    echo "<script>";
+    echo "const storedRef = localStorage.getItem('bolao_referral_code');";
+    echo "document.write('localStorage[bolao_referral_code]: ' + (storedRef || 'não definido'));";
+    echo "</script><br>";
+    echo "</div>";
 }
 
 /**

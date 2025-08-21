@@ -1,199 +1,186 @@
 /**
- * Gerenciador de Códigos de Afiliação
- * Garante persistência do parâmetro ?ref= em toda a navegação
+ * Gerenciador Simples de Códigos de Afiliação
+ * Mantém persistência do parâmetro ?ref= usando apenas localStorage
  */
-class ReferralManager {
-    constructor() {
-        this.storageKey = 'bolao_referral_code';
-        this.init();
-    }
+(function() {
+    'use strict';
+    
+    // Configurações
+    const CONFIG = {
+        STORAGE_KEY: 'bolao_referral_code',
+        URL_PARAM: 'ref',
+        DEBUG: true // Debug ativo para acompanhar funcionamento
+    };
 
-    init() {
-        // Capturar parâmetro ?ref= da URL atual
-        this.captureFromURL();
-        
-        // Sincronizar com localStorage
-        this.syncWithStorage();
-        
-        // Adicionar código a todos os links internos
-        this.enhanceInternalLinks();
-        
-        // Interceptar navegação via JavaScript
-        this.interceptNavigation();
-    }
-
-    /**
-     * Captura parâmetro ?ref= da URL atual
-     */
-    captureFromURL() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const refCode = urlParams.get('ref');
-        
-        if (refCode && refCode.trim() !== '') {
-            const cleanCode = refCode.trim();
-            console.log('🔗 Código de afiliação capturado da URL:', cleanCode);
+    const ReferralManager = {
+        /**
+         * Inicializa o sistema de afiliação
+         */
+        init: function() {
+            this.log('Inicializando gerenciador simples de afiliação');
             
-            // Salvar no localStorage
-            localStorage.setItem(this.storageKey, cleanCode);
-            
-            // Enviar para o servidor via AJAX para sincronizar com a sessão
-            this.syncWithServer(cleanCode);
-            
-            // Limpar URL (opcional - remove o parâmetro ?ref= da barra de endereços)
-            this.cleanURL();
-        }
-    }
-
-    /**
-     * Sincroniza código com localStorage
-     */
-    syncWithStorage() {
-        const storedCode = localStorage.getItem(this.storageKey);
-        if (storedCode) {
-            console.log('💾 Código de afiliação recuperado do localStorage:', storedCode);
-            // Enviar para o servidor para manter sessão sincronizada
-            this.syncWithServer(storedCode);
-        }
-    }
-
-    /**
-     * Envia código para o servidor via AJAX
-     */
-    syncWithServer(code) {
-        fetch('/bolao3/ajax/sync-referral.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ referral_code: code })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('✅ Código sincronizado com o servidor');
-            } else {
-                console.warn('⚠️ Erro ao sincronizar código:', data.message);
+            // Capturar código da URL atual
+            const urlCode = this.getCodeFromUrl();
+            if (urlCode) {
+                this.setReferralCode(urlCode);
+                this.log('Código capturado da URL:', urlCode);
             }
-        })
-        .catch(error => {
-            console.error('❌ Erro na sincronização:', error);
-        });
-    }
-
-    /**
-     * Adiciona código de afiliação a todos os links internos
-     */
-    enhanceInternalLinks() {
-        const referralCode = this.getReferralCode();
-        if (!referralCode) return;
-
-        // Selecionar todos os links internos
-        const internalLinks = document.querySelectorAll('a[href]');
-        
-        internalLinks.forEach(link => {
-            const href = link.getAttribute('href');
             
-            // Verificar se é link interno (não começa com http/https ou //)
-            if (href && !href.startsWith('http') && !href.startsWith('//') && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
-                // Verificar se já tem parâmetros
-                const separator = href.includes('?') ? '&' : '?';
+            // Aplicar código existente aos links
+            this.applyCodeToLinks();
+            
+            // Monitorar mudanças no DOM
+            this.observeDOM();
+            
+            this.log('Gerenciador inicializado - Código atual:', this.getStoredCode());
+        },
+
+        /**
+         * Captura código da URL atual
+         */
+        getCodeFromUrl: function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get(CONFIG.URL_PARAM);
+            return code ? code.trim() : null;
+        },
+
+        /**
+         * Obtém código armazenado
+         */
+        getStoredCode: function() {
+            return localStorage.getItem(CONFIG.STORAGE_KEY);
+        },
+
+        /**
+         * Define código de afiliação
+         */
+        setReferralCode: function(code) {
+            if (code && code.trim() !== '') {
+                localStorage.setItem(CONFIG.STORAGE_KEY, code.trim());
+                this.log('Código salvo:', code.trim());
+            }
+        },
+
+        /**
+         * Aplica código a todos os links internos
+         */
+        applyCodeToLinks: function() {
+            const code = this.getStoredCode();
+            if (!code) return;
+
+            const links = document.querySelectorAll('a[href]');
+            
+            links.forEach(link => {
+                const href = link.getAttribute('href');
                 
-                // Verificar se já tem parâmetro ref
-                if (!href.includes('ref=')) {
-                    link.setAttribute('href', href + separator + 'ref=' + encodeURIComponent(referralCode));
+                // Verificar se é link interno
+                if (this.isInternalLink(href)) {
+                    const newHref = this.addCodeToUrl(href, code);
+                    if (newHref !== href) {
+                        link.setAttribute('href', newHref);
+                    }
                 }
-            }
-        });
-    }
+            });
+            
+            this.log('Código aplicado aos links internos');
+        },
 
-    /**
-     * Intercepta navegação via JavaScript (para SPAs ou AJAX)
-     */
-    interceptNavigation() {
-        // Interceptar pushState e replaceState
-        const originalPushState = history.pushState;
-        const originalReplaceState = history.replaceState;
-        
-        const self = this;
-        
-        history.pushState = function(state, title, url) {
-            self.addReferralToURL(url);
-            return originalPushState.apply(history, arguments);
-        };
-        
-        history.replaceState = function(state, title, url) {
-            self.addReferralToURL(url);
-            return originalReplaceState.apply(history, arguments);
-        };
-    }
+        /**
+         * Verifica se é link interno
+         */
+        isInternalLink: function(href) {
+            if (!href) return false;
+            
+            return !href.startsWith('http') && 
+                   !href.startsWith('//') && 
+                   !href.startsWith('mailto:') && 
+                   !href.startsWith('tel:') &&
+                   !href.startsWith('#');
+        },
 
-    /**
-     * Adiciona código de afiliação a uma URL
-     */
-    addReferralToURL(url) {
-        const referralCode = this.getReferralCode();
-        if (!referralCode || !url) return url;
-        
-        try {
-            const urlObj = new URL(url, window.location.origin);
-            if (!urlObj.searchParams.has('ref')) {
-                urlObj.searchParams.set('ref', referralCode);
+        /**
+         * Adiciona código à URL
+         */
+        addCodeToUrl: function(url, code) {
+            if (!url || !code) return url;
+            
+            // Se já tem o parâmetro ref, não adicionar
+            if (url.includes(CONFIG.URL_PARAM + '=')) {
+                return url;
             }
-            return urlObj.toString();
-        } catch (e) {
-            // Se não conseguir parsear como URL, adicionar manualmente
+            
             const separator = url.includes('?') ? '&' : '?';
-            return url.includes('ref=') ? url : url + separator + 'ref=' + encodeURIComponent(referralCode);
+            return url + separator + CONFIG.URL_PARAM + '=' + encodeURIComponent(code);
+        },
+
+        /**
+         * Monitora mudanças no DOM para aplicar código a novos links
+         */
+        observeDOM: function() {
+            const self = this;
+            
+            // Observer para novos elementos
+            const observer = new MutationObserver(function(mutations) {
+                let hasNewLinks = false;
+                
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1) { // Element node
+                                if (node.tagName === 'A' || node.querySelector('a')) {
+                                    hasNewLinks = true;
+                                }
+                            }
+                        });
+                    }
+                });
+                
+                if (hasNewLinks) {
+                    self.applyCodeToLinks();
+                }
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        },
+
+        /**
+         * Remove código de afiliação
+         */
+        clearReferralCode: function() {
+            localStorage.removeItem(CONFIG.STORAGE_KEY);
+            this.log('Código removido');
+        },
+
+        /**
+         * Log de debug
+         */
+        log: function() {
+            if (CONFIG.DEBUG && console && console.log) {
+                console.log('[ReferralManager]', ...arguments);
+            }
+        },
+        
+        /**
+         * Obtém código para formulários (usado no cadastro)
+         */
+        getCodeForForm: function() {
+            return this.getStoredCode();
         }
+    };
+
+    // Inicializar automaticamente
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            ReferralManager.init();
+        });
+    } else {
+        ReferralManager.init();
     }
-
-    /**
-     * Remove parâmetro ?ref= da URL na barra de endereços
-     */
-    cleanURL() {
-        const url = new URL(window.location);
-        if (url.searchParams.has('ref')) {
-            url.searchParams.delete('ref');
-            window.history.replaceState({}, document.title, url.toString());
-        }
-    }
-
-    /**
-     * Obtém código de afiliação atual
-     */
-    getReferralCode() {
-        return localStorage.getItem(this.storageKey);
-    }
-
-    /**
-     * Remove código de afiliação (para logout ou limpeza)
-     */
-    clearReferralCode() {
-        localStorage.removeItem(this.storageKey);
-        console.log('🗑️ Código de afiliação removido');
-    }
-
-    /**
-     * Define código de afiliação manualmente
-     */
-    setReferralCode(code) {
-        if (code && code.trim() !== '') {
-            localStorage.setItem(this.storageKey, code.trim());
-            this.syncWithServer(code.trim());
-            console.log('📝 Código de afiliação definido:', code.trim());
-        }
-    }
-}
-
-// Inicializar automaticamente quando o DOM estiver pronto
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.referralManager = new ReferralManager();
-    });
-} else {
-    window.referralManager = new ReferralManager();
-}
-
-// Expor globalmente para uso manual se necessário
-window.ReferralManager = ReferralManager;
+    
+    // Expor globalmente
+    window.ReferralManager = ReferralManager;
+    
+})();

@@ -8,14 +8,8 @@ require_once 'includes/functions.php';
 // Incluir sistema de debug
 require_once 'debug_cadastro_real.php';
 
-// Capturar parâmetro de referência de afiliado e guardar em variável
-$referralCode = '';
-if (isset($_GET['ref']) && !empty($_GET['ref'])) {
-    $referralCode = trim($_GET['ref']);
-    $_SESSION['referral_code'] = $referralCode; // Manter na sessão também para compatibilidade
-} elseif (isset($_SESSION['referral_code']) && !empty($_SESSION['referral_code'])) {
-    $referralCode = $_SESSION['referral_code'];
-}
+// Inicializar sistema de afiliação
+initReferralSystem();
 
 // If user is already logged in, redirect to home
 if (isLoggedIn()) {
@@ -27,7 +21,7 @@ $formData = [
     'nome' => '',
     'email' => '',
     'telefone' => '',
-    'referral_code' => $referralCode
+    'referral_code' => ''
 ];
 
 // Process registration form
@@ -37,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'nome' => trim($_POST['nome'] ?? ''),
         'email' => trim($_POST['email'] ?? ''),
         'telefone' => trim($_POST['telefone'] ?? ''),
-        'referral_code' => trim($_POST['referral_code'] ?? '') ?: $referralCode
+        'referral_code' => trim($_POST['referral_code'] ?? '')
     ];
     
     $password = $_POST['password'] ?? '';
@@ -104,10 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $userId = debugDbInsert('jogador', $userData);
         
-        // Limpar código de referência da sessão após o cadastro
-        if (isset($_SESSION['referral_code'])) {
-            unset($_SESSION['referral_code']);
-        }
+        // Código de referência será mantido no localStorage para futuras navegações
         
         if ($userId) {
             // Create account in contas table
@@ -198,6 +189,20 @@ include TEMPLATE_DIR . '/header.php';
                         <input type="text" class="form-control" id="referral_code" name="referral_code" value="<?= sanitize($formData['referral_code']) ?>">
                         <small class="form-text text-muted">Se você foi indicado por um afiliado, insira o código aqui</small>
                     </div>
+                    
+                    <script>
+                    // Preencher campo com código do localStorage se estiver vazio
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const referralInput = document.getElementById('referral_code');
+                        if (referralInput && !referralInput.value) {
+                            const storedCode = localStorage.getItem('bolao_referral_code');
+                            if (storedCode) {
+                                referralInput.value = storedCode;
+                                console.log('[Cadastro] Código preenchido do localStorage:', storedCode);
+                            }
+                        }
+                    });
+                    </script>
                     
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
