@@ -643,6 +643,7 @@ include TEMPLATE_DIR . '/header.php';
                                 <label for="registerPassword" class="form-label">Senha</label>
                                 <input type="password" class="form-control" id="registerPassword" name="senha" required>
                             </div>
+                            <input type="hidden" id="registerReferralCode" name="referral_code" value="">
                             <div class="alert alert-danger d-none" id="registerError"></div>
                             <button type="submit" class="btn btn-success">Cadastrar</button>
                         </form>
@@ -797,6 +798,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle register form submission
     document.getElementById('registerForm').addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        // Capturar referral_code do localStorage e adicionar ao formulário
+        const referralCode = localStorage.getItem('bolao_referral_code');
+        if (referralCode) {
+            document.getElementById('registerReferralCode').value = referralCode;
+        }
+        
         const formData = new FormData(this);
         
         fetch('<?= APP_URL ?>/ajax/register.php', {
