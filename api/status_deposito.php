@@ -56,6 +56,16 @@ try {
                 $updateSql = "UPDATE transacoes SET status = 'aprovado', data_processamento = NOW(), afeta_saldo = 1 WHERE id = ?";
                 dbExecute($updateSql, [$transacaoId]);
                 $transacao['status'] = 'aprovado'; // Atualiza a variável local para retorno imediato
+                
+                // Calcular comissão de afiliado se aplicável
+                try {
+                    $comissaoCalculada = calculateAffiliateCommission($transacaoId);
+                    if ($comissaoCalculada) {
+                        error_log("Comissão de afiliado processada via status_deposito para transação: {$transacaoId}");
+                    }
+                } catch (Exception $e) {
+                    error_log("Erro ao calcular comissão de afiliado via status_deposito: " . $e->getMessage());
+                }
             }
         } catch (Exception $e) {
             error_log("Erro ao verificar status no EfiPix: " . $e->getMessage());
@@ -87,4 +97,4 @@ try {
         'error' => 'Erro interno do servidor',
         'code' => 500
     ]);
-} 
+}

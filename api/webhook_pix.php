@@ -130,6 +130,23 @@ function processPixWebhook($data, $logger, $pdo) {
             'jogador_id' => $transacao['jogador_id']
         ]);
 
+        // Calcular comissão de afiliado se aplicável
+        try {
+            $comissaoCalculada = calculateAffiliateCommission($transacao['id']);
+            if ($comissaoCalculada) {
+                $logger->info('Comissão de afiliado processada via webhook', [
+                    'transacao_id' => $transacao['id'],
+                    'txid' => $txid
+                ]);
+            }
+        } catch (Exception $e) {
+            $logger->error('Erro ao calcular comissão de afiliado via webhook', [
+                'transacao_id' => $transacao['id'],
+                'txid' => $txid,
+                'erro' => $e->getMessage()
+            ]);
+        }
+
         // Se houver palpite associado, atualizar seu status
         if ($transacao['palpite_id']) {
             $stmt = $pdo->prepare("UPDATE palpites SET status = 'pago' WHERE id = ?");
