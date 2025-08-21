@@ -94,10 +94,12 @@ foreach ($boloes as $bolao) {
         // Verificar se o jogo precisa ser atualizado (sem resultado ou em andamento)
         if (isset($jogo['id']) && ($jogo['resultado_casa'] === null || $jogo['status'] === 'NS' || in_array($jogo['status'], ['LIVE', '1H', 'HT', '2H']))) {
             // Verificar se o jogo já começou ou terminou
-            $dataJogo = isset($jogo['data_iso']) ? new DateTime($jogo['data_iso']) : null;
+            // Priorizar data_iso, mas usar data como fallback
+            $dataParaVerificar = isset($jogo['data_iso']) ? $jogo['data_iso'] : (isset($jogo['data']) ? $jogo['data'] : null);
+            $dataJogo = $dataParaVerificar ? new DateTime($dataParaVerificar) : null;
             $agora = new DateTime();
             
-            // Se não tem data ISO ou a data é no futuro (mais de 90 minutos), pular
+            // Se não tem data ou a data é no futuro (mais de 90 minutos), pular
             if (!$dataJogo || $dataJogo > $agora->modify('+90 minutes')) {
                 continue;
             }
@@ -155,4 +157,4 @@ foreach ($boloes as $bolao) {
 logMessage("Atualização concluída: $totalJogosAtualizados jogos foram atualizados em $totalBoloesAtualizados bolões.");
 
 // Retornar status de sucesso
-exit(0); 
+exit(0);

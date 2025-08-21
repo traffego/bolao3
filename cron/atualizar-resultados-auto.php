@@ -52,12 +52,18 @@ foreach ($boloes as $bolao) {
     }
 
     foreach ($jogos as &$jogo) {
-        if (!isset($jogo['id']) || !isset($jogo['data_iso'])) {
+        if (!isset($jogo['id'])) {
             continue;
         }
 
         // Verificar se o jogo precisa ser atualizado
-        $dataJogo = new DateTime($jogo['data_iso']);
+        // Priorizar data_iso, mas usar data como fallback
+        $dataParaVerificar = isset($jogo['data_iso']) ? $jogo['data_iso'] : (isset($jogo['data']) ? $jogo['data'] : null);
+        if (!$dataParaVerificar) {
+            continue;
+        }
+        
+        $dataJogo = new DateTime($dataParaVerificar);
         $agora = new DateTime();
         
         if ($dataJogo > $agora) {
@@ -131,4 +137,4 @@ dbUpdate(
 
 logMessage("Atualização automática concluída: $totalJogosAtualizados jogos foram atualizados em $totalBoloesAtualizados bolões.");
 
-exit(0); 
+exit(0);

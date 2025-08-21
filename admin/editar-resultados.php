@@ -120,10 +120,12 @@ require_once '../templates/admin/header.php';
                                     $jogos = json_decode($bolao['jogos'], true);
                                     if ($jogos): 
                                         foreach ($jogos as $jogo):
-                                            $dataJogo = new DateTime($jogo['data_iso']);
+                                            // Priorizar data_iso, mas usar data como fallback
+                                            $dataParaVerificar = isset($jogo['data_iso']) ? $jogo['data_iso'] : (isset($jogo['data']) ? $jogo['data'] : null);
+                                            $dataJogo = $dataParaVerificar ? new DateTime($dataParaVerificar) : null;
                                     ?>
                                     <tr>
-                                        <td><?= $dataJogo->format('d/m/Y H:i') ?></td>
+                                        <td><?= $dataJogo ? $dataJogo->format('d/m/Y H:i') : 'Data não disponível' ?></td>
                                         <td><?= htmlspecialchars($jogo['time_casa']) ?></td>
                                         <td>
                                             <div class="input-group">
@@ -164,4 +166,4 @@ require_once '../templates/admin/header.php';
     </section>
 </div>
 
-<?php require_once '../templates/admin/footer.php'; ?> 
+<?php require_once '../templates/admin/footer.php'; ?>

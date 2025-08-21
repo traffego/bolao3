@@ -83,10 +83,12 @@ foreach ($boloes as $bolao) {
         // Verificar se o jogo já tem resultado ou se precisa ser atualizado
         if (isset($jogo['id']) && ($jogo['resultado_casa'] === null || $jogo['status'] === 'NS')) {
             // Verificar se o jogo já ocorreu (só atualiza jogos passados ou em andamento)
-            $dataJogo = isset($jogo['data_iso']) ? new DateTime($jogo['data_iso']) : null;
+            // Priorizar data_iso, mas usar data como fallback
+            $dataParaVerificar = isset($jogo['data_iso']) ? $jogo['data_iso'] : (isset($jogo['data']) ? $jogo['data'] : null);
+            $dataJogo = $dataParaVerificar ? new DateTime($dataParaVerificar) : null;
             $agora = new DateTime();
             
-            // Se não tem data ISO ou a data é no futuro, pular para o próximo
+            // Se não tem data ou a data é no futuro, pular para o próximo
             if (!$dataJogo || $dataJogo > $agora) {
                 continue;
             }
@@ -146,4 +148,4 @@ if ($boloesAtualizados > 0) {
 }
 
 redirect(APP_URL . '/admin/boloes.php');
-?> 
+?>
