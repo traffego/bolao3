@@ -64,18 +64,18 @@ class LogsFinanceirosController {
         }
         
         // Filtro por tipo
-        $tipo = filter_input(INPUT_GET, 'tipo', FILTER_SANITIZE_STRING);
+        $tipo = filter_input(INPUT_GET, 'tipo', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         if (!empty($tipo) && $this->isValidTipo($tipo)) {
             $this->filtros['tipo'] = $tipo;
         }
         
         // Filtros de data
-        $dataInicio = filter_input(INPUT_GET, 'data_inicio', FILTER_SANITIZE_STRING);
+        $dataInicio = filter_input(INPUT_GET, 'data_inicio', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         if (!empty($dataInicio) && $this->isValidDate($dataInicio)) {
             $this->filtros['data_inicio'] = $dataInicio;
         }
         
-        $dataFim = filter_input(INPUT_GET, 'data_fim', FILTER_SANITIZE_STRING);
+        $dataFim = filter_input(INPUT_GET, 'data_fim', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         if (!empty($dataFim) && $this->isValidDate($dataFim)) {
             $this->filtros['data_fim'] = $dataFim;
         }

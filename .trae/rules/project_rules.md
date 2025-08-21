@@ -1,1 +1,2 @@
-quando estivermos no diretório C:\xampp\htdocs\bolao3, ao terminar uma demanda e estiver concluida, mesmo antes de testar em produção, rode o seguinte comando no terminal: & "C:\Users\$env:USERNAME\Desktop\deployBolao.sh"
+quando estivermos no diretório C:\xampp\htdocs\bolao3, ao terminar uma demanda e estiver concluida, mesmo antes de testar em produção, abra esse arquivo, edite a mensagem de commit para uma mensagem que descreva o que foi feito, salve o arquivo, feche o arquivo e depois rode o seguinte comando no terminal: & "C:\Users\$env:USERNAME\Desktop\deployBolao.sh";
+esse projeto precisa evitar sempre erros do tipo Deprecated;
