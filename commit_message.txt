@@ -1,12 +1,8 @@
-fix: Correção de erro 500 na página admin/afiliados.php
+feat: Implementação completa do sistema de afiliação com ref_indicacao
 
-- Corrigido erro de sintaxe SQL na query principal
-- Adicionado ponto e vírgula faltante na string da query
-- Erro estava impedindo o carregamento da página de afiliados
-
-Arquivos modificados:
-- admin/afiliados.php: Correção de sintaxe SQL
-
-Problema resolvido:
-- Erro 500 em https://bolao.traffego.agency/admin/afiliados.php
-- Query SQL malformada causando falha no PHP
+- Sistema permite que usuários existentes sem ref_indicacao recebam referência via login
+- Usuários novos podem se cadastrar com ou sem link de afiliado
+- ref_indicacao é salvo no cadastro (usuários novos) ou no login (usuários existentes sem ref)
+- Não é necessário pagamento para salvar ref_indicacao
+- Sistema verifica se afiliado está ativo antes de salvar referência
+- Funciona tanto para novos cadastros quanto para usuários existentes
