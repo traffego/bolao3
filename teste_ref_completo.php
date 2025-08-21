@@ -6,7 +6,7 @@
 require_once 'config/config.php';
 require_once 'includes/functions.php';
 
-echo "<h2>Teste Completo do Fluxo de Referência</h2>";
+echo "<h2>Teste Completo do Fluxo de dReferência</h2>";
 
 // Simular URL com parâmetro ref
 echo "<h3>1. Simulando URL: bolao.php?ref=CVh9Gu4d84</h3>";
