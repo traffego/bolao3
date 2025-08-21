@@ -1,16 +1,13 @@
-feat: Sistema de afiliados unificado - Fase 1
+fix: Corrige script de migração para sistema unificado
 
-Implementa base do sistema de afiliados na tabela jogador:
+Corrige migration_afiliados.sql removendo referências às tabelas afiliados antigas:
 
-✅ Captura automática de parâmetro ?ref= em login e cadastro
-✅ Geração de codigo_afiliado único para novos usuários  
-✅ Atualização de ref_indicacao para usuários existentes (se não tiverem)
-✅ Validação de códigos de afiliado na nova estrutura
-✅ Script de migração SQL completo
+✅ Remove JOINs com tabela afiliados (que causavam erro SQL)
+✅ Simplifica migração focando apenas na tabela jogador
+✅ Mantém geração de codigo_afiliado para jogadores existentes
+✅ Sistema totalmente unificado na tabela jogador
 
-Arquivos:
-- login.php: captura ?ref= + atualiza usuários existentes
-- cadastro.php: captura ?ref= + gera codigo_afiliado + salva ref_indicacao
-- migration_afiliados.sql: migração completa do banco
+Arquivo corrigido:
+- migration_afiliados.sql: script limpo sem dependências de tabelas antigas
 
-Próximo: executar migração e testar em produção
+Próximo: executar migração corrigida em produção

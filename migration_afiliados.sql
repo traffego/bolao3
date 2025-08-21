@@ -19,22 +19,10 @@ UPDATE jogador
 SET codigo_afiliado = CONCAT('af', UPPER(SUBSTRING(MD5(CONCAT(id, email, UNIX_TIMESTAMP())), 1, 8)))
 WHERE codigo_afiliado IS NULL;
 
--- Migrar afiliados existentes
--- Atualizar jogadores que já são afiliados
-UPDATE jogador j
-INNER JOIN afiliados a ON j.email = a.email
-SET 
-    j.codigo_afiliado = a.codigo_afiliado,
-    j.afiliado_ativo = CASE WHEN a.status = 'ativo' THEN 1 ELSE 0 END
-WHERE a.codigo_afiliado IS NOT NULL;
-
--- Migrar indicações existentes
--- Atualizar ref_indicacao baseado nas indicações existentes
-UPDATE jogador j
-INNER JOIN afiliados_indicacoes ai ON j.id = ai.jogador_id
-INNER JOIN afiliados a ON ai.afiliado_id = a.id
-SET j.ref_indicacao = a.codigo_afiliado
-WHERE j.ref_indicacao IS NULL;
+-- Como estamos unificando tudo na tabela jogador,
+-- não precisamos migrar dados de tabelas afiliados antigas
+-- Os novos afiliados serão criados diretamente na tabela jogador
+-- através do sistema de cadastro atualizado
 
 -- Verificar integridade dos dados
 -- Mostrar estatísticas após migração
@@ -64,7 +52,6 @@ WHERE ref_indicacao IS NOT NULL;
 -- IMPORTANTE: Execute este script em ambiente de teste primeiro!
 -- Faça backup da base de dados antes de executar em produção!
 
--- Após confirmar que tudo está funcionando, as tabelas antigas podem ser renomeadas:
--- RENAME TABLE afiliados TO afiliados_backup;
--- RENAME TABLE afiliados_indicacoes TO afiliados_indicacoes_backup;
--- RENAME TABLE afiliados_comissoes TO afiliados_comissoes_backup;
+-- Sistema de afiliados agora unificado na tabela jogador
+-- As tabelas antigas (afiliados, afiliados_indicacoes, afiliados_comissoes)
+-- podem ser mantidas para histórico ou removidas conforme necessário
