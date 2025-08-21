@@ -2,10 +2,7 @@
 // Debug Bolha - Exibe códigos de afiliado e referência em tempo real
 // Para ser incluído em todas as páginas durante o debug
 
-// Verifica se o debug está ativado
-if (!isset($_SESSION['debug_mode']) || $_SESSION['debug_mode'] !== true) {
-    return;
-}
+// Bolha de debug sempre ativa para monitorar códigos de afiliação
 
 // Captura informações da sessão e do usuário logado
 $ref_sessao = isset($_SESSION['referral_code']) ? $_SESSION['referral_code'] : 'Não definido';

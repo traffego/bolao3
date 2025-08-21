@@ -1,9 +1,9 @@
-debug: Implementada bolha de debug para monitorar persistência de códigos de afiliação
+debug: Implementada bolha de debug sempre ativa para monitorar códigos de afiliação
 
 - Criado debug_bolha.php: bolha visual que exibe códigos em tempo real
 - Monitora: GET[ref], POST[referral_code], SESSION[referral_code], dados do banco
-- Integrado ao header.php para aparecer em todas as páginas
-- Ativação simples: adicionar ?debug=1 em qualquer URL
-- Bolha atualiza automaticamente e mostra status de persistência
-- Objetivo: verificar se códigos de referência se mantêm durante toda a sessão
+- Integrado ao header.php para aparecer automaticamente em todas as páginas
+- Bolha sempre visível para monitoramento contínuo da persistência
 - Interface visual com cores para identificar problemas rapidamente
+- Objetivo: verificar se códigos de referência se mantêm durante toda a sessão
+- Facilita identificação imediata de onde os códigos se perdem
