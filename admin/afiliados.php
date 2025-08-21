@@ -40,7 +40,7 @@ $query = "SELECT
     0 as comissao_percentual,
     0 as saldo
 FROM jogador j
-WHERE j.codigo_afiliado IS NOT NULL"
+WHERE j.codigo_afiliado IS NOT NULL";
 
 $params = [];
 
