@@ -95,18 +95,24 @@ function debugReferralSystem() {
 }
 
 /**
+ * Obter código de referência do localStorage (via JavaScript)
+ */
+function getCurrentReferralCode() {
+    // Esta função retorna null pois o código agora está no localStorage
+    // A verificação será feita via JavaScript no frontend
+    return null;
+}
+
+/**
  * Atualiza ref_indicacao de usuário logado se ainda não tiver
  */
-function updateUserReferralIfEmpty($userId = null) {
-    if ($userId === null) {
-        $userId = getCurrentUserId();
-    }
-    
+function updateUserReferralIfEmpty($referralCode = null) {
+    $userId = getCurrentUserId();
     if (!$userId) {
         return false;
     }
     
-    $referralCode = getCurrentReferralCode();
+    // Se não foi passado código, não há nada para fazer
     if (empty($referralCode)) {
         return false;
     }

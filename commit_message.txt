@@ -1,19 +1,14 @@
-feat: Migrado sistema de afiliação para localStorage
+fix: Corrigido erro fatal getCurrentReferralCode() undefined
 
-🔄 **Migração Completa para localStorage:**
-- Removida dependência de sessão PHP para códigos de afiliação
-- Simplificado referral-manager.js para usar apenas localStorage
-- Removido endpoint AJAX sync-referral.php (não mais necessário)
-- Atualizado referral_manager.php para focar em localStorage
-- Migrados cadastro.php, login.php e bolao.php para novo sistema
-- Atualizado ajax/register.php para suporte a afiliação
-- Removidas referências de sessão no header.php
+🚨 **Correção de Erro Fatal em Produção:**
+- Adicionada função getCurrentReferralCode() faltante no referral_manager.php
+- Função retorna null pois código agora está no localStorage
+- Corrigida assinatura da função updateUserReferralIfEmpty()
+- Sistema agora funciona corretamente com localStorage
 
-✅ **Sistema Simplificado:**
-- Persistência 100% via localStorage
-- Captura automática do ?ref= em todas as páginas
-- Aplicação automática a formulários via JavaScript
-- Sistema de debug focado em localStorage
-- Menor dependência do backend
+✅ **Erro Corrigido:**
+- Fatal error: Call to undefined function getCurrentReferralCode()
+- Sistema de afiliação funcionando normalmente
+- Compatibilidade mantida com localStorage
 
-🎯 **Resultado:** Sistema mais simples e eficiente usando apenas localStorage
+🎯 **Resultado:** Sistema de afiliação funcionando sem erros fatais
