@@ -113,6 +113,9 @@
                             <li><a class="dropdown-item" href="<?= APP_URL ?>/meus-boloes.php">Meus Bolões</a></li>
                             <li><a class="dropdown-item" href="<?= APP_URL ?>/meus-palpites.php">Meus Palpites</a></li>
                             <li><a class="dropdown-item" href="<?= APP_URL ?>/perfil.php">Meu Perfil</a></li>
+                            <?php if (isActiveAffiliate()): ?>
+                            <li><a class="dropdown-item" href="<?= APP_URL ?>/afiliado.php"><i class="bi bi-people-fill me-2"></i>Área do Afiliado</a></li>
+                            <?php endif; ?>
                             <?php if (isAdmin()): ?>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-primary" href="<?= APP_URL ?>/admin/">Painel Admin</a></li>
