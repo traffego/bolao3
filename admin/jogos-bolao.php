@@ -281,7 +281,7 @@ include '../templates/admin/header.php';
                                                     </div>
                                                 </div>
                                                 
-                                                <!-- Status e Ações -->
+                                                <!-- Status -->
                                                 <div class="col-lg-2 text-end">
                                                     <div class="game-status mb-3">
                                                         <?php if ($jogo['status_formatado'] === 'agendado'): ?>
@@ -301,16 +301,6 @@ include '../templates/admin/header.php';
                                                                 <i class="fas fa-times me-1"></i>Cancelado
                                                             </span>
                                                         <?php endif; ?>
-                                                    </div>
-                                                    <div class="game-actions">
-                                                        <div class="btn-group-vertical" role="group">
-                                                            <button class="btn btn-outline-primary btn-sm" onclick="viewGameDetails(<?= $index ?>)" title="Ver detalhes">
-                                                                <i class="fas fa-eye"></i>
-                                                            </button>
-                                                            <button class="btn btn-outline-success btn-sm" onclick="editGame(<?= $index ?>)" title="Editar jogo">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -414,17 +404,7 @@ function exportGames() {
     // Aqui você pode adicionar funcionalidade de exportação
 }
 
-function viewGameDetails(index) {
-    // Implementar visualização de detalhes do jogo
-    console.log('Visualizando detalhes do jogo:', index);
-    // Aqui você pode abrir um modal ou redirecionar para página de detalhes
-}
-
-function editGame(index) {
-    // Implementar edição do jogo
-    console.log('Editando jogo:', index);
-    // Aqui você pode redirecionar para página de edição
-}
+// Funções de ação dos jogos removidas
 </script>
 
 <?php include '../templates/admin/footer.php'; ?>
