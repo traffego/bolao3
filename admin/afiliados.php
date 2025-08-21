@@ -28,42 +28,47 @@ $filters = [
 $itemsPerPage = ITEMS_PER_PAGE;
 $offset = ($filters['page'] - 1) * $itemsPerPage;
 
-// Construir query base
+// Construir query base - agora usando tabela jogador unificada
 $query = "SELECT 
-    a.*,
-    (SELECT COUNT(*) FROM afiliados_indicacoes WHERE afiliado_id = a.id) as total_indicacoes,
-    (SELECT COUNT(*) FROM afiliados_comissoes WHERE afiliado_id = a.id) as total_comissoes,
-    (SELECT SUM(valor_comissao) FROM afiliados_comissoes WHERE afiliado_id = a.id AND status = 'pago') as total_pago,
-    (SELECT SUM(valor_comissao) FROM afiliados_comissoes WHERE afiliado_id = a.id AND status = 'pendente') as total_pendente
-FROM afiliados a
-WHERE 1=1";
+    j.id,
+    j.nome,
+    j.email,
+    j.codigo_afiliado,
+    j.afiliado_ativo as status,
+    j.data_cadastro,
+    (SELECT COUNT(*) FROM jogador WHERE ref_indicacao = j.codigo_afiliado) as total_indicacoes,
+    0 as comissao_percentual,
+    0 as saldo
+FROM jogador j
+WHERE j.codigo_afiliado IS NOT NULL"
 
 $params = [];
 
 // Aplicar filtros
 if ($filters['status'] !== 'todos') {
-    $query .= " AND a.status = ?";
+    $query .= " AND j.afiliado_ativo = ?";
     $params[] = $filters['status'];
 }
 
 if (!empty($filters['search'])) {
-    $query .= " AND (a.nome LIKE ? OR a.email LIKE ? OR a.codigo_afiliado LIKE ?)";
+    $query .= " AND (j.nome LIKE ? OR j.email LIKE ? OR j.codigo_afiliado LIKE ?)";
     $searchTerm = "%{$filters['search']}%";
     $params = array_merge($params, [$searchTerm, $searchTerm, $searchTerm]);
 }
 
 // Ordenação
-$allowedSortFields = ['nome', 'email', 'data_cadastro', 'status', 'saldo'];
+$allowedSortFields = ['nome', 'email', 'data_cadastro', 'afiliado_ativo'];
 $sortField = in_array($filters['sort'], $allowedSortFields) ? $filters['sort'] : 'nome';
-$query .= " ORDER BY a.{$sortField} {$filters['order']}";
+if ($sortField === 'status') $sortField = 'afiliado_ativo';
+$query .= " ORDER BY j.{$sortField} {$filters['order']}";
 
 // Contar total de registros
-$countQuery = "SELECT COUNT(*) as total FROM afiliados a WHERE 1=1";
+$countQuery = "SELECT COUNT(*) as total FROM jogador j WHERE j.codigo_afiliado IS NOT NULL";
 if ($filters['status'] !== 'todos') {
-    $countQuery .= " AND a.status = ?";
+    $countQuery .= " AND j.afiliado_ativo = ?";
 }
 if (!empty($filters['search'])) {
-    $countQuery .= " AND (a.nome LIKE ? OR a.email LIKE ? OR a.codigo_afiliado LIKE ?)";
+    $countQuery .= " AND (j.nome LIKE ? OR j.email LIKE ? OR j.codigo_afiliado LIKE ?)";
 }
 
 $totalAfiliados = dbFetchOne($countQuery, $params)['total'] ?? 0;
@@ -83,13 +88,13 @@ $params[] = $offset;
 // Buscar afiliados
 $afiliados = dbFetchAll($query, $params);
 
-// Estatísticas
+// Estatísticas - agora usando tabela jogador unificada
 $stats = [
-    'total' => dbFetchOne("SELECT COUNT(*) as total FROM afiliados")['total'] ?? 0,
-    'ativos' => dbFetchOne("SELECT COUNT(*) as total FROM afiliados WHERE status = 'ativo'")['total'] ?? 0,
-    'inativos' => dbFetchOne("SELECT COUNT(*) as total FROM afiliados WHERE status = 'inativo'")['total'] ?? 0,
-    'total_indicacoes' => dbFetchOne("SELECT COUNT(*) as total FROM afiliados_indicacoes")['total'] ?? 0,
-    'total_comissoes_pagas' => dbFetchOne("SELECT SUM(valor_comissao) as total FROM afiliados_comissoes WHERE status = 'pago'")['total'] ?? 0
+    'total' => dbFetchOne("SELECT COUNT(*) as total FROM jogador WHERE codigo_afiliado IS NOT NULL")['total'] ?? 0,
+    'ativos' => dbFetchOne("SELECT COUNT(*) as total FROM jogador WHERE codigo_afiliado IS NOT NULL AND afiliado_ativo = 'ativo'")['total'] ?? 0,
+    'inativos' => dbFetchOne("SELECT COUNT(*) as total FROM jogador WHERE codigo_afiliado IS NOT NULL AND afiliado_ativo = 'inativo'")['total'] ?? 0,
+    'total_indicacoes' => dbFetchOne("SELECT COUNT(*) as total FROM jogador WHERE ref_indicacao IS NOT NULL")['total'] ?? 0,
+    'total_comissoes_pagas' => 0 // Sistema de comissões será implementado posteriormente
 ];
 
 // Incluir header do admin
@@ -114,8 +119,8 @@ include '../templates/admin/header.php';
                 </div>
                 <div class="col-md-4">
                     <div class="text-end">
-                        <a href="<?= APP_URL ?>/admin/novo-afiliado.php" class="btn btn-light btn-lg">
-                            <i class="fas fa-plus"></i> Novo Afiliado
+                        <a href="<?= APP_URL ?>/admin/jogadores.php" class="btn btn-light btn-lg">
+                            <i class="fas fa-users"></i> Gerenciar Jogadores
                         </a>
                     </div>
                 </div>
@@ -220,14 +225,7 @@ include '../templates/admin/header.php';
                             <th>Código</th>
                             <th>Status</th>
                             <th>Indicações</th>
-                            <th>Comissão %</th>
-                            <th>
-                                <a href="#" class="text-dark text-decoration-none sortable" data-sort="saldo">
-                                    Saldo
-                                    <i class="fas fa-sort"></i>
-                                </a>
-                            </th>
-                            <th>Total Pago</th>
+                            <th>Link de Afiliado</th>
                             <th>
                                 <a href="#" class="text-dark text-decoration-none sortable" data-sort="data_cadastro">
                                     Cadastro
@@ -249,41 +247,44 @@ include '../templates/admin/header.php';
                                     </span>
                                 </td>
                                 <td><?= $afiliado['total_indicacoes'] ?></td>
-                                <td><?= number_format($afiliado['comissao_percentual'], 2) ?>%</td>
-                                <td>R$ <?= number_format($afiliado['saldo'], 2, ',', '.') ?></td>
-                                <td>R$ <?= number_format($afiliado['total_pago'] ?? 0, 2, ',', '.') ?></td>
+                                <td>
+                                    <small class="text-muted">
+                                        <?= APP_URL ?>/?ref=<?= htmlspecialchars($afiliado['codigo_afiliado']) ?>
+                                    </small>
+                                    <button class="btn btn-sm btn-outline-secondary ms-1" 
+                                            onclick="copyToClipboard('<?= APP_URL ?>/?ref=<?= htmlspecialchars($afiliado['codigo_afiliado']) ?>')" 
+                                            title="Copiar link">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </td>
                                 <td><?= formatDate($afiliado['data_cadastro']) ?></td>
                                 <td>
                                     <div class="btn-group">
-                                        <a href="<?= APP_URL ?>/admin/editar-afiliado.php?id=<?= $afiliado['id'] ?>" 
+                                        <a href="<?= APP_URL ?>/admin/editar-jogador.php?id=<?= $afiliado['id'] ?>" 
                                            class="btn btn-sm btn-primary" 
-                                           title="Editar">
+                                           title="Editar Jogador">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="<?= APP_URL ?>/admin/comissoes-afiliado.php?id=<?= $afiliado['id'] ?>" 
-                                           class="btn btn-sm btn-success" 
-                                           title="Comissões">
-                                            <i class="fas fa-money-bill-wave"></i>
-                                        </a>
-                                        <a href="<?= APP_URL ?>/admin/indicacoes-afiliado.php?id=<?= $afiliado['id'] ?>" 
+                                        <button type="button" 
+                                                class="btn btn-sm btn-<?= $afiliado['status'] === 'ativo' ? 'warning' : 'success' ?> btn-toggle-status" 
+                                                data-id="<?= $afiliado['id'] ?>"
+                                                data-status="<?= $afiliado['status'] ?>"
+                                                data-nome="<?= htmlspecialchars($afiliado['nome']) ?>"
+                                                title="<?= $afiliado['status'] === 'ativo' ? 'Desativar' : 'Ativar' ?> Afiliado">
+                                            <i class="fas fa-<?= $afiliado['status'] === 'ativo' ? 'user-slash' : 'user-check' ?>"></i>
+                                        </button>
+                                        <a href="<?= APP_URL ?>/admin/jogadores.php?search=<?= urlencode($afiliado['codigo_afiliado']) ?>" 
                                            class="btn btn-sm btn-info" 
-                                           title="Indicações">
+                                           title="Ver Indicações">
                                             <i class="fas fa-users"></i>
                                         </a>
-                                        <button type="button" 
-                                                class="btn btn-sm btn-danger btn-delete" 
-                                                data-id="<?= $afiliado['id'] ?>"
-                                                data-nome="<?= htmlspecialchars($afiliado['nome']) ?>"
-                                                title="Excluir">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
                                     </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                         <?php if (empty($afiliados)): ?>
                             <tr>
-                                <td colspan="10" class="text-center py-4">
+                                <td colspan="7" class="text-center py-4">
                                     <div class="text-muted">
                                         <i class="fas fa-info-circle me-2"></i>
                                         Nenhum afiliado encontrado
@@ -325,25 +326,25 @@ include '../templates/admin/header.php';
     <?php endif; ?>
 </div>
 
-<!-- Modal de Confirmação de Exclusão -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
+<!-- Modal de Confirmação de Alteração de Status -->
+<div class="modal fade" id="toggleStatusModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <h5 class="modal-title">Confirmar Alteração de Status</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Tem certeza que deseja excluir o afiliado <strong id="afiliadoNome"></strong>?</p>
-                <p class="text-danger">Esta ação não pode ser desfeita!</p>
+                <p>Tem certeza que deseja <strong id="actionText"></strong> o afiliado <strong id="afiliadoNome"></strong>?</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form action="<?= APP_URL ?>/admin/acao-afiliado.php" method="post" class="d-inline">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="afiliado_id" id="deleteAfiliadoId">
+                <form action="<?= APP_URL ?>/admin/acao-jogador.php" method="post" class="d-inline">
+                    <input type="hidden" name="action" value="toggle_afiliado_status">
+                    <input type="hidden" name="jogador_id" id="toggleJogadorId">
+                    <input type="hidden" name="new_status" id="newStatus">
                     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken() ?>">
-                    <button type="submit" class="btn btn-danger">Excluir</button>
+                    <button type="submit" class="btn btn-primary" id="confirmButton">Confirmar</button>
                 </form>
             </div>
         </div>
@@ -403,21 +404,31 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Manipulador do modal de exclusão
-    const deleteModal = document.getElementById('deleteModal');
-    const deleteButtons = document.querySelectorAll('.btn-delete');
+    // Manipulador do modal de alteração de status
+    const toggleStatusModal = document.getElementById('toggleStatusModal');
+    const toggleStatusButtons = document.querySelectorAll('.btn-toggle-status');
     const modalAfiliadoNome = document.getElementById('afiliadoNome');
-    const deleteAfiliadoId = document.getElementById('deleteAfiliadoId');
+    const toggleJogadorId = document.getElementById('toggleJogadorId');
+    const newStatus = document.getElementById('newStatus');
+    const actionText = document.getElementById('actionText');
+    const confirmButton = document.getElementById('confirmButton');
     
-    deleteButtons.forEach(button => {
+    toggleStatusButtons.forEach(button => {
         button.addEventListener('click', function() {
             const id = this.dataset.id;
             const nome = this.dataset.nome;
+            const currentStatus = this.dataset.status;
+            const newStatusValue = currentStatus === 'ativo' ? 'inativo' : 'ativo';
+            const action = newStatusValue === 'ativo' ? 'ativar' : 'desativar';
             
             modalAfiliadoNome.textContent = nome;
-            deleteAfiliadoId.value = id;
+            toggleJogadorId.value = id;
+            newStatus.value = newStatusValue;
+            actionText.textContent = action;
+            confirmButton.textContent = action === 'ativar' ? 'Ativar' : 'Desativar';
+            confirmButton.className = `btn ${action === 'ativar' ? 'btn-success' : 'btn-warning'}`;
             
-            const modal = new bootstrap.Modal(deleteModal);
+            const modal = new bootstrap.Modal(toggleStatusModal);
             modal.show();
         });
     });
@@ -430,6 +441,36 @@ function buildQueryString(params) {
         .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
         .join('&');
 }
+
+// Função para copiar link para clipboard
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Mostrar feedback visual
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed';
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-check me-2"></i>Link copiado para a área de transferência!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // Remover o toast após ser ocultado
+        toast.addEventListener('hidden.bs.toast', function() {
+            document.body.removeChild(toast);
+        });
+    }).catch(function(err) {
+        console.error('Erro ao copiar: ', err);
+        alert('Erro ao copiar link. Tente novamente.');
+    });
+}
 </script>
 
-<?php include '../templates/admin/footer.php'; ?> 
+<?php include '../templates/admin/footer.php'; ?>

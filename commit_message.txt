@@ -1,15 +1,26 @@
-feat: Melhora campo afiliado_ativo com ENUM
+Refatoração Completa: Admin Afiliados - Sistema Unificado
 
-Altera campo afiliado_ativo de TINYINT para ENUM('inativo', 'ativo'):
+Refatoração completa da página admin/afiliados.php para trabalhar com a nova estrutura unificada na tabela jogador:
 
-✅ Campo mais semântico e autodocumentado
-✅ Evita valores inválidos (0/1 vs 'inativo'/'ativo')
-✅ Atualiza todas as consultas SQL nos arquivos PHP
-✅ Migração SQL corrigida com novo tipo de campo
+✅ Principais alterações:
+- Migração de consultas da tabela 'afiliados' para 'jogador'
+- Remoção de dependências de tabelas antigas (afiliados_indicacoes, afiliados_comissoes)
+- Interface atualizada para nova estrutura de dados
+- Sistema de ativação/desativação de afiliados em vez de exclusão
+- Links de afiliado com funcionalidade de copiar
+- Redirecionamento para editar-jogador.php em vez de editar-afiliado.php
 
-Arquivos atualizados:
-- migration_afiliados.sql: campo ENUM + consultas corrigidas
-- login.php: consulta usando 'ativo' em vez de 1
-- cadastro.php: consulta e inserção usando ENUM
+🔧 Funcionalidades implementadas:
+- Listagem de jogadores com código de afiliado
+- Estatísticas baseadas na tabela jogador unificada
+- Toggle de status ativo/inativo para afiliados
+- Visualização e cópia de links de indicação
+- Busca por indicações através da página de jogadores
 
-Próximo: executar migração em produção
+📊 Campos atualizados:
+- Remoção de campos obsoletos (comissão %, saldo, total pago)
+- Adição de campo "Link de Afiliado" com botão de copiar
+- Ajuste de contadores de colunas na tabela
+
+Arquivo modificado: admin/afiliados.php
+Sistema agora totalmente integrado com a estrutura unificada de afiliados
