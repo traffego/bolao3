@@ -573,6 +573,21 @@ function fetchApiFootballData($endpoint, $params = []) {
 }
 
 /**
+ * Generate a unique affiliate code
+ * 
+ * @param int $length Length of the code (default: 10)
+ * @return string Unique affiliate code
+ */
+function generateUniqueAffiliateCode($length = 10) {
+    do {
+        $code = generateRandomString($length);
+        $existing = dbFetchOne("SELECT id FROM jogador WHERE codigo_afiliado = ?", [$code]);
+    } while ($existing);
+    
+    return $code;
+}
+
+/**
  * Retorna o modelo de pagamento atual
  * @return string 'por_aposta' ou 'conta_saldo'
  */
