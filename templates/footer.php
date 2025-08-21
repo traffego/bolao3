@@ -20,7 +20,7 @@
             <div class="col-md-4 mb-3">
                 <h5>Contato</h5>
                 <ul class="list-unstyled">
-                    <li><i class="bi bi-envelope"></i> contato@bolao.com</li>
+                    <li><i class="bi bi-envelope"></i> contato@bolaovitimba.com</li>
                     <li><i class="bi bi-whatsapp"></i> (00) 00000-0000</li>
                     <li class="mt-3">
                         <a href="#" class="text-light me-2"><i class="bi bi-facebook fs-5"></i></a>
