@@ -1,10 +1,10 @@
-fix: Investigação completa do problema ref_indicacao no cadastro
+fix: Criado teste de debug para resolver erro 500 no teste_cadastro_real.php
 
-- Criado teste_cadastro_ref.php para simular fluxo completo de cadastro
-- Criado teste_cadastro_real.php para teste real com inserção no banco
-- Verificado que debugDbInsert está funcionando corretamente no cadastro.php
-- Confirmado que ref_indicacao é capturado, processado e preparado corretamente
-- Sistema de debug completo implementado em debug_cadastro_real.php
-- Logs detalhados para monitorar cada etapa do processo de cadastro
-- Próximo passo: executar teste real para identificar problema específico
-- Fluxo de captura de referência funcionando perfeitamente em simulação
+- Criado teste_cadastro_simples.php para identificar causa do erro 500
+- Teste incremental com exibição de erros ativada
+- Verifica includes, conexão com banco, funções e consultas separadamente
+- Captura e exibe exceções e erros fatais com stack trace completo
+- Permite identificar exatamente onde o código está falhando
+- Teste seguro que não quebra o sistema em produção
+- Facilita debug de problemas de dependências ou configuração
+- Base para corrigir o teste real após identificar o problema
