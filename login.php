@@ -6,9 +6,13 @@ require_once 'config/config.php';
 require_once 'includes/functions.php';
 require_once 'includes/classes/SecurityValidator.php';
 
-// Capturar parâmetro de referência de afiliado
+// Capturar parâmetro de referência de afiliado e guardar em variável
+$referralCode = '';
 if (isset($_GET['ref']) && !empty($_GET['ref'])) {
-    $_SESSION['referral_code'] = trim($_GET['ref']);
+    $referralCode = trim($_GET['ref']);
+    $_SESSION['referral_code'] = $referralCode; // Manter na sessão também para compatibilidade
+} elseif (isset($_SESSION['referral_code']) && !empty($_SESSION['referral_code'])) {
+    $referralCode = $_SESSION['referral_code'];
 }
 
 // Se já está logado, redireciona

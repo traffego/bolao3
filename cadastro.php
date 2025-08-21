@@ -4,9 +4,13 @@
  */
 require_once 'config/config.php';require_once 'includes/functions.php';
 
-// Capturar parâmetro de referência de afiliado
+// Capturar parâmetro de referência de afiliado e guardar em variável
+$referralCode = '';
 if (isset($_GET['ref']) && !empty($_GET['ref'])) {
-    $_SESSION['referral_code'] = trim($_GET['ref']);
+    $referralCode = trim($_GET['ref']);
+    $_SESSION['referral_code'] = $referralCode; // Manter na sessão também para compatibilidade
+} elseif (isset($_SESSION['referral_code']) && !empty($_SESSION['referral_code'])) {
+    $referralCode = $_SESSION['referral_code'];
 }
 
 // If user is already logged in, redirect to home
@@ -19,7 +23,7 @@ $formData = [
     'nome' => '',
     'email' => '',
     'telefone' => '',
-    'referral_code' => $_SESSION['referral_code'] ?? ''
+    'referral_code' => $referralCode
 ];
 
 // Process registration form
@@ -79,8 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $existeCodigo = dbFetchOne("SELECT id FROM jogador WHERE codigo_afiliado = ?", [$codigoAfiliado]);
         } while ($existeCodigo);
         
-        // Se o usuário veio através de um link de afiliado, ativa automaticamente como afiliado
-        $afiliadoStatus = !empty($formData['referral_code']) ? 'ativo' : 'inativo';
+        // Todos os novos usuários são afiliados ativos por padrão
+        $afiliadoStatus = 'ativo';
         
         $userData = [
             'nome' => $formData['nome'],

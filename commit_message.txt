@@ -1,13 +1,13 @@
-feat: Sistema de afiliação completo com ativação automática
+feat: Otimização sistema de afiliação - todos usuários afiliados ativos
 
+- MUDANÇA IMPORTANTE: Default do campo afiliado_ativo alterado para 'ativo'
+- Todos os novos usuários são automaticamente afiliados ativos
+- Parâmetro ref= agora é guardado em variável além da sessão
+- Garantia de que codigo_afiliado e ref_indicacao sejam sempre definidos
 - Sistema permite que usuários existentes sem ref_indicacao recebam referência via login
-- Usuários novos podem se cadastrar com ou sem link de afiliado
 - ref_indicacao é salvo no cadastro (usuários novos) ou no login (usuários existentes sem ref)
-- Usuários que se cadastram via link de afiliado são automaticamente ativados como afiliados
 - Cada usuário recebe seu próprio codigo_afiliado único
-- Não é necessário pagamento para salvar ref_indicacao
 - Sistema verifica se afiliado está ativo antes de salvar referência
-- Interface administrativa para ativar/desativar afiliados
-- Botões de toggle status na listagem de afiliados
-- Script SQL para ativar afiliado de teste
+- Script SQL para alterar default da tabela jogador
 - Validação completa de códigos de afiliado ativos
+- Compatibilidade mantida com sessão para transição suave
