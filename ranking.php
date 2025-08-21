@@ -6,22 +6,9 @@
 require_once 'config/config.php';
 require_once 'includes/functions.php';
 
-// Get bolão ID from URL
-$bolaoId = isset($_GET['bolao_id']) ? (int)$_GET['bolao_id'] : 0;
-
-// Get all bolões for the filter
-$boloes = dbFetchAll("SELECT id, nome FROM dados_boloes ORDER BY data_inicio DESC");
-
-// If no specific bolão is selected and there are bolões available, use the first one
-if ($bolaoId === 0 && !empty($boloes)) {
-    $bolaoId = $boloes[0]['id'];
-}
-
-// Get bolão details if ID is provided
-$bolao = null;
-if ($bolaoId > 0) {
-    $bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE id = ?", [$bolaoId]);
-}
+// Get the most recent bolão automatically
+$bolao = dbFetchOne("SELECT * FROM dados_boloes ORDER BY data_inicio DESC LIMIT 1");
+$bolaoId = $bolao ? $bolao['id'] : 0;
 
 // Function to calculate resultado from game data
 function calcularResultado($jogo) {
@@ -33,11 +20,11 @@ function calcularResultado($jogo) {
     $visitante = (int)$jogo['resultado_visitante'];
     
     if ($casa > $visitante) {
-        return 1; // Vitória casa
+        return '1'; // Vitória casa
     } elseif ($visitante > $casa) {
-        return 2; // Vitória visitante
+        return '2'; // Vitória visitante
     } else {
-        return 0; // Empate
+        return '0'; // Empate
     }
 }
 
@@ -189,13 +176,7 @@ include 'templates/header.php';
     opacity: 0.9;
 }
 
-.bolao-selector {
-    background: rgba(255,255,255,0.95);
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
+
 
 .ranking-tabs {
     display: flex;
@@ -461,23 +442,7 @@ include 'templates/header.php';
             <p class="ranking-subtitle"><?= $bolao ? htmlspecialchars($bolao['nome']) : 'Selecione um bolão' ?></p>
         </div>
 
-        <!-- Bolão selector -->
-        <div class="bolao-selector">
-            <form action="" method="get" class="row g-3">
-                <div class="col-12">
-                    <label for="bolao_id" class="form-label fw-bold">
-                        <i class="fas fa-futbol"></i> Selecione o Bolão
-                    </label>
-                    <select class="form-select form-select-lg" id="bolao_id" name="bolao_id" onchange="this.form.submit()">
-                        <?php foreach ($boloes as $b): ?>
-                            <option value="<?= $b['id'] ?>" <?= $bolaoId == $b['id'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($b['nome']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </form>
-        </div>
+
 
         <?php if ($bolao && !empty($rankingPontos)): ?>
             <!-- Ranking tabs -->
