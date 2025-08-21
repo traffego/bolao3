@@ -45,7 +45,7 @@ $timestamp = date('H:i:s');
     border-radius: 10px;
     font-family: 'Courier New', monospace;
     font-size: 11px;
-    z-index: 9999;
+    z-index: 999999;
     max-width: 350px;
     border: 2px solid #00ff00;
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);

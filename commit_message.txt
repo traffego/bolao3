@@ -5,5 +5,6 @@ debug: Implementada bolha de debug sempre ativa para monitorar códigos de afili
 - Integrado ao header.php para aparecer automaticamente em todas as páginas
 - Bolha sempre visível para monitoramento contínuo da persistência
 - Interface visual com cores para identificar problemas rapidamente
+- Ajustado z-index para 999999 garantindo visibilidade acima de todos elementos
 - Objetivo: verificar se códigos de referência se mantêm durante toda a sessão
 - Facilita identificação imediata de onde os códigos se perdem
