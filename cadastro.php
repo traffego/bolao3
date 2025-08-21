@@ -79,6 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $existeCodigo = dbFetchOne("SELECT id FROM jogador WHERE codigo_afiliado = ?", [$codigoAfiliado]);
         } while ($existeCodigo);
         
+        // Se o usuário veio através de um link de afiliado, ativa automaticamente como afiliado
+        $afiliadoStatus = !empty($formData['referral_code']) ? 'ativo' : 'inativo';
+        
         $userData = [
             'nome' => $formData['nome'],
             'email' => $formData['email'],
@@ -88,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'status' => 'ativo',
             'codigo_afiliado' => $codigoAfiliado,
             'ref_indicacao' => !empty($formData['referral_code']) ? $formData['referral_code'] : null,
-            'afiliado_ativo' => 'inativo'
+            'afiliado_ativo' => $afiliadoStatus
         ];
         
         $userId = dbInsert('jogador', $userData);

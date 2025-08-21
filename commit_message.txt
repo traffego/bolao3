@@ -1,8 +1,10 @@
-feat: Sistema de afiliação completo com interface administrativa
+feat: Sistema de afiliação completo com ativação automática
 
 - Sistema permite que usuários existentes sem ref_indicacao recebam referência via login
 - Usuários novos podem se cadastrar com ou sem link de afiliado
 - ref_indicacao é salvo no cadastro (usuários novos) ou no login (usuários existentes sem ref)
+- Usuários que se cadastram via link de afiliado são automaticamente ativados como afiliados
+- Cada usuário recebe seu próprio codigo_afiliado único
 - Não é necessário pagamento para salvar ref_indicacao
 - Sistema verifica se afiliado está ativo antes de salvar referência
 - Interface administrativa para ativar/desativar afiliados
