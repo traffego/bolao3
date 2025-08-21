@@ -1,9 +1,9 @@
-debug: Criado debug específico para investigar fluxo real do usuário
+debug: Implementado sistema de debug no cadastro real para monitorar processo
 
-- Criado debug_fluxo_usuario.php para simular exatamente o fluxo real
-- Debug anterior funcionou, mas fluxo normal ainda apresenta problemas
-- Novo debug simula: captura URL → formulário → POST → validação → inserção
-- Inclui verificação detalhada de cada etapa do processo
-- Testa especificamente o cenário onde campo referral_code vem vazio no POST
-- Mostra estado da sessão e dados processados em cada etapa
-- Objetivo: identificar onde o ref_indicacao se perde no fluxo real
+- Criado debug_cadastro_real.php com logs detalhados de cada etapa
+- Integrado ao cadastro.php para capturar o fluxo real do usuário
+- Debug intercepta: GET/POST, sessão, validação, inserção no banco
+- Função debugDbInsert substitui dbInsert para monitorar dados salvos
+- Logs salvos em debug_cadastro_log.txt para análise posterior
+- Parâmetros: ?debug=1 para exibir na tela, ?show_log=1 para ver log
+- Objetivo: identificar exatamente onde ref_indicacao se perde no processo real

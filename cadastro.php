@@ -2,7 +2,11 @@
 /**
  * Registration Page - Bolão Vitimba
  */
-require_once 'config/config.php';require_once 'includes/functions.php';
+require_once 'config/config.php';
+require_once 'includes/functions.php';
+
+// Incluir sistema de debug
+require_once 'debug_cadastro_real.php';
 
 // Capturar parâmetro de referência de afiliado e guardar em variável
 $referralCode = '';
@@ -98,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'afiliado_ativo' => $afiliadoStatus
         ];
         
-        $userId = dbInsert('jogador', $userData);
+        $userId = debugDbInsert('jogador', $userData);
         
         // Limpar código de referência da sessão após o cadastro
         if (isset($_SESSION['referral_code'])) {
@@ -113,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'status' => 'ativo'
                 ];
                 
-                $contaId = dbInsert('contas', $contaData);
+                $contaId = debugDbInsert('contas', $contaData);
                 
                 if (!$contaId) {
                     error_log("Erro ao criar conta para usuário ID: $userId");
