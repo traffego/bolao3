@@ -46,9 +46,12 @@
 <!-- Custom JS -->
 <script src="<?= APP_URL ?>/public/js/scripts.js"></script>
 
+<!-- Sistema de Afiliados - Captura de Referência -->
+<script src="<?= APP_URL ?>/public/js/ref-capture.js"></script>
+
 <?php if (isset($extraJs)): ?>
     <?= $extraJs ?>
 <?php endif; ?>
 
 </body>
-</html> 
+</html>
