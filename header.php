@@ -12,6 +12,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="<?= APP_URL ?>/public/css/styles.css" rel="stylesheet">
+    
+    <!-- Sistema de Captura de Referência -->
+    <script src="<?= APP_URL ?>/public/js/ref-capture.js"></script>
 </head>
 <body>
     <!-- Navigation -->
