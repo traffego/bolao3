@@ -6,9 +6,20 @@
 require_once 'config/config.php';
 require_once 'includes/functions.php';
 
-// Get the most recent bolão automatically
-$bolao = dbFetchOne("SELECT * FROM dados_boloes ORDER BY data_inicio DESC LIMIT 1");
-$bolaoId = $bolao ? $bolao['id'] : 0;
+// Get bolão ID from URL parameter or use the most recent one
+$bolaoId = filter_input(INPUT_GET, 'bolao_id', FILTER_VALIDATE_INT);
+
+if (!$bolaoId) {
+    // Get the most recent bolão automatically
+    $bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE status = 1 ORDER BY data_inicio DESC LIMIT 1");
+    $bolaoId = $bolao ? $bolao['id'] : 0;
+} else {
+    // Get specific bolão
+    $bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE id = ? AND status = 1", [$bolaoId]);
+}
+
+// Get all available bolões for the selector
+$todosBoloes = dbFetchAll("SELECT id, nome, data_inicio, data_fim FROM dados_boloes WHERE status = 1 ORDER BY data_inicio DESC");
 
 // Function to calculate resultado from game data
 function calcularResultado($jogo) {
@@ -174,6 +185,36 @@ include 'templates/header.php';
 .ranking-subtitle {
     font-size: 1.1rem;
     opacity: 0.9;
+}
+
+.bolao-selector {
+    margin-top: 1.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.bolao-selector .form-select {
+    background: rgba(255,255,255,0.9);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 15px;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    color: #333;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.bolao-selector .form-select:focus {
+    background: rgba(255,255,255,1);
+    border-color: rgba(255,255,255,0.8);
+    box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.25);
+    outline: 0;
+}
+
+.bolao-selector .form-select option {
+    color: #333;
+    background: white;
 }
 
 
@@ -440,6 +481,21 @@ include 'templates/header.php';
                 Ranking Gamificado
             </h1>
             <p class="ranking-subtitle"><?= $bolao ? htmlspecialchars($bolao['nome']) : 'Selecione um bolão' ?></p>
+            
+            <!-- Seletor de Bolão -->
+            <?php if (!empty($todosBoloes)): ?>
+                <div class="bolao-selector">
+                    <select id="bolaoSelect" class="form-select" onchange="window.location.href='<?= APP_URL ?>/ranking.php?bolao_id=' + this.value">
+                        <option value="">Selecione um bolão</option>
+                        <?php foreach ($todosBoloes as $bolaoOption): ?>
+                            <option value="<?= $bolaoOption['id'] ?>" <?= $bolaoOption['id'] == $bolaoId ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($bolaoOption['nome']) ?>
+                                (<?= date('d/m/Y', strtotime($bolaoOption['data_inicio'])) ?> - <?= date('d/m/Y', strtotime($bolaoOption['data_fim'])) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            <?php endif; ?>
         </div>
 
 
