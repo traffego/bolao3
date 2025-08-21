@@ -1,9 +1,9 @@
-debug: Investigação problema salvamento código afiliado e referência
+fix: Corrigido bug no salvamento de código de afiliado via URL
 
-- Criado debug_afiliado.php para testar fluxo completo de afiliação
-- Arquivo testa captura de dados, geração de código, inserção no banco
-- Verifica se dados são salvos corretamente na tabela jogador
-- Mostra estrutura da tabela e logs de erro para diagnóstico
-- Permite identificar onde está falhando o processo de salvamento
-- Testa com dados reais de afiliados existentes no sistema
-- Inclui verificação de criação de conta após cadastro
+- PROBLEMA IDENTIFICADO: referral_code do POST sobrescrevia o da URL
+- Corrigida lógica para priorizar campo do formulário, mas usar URL se vazio
+- Debug confirmou que sistema salva corretamente quando dados corretos
+- Agora parâmetro ?ref= da URL é preservado durante o cadastro
+- Teste realizado com sucesso: código af2E4FAB3A → ref_indicacao salva
+- Sistema gera codigo_afiliado único para cada novo usuário
+- Todos os novos usuários são automaticamente afiliados ativos

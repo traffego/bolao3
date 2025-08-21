@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'nome' => trim($_POST['nome'] ?? ''),
         'email' => trim($_POST['email'] ?? ''),
         'telefone' => trim($_POST['telefone'] ?? ''),
-        'referral_code' => trim($_POST['referral_code'] ?? '')
+        'referral_code' => !empty(trim($_POST['referral_code'] ?? '')) ? trim($_POST['referral_code'] ?? '') : $referralCode
     ];
     
     $password = $_POST['password'] ?? '';
