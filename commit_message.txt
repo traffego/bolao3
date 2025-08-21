@@ -1,10 +1,10 @@
-fix: Simplificado teste_cadastro_real.php após resolver erro 500
+fix: Adicionado captura de parâmetro ?ref= na página bolao.php
 
-- Teste_cadastro_simples.php confirmou que sistema está funcionando
-- Simplificado teste_cadastro_real.php removendo lógica complexa
-- Teste direto de inserção com dados fixos no banco
-- Foco específico na verificação do campo ref_indicacao
-- Removido debug_cadastro_real.php para evitar conflitos
-- Teste mais limpo e direto para identificar problema real
-- Mantém verificação de dados salvos no banco
-- Pronto para teste em produção
+- Identificado que bolao.php não tinha código de captura do ?ref=
+- Adicionado código consistente com cadastro.php e login.php
+- Captura parâmetro ?ref= da URL e salva na sessão
+- Mantém referral_code disponível para todo o sistema
+- Garante que links de afiliado funcionem em todas as páginas
+- Sistema de afiliação agora funciona uniformemente
+- Debug confirmou que sessão estava mantendo código corretamente
+- Melhora experiência do usuário com links de afiliado
