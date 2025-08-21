@@ -54,6 +54,25 @@ function getCurrentAdminId() {
 }
 
 /**
+ * Check if the current user is an active affiliate
+ * 
+ * @return bool True if user is logged in and is an active affiliate, false otherwise
+ */
+function isActiveAffiliate() {
+    if (!isLoggedIn()) {
+        return false;
+    }
+    
+    $userId = getCurrentUserId();
+    $user = dbFetchOne(
+        "SELECT afiliado_ativo FROM jogador WHERE id = ?", 
+        [$userId]
+    );
+    
+    return $user && $user['afiliado_ativo'] === 'ativo';
+}
+
+/**
  * Generate a random string
  * 
  * @param int $length Length of the string
