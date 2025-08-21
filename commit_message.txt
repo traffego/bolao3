@@ -1,8 +1,9 @@
 debug: Implementado debug simples e direto para monitorar códigos de afiliação
 
 - Substituída bolha complexa por debug simples com echo no header.php
+- Adicionado debug também ao templates/header.php para cobrir páginas públicas
 - Exibe claramente: GET[ref], SESSION[referral_code], dados do banco
-- Debug sempre visível em todas as páginas de forma bem destacada
+- Debug sempre visível em TODAS as páginas (públicas e privadas)
 - Interface simples com fundo preto e texto verde para máxima visibilidade
 - Mostra código do afiliado e referência de indicação do usuário logado
 - Objetivo: verificar se códigos de referência se mantêm durante toda a sessão
