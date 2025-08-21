@@ -98,7 +98,7 @@ function formatApiDate($date) {
                 </button>
                 <small class="text-muted d-block mt-1">
                     <i class="fas fa-clock me-1"></i>
-                    <?= date('H:i:s') ?>
+                    Brasil: <?= date('H:i:s') ?>
                 </small>
             </div>
         </div>
@@ -221,4 +221,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Atualizar a cada 5 minutos
     setInterval(refreshStatus, 300000);
 });
-</script> 
+</script>
