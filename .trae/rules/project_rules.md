@@ -1,0 +1,1 @@
+quando estivermos no diretório C:\xampp\htdocs\bolao3, ao terminar uma demanda e estiver concluida, rode o seguinte comando no terminal: & "C:\Users\$env:USERNAME\Desktop\deployBolao.sh"

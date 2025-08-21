@@ -196,12 +196,7 @@
                             <p>Relatórios</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="<?= APP_URL ?>/admin/regras-bolao.php" class="nav-link">
-                            <i class="nav-icon fas fa-list"></i>
-                            <p>Regras do Bolão</p>
-                        </a>
-                    </li>
+
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/admin/configuracoes.php" class="nav-link">
                             <i class="nav-icon fas fa-cogs"></i>
@@ -247,4 +242,4 @@
 
         <!-- Main content -->
         <section class="content">
-            <div class="container-fluid"> 
+            <div class="container-fluid">
