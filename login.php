@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if (empty($temRef['ref_indicacao'])) {
                     // Verificar se o código de referência existe e está ativo
-                    $afiliado = dbFetchOne("SELECT id FROM jogador WHERE codigo_afiliado = ? AND afiliado_ativo = 1", [$_SESSION['referral_code']]);
+                    $afiliado = dbFetchOne("SELECT id FROM jogador WHERE codigo_afiliado = ? AND afiliado_ativo = 'ativo'", [$_SESSION['referral_code']]);
                     
                     if ($afiliado) {
                         // Atualizar ref_indicacao do usuário

@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Validate referral code if provided
     if (!empty($formData['referral_code'])) {
-        $referral = dbFetchOne("SELECT id FROM jogador WHERE codigo_afiliado = ? AND afiliado_ativo = 1", 
+        $referral = dbFetchOne("SELECT id FROM jogador WHERE codigo_afiliado = ? AND afiliado_ativo = 'ativo'", 
                                [$formData['referral_code']]);
         if (!$referral) {
             $errors[] = 'Código de afiliado inválido.';
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'status' => 'ativo',
             'codigo_afiliado' => $codigoAfiliado,
             'ref_indicacao' => !empty($formData['referral_code']) ? $formData['referral_code'] : null,
-            'afiliado_ativo' => 0
+            'afiliado_ativo' => 'inativo'
         ];
         
         $userId = dbInsert('jogador', $userData);

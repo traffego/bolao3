@@ -6,7 +6,7 @@
 ALTER TABLE jogador 
 ADD COLUMN codigo_afiliado VARCHAR(20) UNIQUE DEFAULT NULL COMMENT 'Código único do afiliado',
 ADD COLUMN ref_indicacao VARCHAR(20) DEFAULT NULL COMMENT 'Código do afiliado que indicou este jogador',
-ADD COLUMN afiliado_ativo TINYINT(1) DEFAULT 0 COMMENT 'Se o jogador está ativo como afiliado (0=não, 1=sim)';
+ADD COLUMN afiliado_ativo ENUM('inativo', 'ativo') DEFAULT 'inativo' COMMENT 'Status do jogador como afiliado';
 
 -- Criar índices para melhor performance
 CREATE INDEX idx_jogador_codigo_afiliado ON jogador(codigo_afiliado);
@@ -41,7 +41,7 @@ SELECT
     'Jogadores afiliados ativos' as tipo,
     COUNT(*) as quantidade
 FROM jogador 
-WHERE afiliado_ativo = 1
+WHERE afiliado_ativo = 'ativo'
 UNION ALL
 SELECT 
     'Jogadores com indicação' as tipo,

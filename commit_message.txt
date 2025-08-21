@@ -1,13 +1,15 @@
-fix: Corrige script de migração para sistema unificado
+feat: Melhora campo afiliado_ativo com ENUM
 
-Corrige migration_afiliados.sql removendo referências às tabelas afiliados antigas:
+Altera campo afiliado_ativo de TINYINT para ENUM('inativo', 'ativo'):
 
-✅ Remove JOINs com tabela afiliados (que causavam erro SQL)
-✅ Simplifica migração focando apenas na tabela jogador
-✅ Mantém geração de codigo_afiliado para jogadores existentes
-✅ Sistema totalmente unificado na tabela jogador
+✅ Campo mais semântico e autodocumentado
+✅ Evita valores inválidos (0/1 vs 'inativo'/'ativo')
+✅ Atualiza todas as consultas SQL nos arquivos PHP
+✅ Migração SQL corrigida com novo tipo de campo
 
-Arquivo corrigido:
-- migration_afiliados.sql: script limpo sem dependências de tabelas antigas
+Arquivos atualizados:
+- migration_afiliados.sql: campo ENUM + consultas corrigidas
+- login.php: consulta usando 'ativo' em vez de 1
+- cadastro.php: consulta e inserção usando ENUM
 
-Próximo: executar migração corrigida em produção
+Próximo: executar migração em produção
