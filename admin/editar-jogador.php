@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cpf = trim($_POST['cpf'] ?? '');
     $status = $_POST['status'] ?? 'ativo';
     $senha = trim($_POST['senha'] ?? '');
+    $comissao_afiliado = isset($_POST['comissao_afiliado']) ? (float)$_POST['comissao_afiliado'] : 10.00;
 
     $errors = [];
 
@@ -87,6 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Status inválido.';
     }
 
+    // Validar comissão do afiliado
+    if ($comissao_afiliado < 0 || $comissao_afiliado > 50) {
+        $errors[] = 'A comissão do afiliado deve estar entre 0% e 50%.';
+    }
+
     // Se não houver erros, atualizar jogador
     if (empty($errors)) {
         $query = "UPDATE jogador SET 
@@ -94,14 +100,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     email = ?,
                     telefone = ?,
                     cpf = ?,
-                    status = ?";
+                    status = ?,
+                    comissao_afiliado = ?";
         
         $params = [
             $nome,
             $email,
             $telefone,
             $cpf ?: null,
-            $status
+            $status,
+            $comissao_afiliado
         ];
 
         // Se senha foi fornecida, atualizar
@@ -127,7 +135,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'email' => $email,
                         'telefone' => $telefone,
                         'cpf' => $cpf,
-                        'status' => $status
+                        'status' => $status,
+                        'comissao_afiliado' => $comissao_afiliado
                     ]
                 ]
             );
@@ -209,6 +218,16 @@ include '../templates/admin/header.php';
                 </div>
 
                 <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="comissao_afiliado" class="form-label">Comissão do Afiliado (%)</label>
+                        <input type="number" class="form-control" id="comissao_afiliado" name="comissao_afiliado" 
+                               value="<?= htmlspecialchars($jogador['comissao_afiliado'] ?? '10.00') ?>" 
+                               min="0" max="50" step="0.01" required>
+                        <div class="form-text">Percentual de comissão que este jogador receberá por indicações (0% a 50%).</div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
                     <div class="col-12">
                         <div class="alert alert-info">
                             <strong>Informações do Jogador:</strong><br>
@@ -284,4 +303,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include '../templates/admin/footer.php'; ?> 
+<?php include '../templates/admin/footer.php'; ?>

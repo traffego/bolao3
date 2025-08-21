@@ -177,6 +177,12 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a href="<?= APP_URL ?>/admin/comissoes.php" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Comissões</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a href="<?= APP_URL ?>/admin/logs-financeiros.php" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Logs Financeiros</p>

@@ -135,6 +135,20 @@ try {
             }
         }
         
+        // Calcular comissão de afiliado se for depósito aprovado
+        if ($transacao['tipo'] === 'deposito' && $novoStatus === 'aprovado') {
+            try {
+                $comissaoCalculada = calculateAffiliateCommission($transacaoId);
+                if ($comissaoCalculada) {
+                    error_log("Comissão de afiliado processada para transação: {$transacaoId}");
+                } else {
+                    error_log("Falha ao processar comissão de afiliado para transação: {$transacaoId}");
+                }
+            } catch (Exception $e) {
+                error_log("Erro ao calcular comissão de afiliado: " . $e->getMessage());
+            }
+        }
+        
         // Create notification for user
         if (class_exists('NotificacaoManager')) {
             $notificacao = new NotificacaoManager();

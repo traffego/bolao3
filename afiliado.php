@@ -22,7 +22,7 @@ $userId = getCurrentUserId();
 
 // Buscar dados do afiliado
 $afiliado = dbFetchOne(
-    "SELECT id, nome, email, codigo_afiliado, data_cadastro, afiliado_ativo 
+    "SELECT id, nome, email, codigo_afiliado, data_cadastro, afiliado_ativo, comissao_afiliado 
      FROM jogador 
      WHERE id = ?",
     [$userId]
@@ -33,7 +33,9 @@ $stats = [
     'total_indicacoes' => 0,
     'indicacoes_ativas' => 0,
     'indicacoes_mes' => 0,
-    'comissao_total' => 0
+    'comissao_total' => 0,
+    'comissao_mes' => 0,
+    'comissao_pendente' => 0
 ];
 
 // Total de indicações
@@ -59,6 +61,43 @@ $indicacoesMes = dbFetchOne(
     [$afiliado['codigo_afiliado']]
 );
 $stats['indicacoes_mes'] = $indicacoesMes['total'] ?? 0;
+
+// Buscar conta do afiliado para consultar comissões
+$contaAfiliado = dbFetchOne(
+    "SELECT id FROM contas WHERE jogador_id = ?",
+    [$userId]
+);
+
+if ($contaAfiliado) {
+    // Comissão total acumulada
+    $comissaoTotal = dbFetchOne(
+        "SELECT COALESCE(SUM(valor), 0) as total 
+         FROM transacoes 
+         WHERE conta_id = ? AND tipo = 'comissao' AND status = 'aprovado'",
+        [$contaAfiliado['id']]
+    );
+    $stats['comissao_total'] = $comissaoTotal['total'] ?? 0;
+    
+    // Comissão do mês atual
+    $comissaoMes = dbFetchOne(
+        "SELECT COALESCE(SUM(valor), 0) as total 
+         FROM transacoes 
+         WHERE conta_id = ? AND tipo = 'comissao' AND status = 'aprovado'
+         AND YEAR(data_processamento) = YEAR(CURDATE()) 
+         AND MONTH(data_processamento) = MONTH(CURDATE())",
+        [$contaAfiliado['id']]
+    );
+    $stats['comissao_mes'] = $comissaoMes['total'] ?? 0;
+    
+    // Comissão pendente (se houver)
+    $comissaoPendente = dbFetchOne(
+        "SELECT COALESCE(SUM(valor), 0) as total 
+         FROM transacoes 
+         WHERE conta_id = ? AND tipo = 'comissao' AND status = 'pendente'",
+        [$contaAfiliado['id']]
+    );
+    $stats['comissao_pendente'] = $comissaoPendente['total'] ?? 0;
+}
 
 // Buscar últimas indicações
 $ultimasIndicacoes = dbFetchAll(
@@ -144,7 +183,43 @@ include 'templates/header.php';
                     </div>
                     <h3 class="h4 mb-1"><?= formatMoney($stats['comissao_total']) ?></h3>
                     <p class="text-muted mb-0">Comissão Total</p>
-                    <small class="text-muted">(Em breve)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas de Comissões -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-success">
+                <div class="card-body text-center">
+                    <div class="text-success mb-2">
+                        <i class="bi bi-cash-coin" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="h4 mb-1"><?= formatMoney($stats['comissao_mes']) ?></h3>
+                    <p class="text-muted mb-0">Comissão este Mês</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-warning">
+                <div class="card-body text-center">
+                    <div class="text-warning mb-2">
+                        <i class="bi bi-hourglass-split" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="h4 mb-1"><?= formatMoney($stats['comissao_pendente']) ?></h3>
+                    <p class="text-muted mb-0">Comissão Pendente</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-info">
+                <div class="card-body text-center">
+                    <div class="text-info mb-2">
+                        <i class="bi bi-percent" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="h4 mb-1"><?= number_format($afiliado['comissao_afiliado'] ?? 10, 1) ?>%</h3>
+                    <p class="text-muted mb-0">Taxa de Comissão</p>
                 </div>
             </div>
         </div>
@@ -258,6 +333,93 @@ include 'templates/header.php';
                         <?php if (count($ultimasIndicacoes) >= 10): ?>
                             <div class="text-center mt-3">
                                 <small class="text-muted">Mostrando as 10 indicações mais recentes</small>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Histórico de Comissões -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cash-stack me-2"></i>
+                        Histórico de Comissões
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <?php
+                    // Buscar histórico de comissões
+                    $historicoComissoes = [];
+                    if ($contaAfiliado) {
+                        $historicoComissoes = dbFetchAll(
+                            "SELECT t.*, 
+                                    DATE_FORMAT(t.data_processamento, '%d/%m/%Y %H:%i') as data_formatada,
+                                    t.descricao
+                             FROM transacoes t 
+                             WHERE t.conta_id = ? AND t.tipo = 'comissao' 
+                             ORDER BY t.data_processamento DESC 
+                             LIMIT 20",
+                            [$contaAfiliado['id']]
+                        );
+                    }
+                    ?>
+                    
+                    <?php if (empty($historicoComissoes)): ?>
+                        <div class="text-center py-4">
+                            <i class="bi bi-cash-stack text-muted" style="font-size: 3rem;"></i>
+                            <h6 class="text-muted mt-3">Nenhuma comissão registrada ainda</h6>
+                            <p class="text-muted mb-0">As comissões aparecerão aqui quando seus indicados fizerem depósitos aprovados.</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Descrição</th>
+                                        <th>Valor</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($historicoComissoes as $comissao): ?>
+                                        <tr>
+                                            <td>
+                                                <small><?= $comissao['data_formatada'] ?></small>
+                                            </td>
+                                            <td>
+                                                <div class="text-truncate" style="max-width: 300px;" title="<?= sanitize($comissao['descricao']) ?>">
+                                                    <?= sanitize($comissao['descricao']) ?>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="text-success fw-bold">
+                                                    + <?= formatMoney($comissao['valor']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <?php if ($comissao['status'] === 'aprovado'): ?>
+                                                    <span class="badge bg-success">Aprovado</span>
+                                                <?php elseif ($comissao['status'] === 'pendente'): ?>
+                                                    <span class="badge bg-warning">Pendente</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-secondary"><?= ucfirst($comissao['status']) ?></span>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <?php if (count($historicoComissoes) >= 20): ?>
+                            <div class="text-center mt-3">
+                                <small class="text-muted">Mostrando as 20 comissões mais recentes</small>
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>

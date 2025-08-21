@@ -592,6 +592,113 @@ function fetchApiFootballData($endpoint, $params = []) {
 }
 
 /**
+ * Calcular e registrar comissão de afiliado quando um depósito é aprovado
+ * 
+ * @param int $transacaoId ID da transação de depósito aprovada
+ * @return bool True se a comissão foi calculada e registrada com sucesso, false caso contrário
+ */
+function calculateAffiliateCommission($transacaoId) {
+    try {
+        // Buscar dados da transação de depósito
+        $transacao = dbFetchOne(
+            "SELECT t.*, c.jogador_id 
+             FROM transacoes t 
+             INNER JOIN contas c ON t.conta_id = c.id 
+             WHERE t.id = ? AND t.tipo = 'deposito' AND t.status = 'aprovado'",
+            [$transacaoId]
+        );
+        
+        if (!$transacao) {
+            error_log("Transação de depósito não encontrada ou não aprovada: {$transacaoId}");
+            return false;
+        }
+        
+        // Buscar dados do jogador que fez o depósito
+        $jogadorIndicado = dbFetchOne(
+            "SELECT id, ref_indicacao FROM jogador WHERE id = ?",
+            [$transacao['jogador_id']]
+        );
+        
+        if (!$jogadorIndicado || empty($jogadorIndicado['ref_indicacao'])) {
+            // Jogador não foi indicado por ninguém, não há comissão
+            return true;
+        }
+        
+        // Buscar dados do afiliado (quem indicou)
+        $afiliado = dbFetchOne(
+            "SELECT id, codigo_afiliado, afiliado_ativo, comissao_afiliado 
+             FROM jogador 
+             WHERE codigo_afiliado = ? AND afiliado_ativo = 'ativo'",
+            [$jogadorIndicado['ref_indicacao']]
+        );
+        
+        if (!$afiliado) {
+            error_log("Afiliado não encontrado ou inativo para código: {$jogadorIndicado['ref_indicacao']}");
+            return false;
+        }
+        
+        // Verificar se já existe comissão para esta transação
+        $comissaoExistente = dbFetchOne(
+            "SELECT id FROM transacoes 
+             WHERE tipo = 'comissao' AND referencia = ?",
+            ["deposito_{$transacaoId}"]
+        );
+        
+        if ($comissaoExistente) {
+            error_log("Comissão já calculada para transação: {$transacaoId}");
+            return true;
+        }
+        
+        // Calcular valor da comissão
+        $valorDeposito = (float)$transacao['valor'];
+        $percentualComissao = (float)$afiliado['comissao_afiliado'];
+        $valorComissao = ($valorDeposito * $percentualComissao) / 100;
+        
+        // Buscar conta do afiliado
+        $contaAfiliado = dbFetchOne(
+            "SELECT id FROM contas WHERE jogador_id = ?",
+            [$afiliado['id']]
+        );
+        
+        if (!$contaAfiliado) {
+            error_log("Conta do afiliado não encontrada: {$afiliado['id']}");
+            return false;
+        }
+        
+        // Registrar transação de comissão
+        $descricaoComissao = sprintf(
+            "Comissão de %.2f%% sobre depósito de %s do jogador indicado (ID: %d)",
+            $percentualComissao,
+            formatMoney($valorDeposito),
+            $jogadorIndicado['id']
+        );
+        
+        $success = dbExecute(
+            "INSERT INTO transacoes (conta_id, tipo, valor, status, descricao, referencia, data_solicitacao, data_processamento, afeta_saldo) 
+             VALUES (?, 'comissao', ?, 'aprovado', ?, ?, NOW(), NOW(), 0)",
+            [
+                $contaAfiliado['id'],
+                $valorComissao,
+                $descricaoComissao,
+                "deposito_{$transacaoId}"
+            ]
+        );
+        
+        if ($success) {
+            error_log("Comissão calculada com sucesso: Afiliado {$afiliado['id']}, Valor: {$valorComissao}, Transação: {$transacaoId}");
+            return true;
+        } else {
+            error_log("Erro ao registrar comissão para transação: {$transacaoId}");
+            return false;
+        }
+        
+    } catch (Exception $e) {
+        error_log("Erro ao calcular comissão de afiliado: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
  * Generate a unique affiliate code
  * 
  * @param int $length Length of the code (default: 10)
