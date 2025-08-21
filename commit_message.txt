@@ -1,0 +1,20 @@
+feat: Implementa sistema de afiliados unificado na tabela jogador
+
+- Adiciona captura de parâmetro ?ref= em login.php e cadastro.php
+- Implementa atualização automática de ref_indicacao para usuários existentes no login
+- Gera codigo_afiliado único para todos os novos usuários
+- Salva ref_indicacao no cadastro quando há código de referência
+- Cria script de migração SQL para adicionar campos: codigo_afiliado, ref_indicacao, afiliado_ativo
+- Atualiza validação de referral_code para usar nova estrutura da tabela jogador
+- Implementa lógica para usuários existentes: atualiza ref_indicacao apenas se ainda não tiverem
+- Novos usuários são cadastrados com ou sem ref_indicacao conforme acesso via link de afiliado
+
+Arquivos modificados:
+- login.php: captura ?ref= e atualiza usuários existentes
+- cadastro.php: captura ?ref=, gera codigo_afiliado e salva ref_indicacao
+- migration_afiliados.sql: script para migração da estrutura do banco
+
+Próximos passos:
+- Executar migração SQL em produção
+- Testar fluxo completo de indicação
+- Criar interface administrativa para ativar afiliados

@@ -4,6 +4,11 @@
  */
 require_once 'config/config.php';require_once 'includes/functions.php';
 
+// Capturar parâmetro de referência de afiliado
+if (isset($_GET['ref']) && !empty($_GET['ref'])) {
+    $_SESSION['referral_code'] = trim($_GET['ref']);
+}
+
 // If user is already logged in, redirect to home
 if (isLoggedIn()) {
     redirect(APP_URL);
@@ -14,7 +19,7 @@ $formData = [
     'nome' => '',
     'email' => '',
     'telefone' => '',
-    'referral_code' => ''
+    'referral_code' => $_SESSION['referral_code'] ?? ''
 ];
 
 // Process registration form
@@ -59,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Validate referral code if provided
     if (!empty($formData['referral_code'])) {
-        $referral = dbFetchOne("SELECT id FROM afiliados WHERE codigo_afiliado = ? AND status = 'ativo'", 
+        $referral = dbFetchOne("SELECT id FROM jogador WHERE codigo_afiliado = ? AND afiliado_ativo = 1", 
                                [$formData['referral_code']]);
         if (!$referral) {
             $errors[] = 'Código de afiliado inválido.';
@@ -68,16 +73,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // If no errors, create account
     if (empty($errors)) {
+        // Gerar código de afiliado único
+        do {
+            $codigoAfiliado = 'af' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8));
+            $existeCodigo = dbFetchOne("SELECT id FROM jogador WHERE codigo_afiliado = ?", [$codigoAfiliado]);
+        } while ($existeCodigo);
+        
         $userData = [
             'nome' => $formData['nome'],
             'email' => $formData['email'],
             'senha' => hashPassword($password),
             'telefone' => $formData['telefone'],
             'data_cadastro' => date('Y-m-d H:i:s'),
-            'status' => 'ativo'
+            'status' => 'ativo',
+            'codigo_afiliado' => $codigoAfiliado,
+            'ref_indicacao' => !empty($formData['referral_code']) ? $formData['referral_code'] : null,
+            'afiliado_ativo' => 0
         ];
         
         $userId = dbInsert('jogador', $userData);
+        
+        // Limpar código de referência da sessão após o cadastro
+        if (isset($_SESSION['referral_code'])) {
+            unset($_SESSION['referral_code']);
+        }
         
         if ($userId) {
             // Create account in contas table
@@ -192,4 +211,4 @@ include TEMPLATE_DIR . '/header.php';
 <?php
 // Include footer
 include TEMPLATE_DIR . '/footer.php';
-?> 
+?>
