@@ -1,4 +1,4 @@
-                <div class="sb-sidenav-menu-heading">Bolões</div>
+<div class="sb-sidenav-menu-heading">Bolões</div>
                 <a class="nav-link <?= $currentPage == 'boloes' ? 'active' : '' ?>" href="<?= APP_URL ?>/admin/boloes.php">
                     <div class="sb-nav-link-icon"><i class="fas fa-futbol"></i></div>
                     Gerenciar Bolões
@@ -33,11 +33,7 @@
                 </a>
 
                 <div class="sb-sidenav-menu-heading">Sistema</div>
-                <a class="nav-link <?= $currentPage == 'relatorios' ? 'active' : '' ?>" href="<?= APP_URL ?>/admin/relatorios.php">
-                    <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
-                    Relatórios
-                </a>
                 <a class="nav-link" href="<?= APP_URL ?>/admin/logout.php">
                     <div class="sb-nav-link-icon"><i class="fas fa-sign-out-alt"></i></div>
                     Sair
-                </a> 
+                </a>

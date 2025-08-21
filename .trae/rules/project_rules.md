@@ -1,1 +1,1 @@
-quando estivermos no diretório C:\xampp\htdocs\bolao3, ao terminar uma demanda e estiver concluida, rode o seguinte comando no terminal: & "C:\Users\$env:USERNAME\Desktop\deployBolao.sh"
+quando estivermos no diretório C:\xampp\htdocs\bolao3, ao terminar uma demanda e estiver concluida, mesmo antes de testar em produção, rode o seguinte comando no terminal: & "C:\Users\$env:USERNAME\Desktop\deployBolao.sh"

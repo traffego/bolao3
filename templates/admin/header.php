@@ -190,12 +190,7 @@
                             <p>Afiliados</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="<?= APP_URL ?>/admin/relatorios.php" class="nav-link">
-                            <i class="nav-icon fas fa-chart-bar"></i>
-                            <p>Relatórios</p>
-                        </a>
-                    </li>
+
 
                     <li class="nav-item">
                         <a href="<?= APP_URL ?>/admin/configuracoes.php" class="nav-link">
