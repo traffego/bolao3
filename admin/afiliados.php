@@ -339,8 +339,8 @@ include '../templates/admin/header.php';
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form action="<?= APP_URL ?>/admin/acao-jogador.php" method="post" class="d-inline">
-                    <input type="hidden" name="action" value="toggle_afiliado_status">
+                <form action="<?= APP_URL ?>/admin/acao-afiliado.php" method="post" class="d-inline">
+                    <input type="hidden" name="action" value="toggle_status">
                     <input type="hidden" name="jogador_id" id="toggleJogadorId">
                     <input type="hidden" name="new_status" id="newStatus">
                     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken() ?>">

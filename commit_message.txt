@@ -1,8 +1,11 @@
-feat: Implementação completa do sistema de afiliação com ref_indicacao
+feat: Sistema de afiliação completo com interface administrativa
 
 - Sistema permite que usuários existentes sem ref_indicacao recebam referência via login
 - Usuários novos podem se cadastrar com ou sem link de afiliado
 - ref_indicacao é salvo no cadastro (usuários novos) ou no login (usuários existentes sem ref)
 - Não é necessário pagamento para salvar ref_indicacao
 - Sistema verifica se afiliado está ativo antes de salvar referência
-- Funciona tanto para novos cadastros quanto para usuários existentes
+- Interface administrativa para ativar/desativar afiliados
+- Botões de toggle status na listagem de afiliados
+- Script SQL para ativar afiliado de teste
+- Validação completa de códigos de afiliado ativos

@@ -134,6 +134,50 @@ switch ($action) {
         }
         break;
 
+    case 'toggle_status':
+        $jogador_id = (int)$_POST['jogador_id'];
+        if (!$jogador_id) {
+            setError('ID do jogador inválido');
+            redirect(APP_URL . '/admin/afiliados.php');
+        }
+
+        try {
+            // Buscar dados do jogador
+            $jogador = dbFetchOne(
+                "SELECT id, nome, afiliado_ativo FROM jogador WHERE id = ? AND codigo_afiliado IS NOT NULL", 
+                [$jogador_id]
+            );
+
+            if (!$jogador) {
+                throw new Exception('Jogador/afiliado não encontrado');
+            }
+
+            // Alternar status
+            $novoStatus = $jogador['afiliado_ativo'] === 'ativo' ? 'inativo' : 'ativo';
+            
+            $success = dbUpdate(
+                'jogador',
+                ['afiliado_ativo' => $novoStatus],
+                'id = ?',
+                [$jogador_id]
+            );
+
+            if ($success) {
+                $statusTexto = $novoStatus === 'ativo' ? 'ativado' : 'desativado';
+                logAdminAction(
+                    'toggle_afiliado_status', 
+                    "Afiliado {$jogador['nome']} {$statusTexto}", 
+                    ['jogador_id' => $jogador_id, 'novo_status' => $novoStatus]
+                );
+                setSuccess("Afiliado {$statusTexto} com sucesso");
+            } else {
+                throw new Exception('Erro ao atualizar status');
+            }
+        } catch (Exception $e) {
+            setError('Erro ao alterar status: ' . $e->getMessage());
+        }
+        break;
+
     case 'pagar_comissao':
         $comissao_id = (int)$_POST['comissao_id'];
         if (!$comissao_id) {
@@ -203,4 +247,4 @@ switch ($action) {
 
 // Redirecionar de volta
 $redirect = $_POST['redirect'] ?? APP_URL . '/admin/afiliados.php';
-redirect($redirect); 
+redirect($redirect);
