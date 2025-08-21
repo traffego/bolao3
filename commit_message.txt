@@ -1,9 +1,9 @@
-debug: Implementado sistema de debug no cadastro real para monitorar processo
+debug: Implementada bolha de debug para monitorar persistência de códigos de afiliação
 
-- Criado debug_cadastro_real.php com logs detalhados de cada etapa
-- Integrado ao cadastro.php para capturar o fluxo real do usuário
-- Debug intercepta: GET/POST, sessão, validação, inserção no banco
-- Função debugDbInsert substitui dbInsert para monitorar dados salvos
-- Logs salvos em debug_cadastro_log.txt para análise posterior
-- Parâmetros: ?debug=1 para exibir na tela, ?show_log=1 para ver log
-- Objetivo: identificar exatamente onde ref_indicacao se perde no processo real
+- Criado debug_bolha.php: bolha visual que exibe códigos em tempo real
+- Monitora: GET[ref], POST[referral_code], SESSION[referral_code], dados do banco
+- Integrado ao header.php para aparecer em todas as páginas
+- Ativação simples: adicionar ?debug=1 em qualquer URL
+- Bolha atualiza automaticamente e mostra status de persistência
+- Objetivo: verificar se códigos de referência se mantêm durante toda a sessão
+- Interface visual com cores para identificar problemas rapidamente

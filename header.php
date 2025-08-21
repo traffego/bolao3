@@ -90,4 +90,16 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 <?php unset($_SESSION['flash']); ?>
-            <?php endif; ?> 
+            <?php endif; ?>
+            
+            <?php 
+            // Ativa bolha de debug com parâmetro ?debug=1 na URL
+            if (isset($_GET['debug']) && $_GET['debug'] == '1') {
+                $_SESSION['debug_mode'] = true;
+            }
+            
+            // Inclui bolha de debug se estiver ativada
+            if (isset($_SESSION['debug_mode']) && $_SESSION['debug_mode'] === true) {
+                include_once 'debug_bolha.php';
+            }
+            ?>
