@@ -3,6 +3,9 @@
  * General utility functions for the application
  */
 
+// Incluir gerenciador de afiliação
+require_once __DIR__ . '/referral_manager.php';
+
 /**
  * Redirect to a specific URL
  * 
@@ -905,4 +908,4 @@ function calcularPrazoLimitePalpites($jogos, $dataLimiteFallback = null) {
     }
     
     return null;
-} 
+}

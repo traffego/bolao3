@@ -1,10 +1,19 @@
-fix: Adicionado captura de parâmetro ?ref= na página bolao.php
+feat: Implementado sistema de persistência global para códigos de afiliação
 
-- Identificado que bolao.php não tinha código de captura do ?ref=
-- Adicionado código consistente com cadastro.php e login.php
-- Captura parâmetro ?ref= da URL e salva na sessão
-- Mantém referral_code disponível para todo o sistema
-- Garante que links de afiliado funcionem em todas as páginas
-- Sistema de afiliação agora funciona uniformemente
-- Debug confirmou que sessão estava mantendo código corretamente
-- Melhora experiência do usuário com links de afiliado
+🚀 **Sistema Completo de Afiliação Persistente:**
+- Criado gerenciador JavaScript (/public/js/referral-manager.js)
+- Implementado endpoint AJAX (/ajax/sync-referral.php)
+- Desenvolvidas funções PHP globais (/includes/referral_manager.php)
+- Integrado sistema em header.php e footer.php
+- Configurada constante DEBUG_REFERRAL no config.php
+
+✅ **Funcionalidades Implementadas:**
+- Captura automática do ?ref= em TODAS as páginas
+- Persistência via localStorage + sessão PHP
+- Aplicação automática do código a links internos
+- Sincronização AJAX entre frontend/backend
+- Interceptação de navegação JavaScript
+- Monitoramento de mudanças no DOM
+- Sistema de debug integrado e automático
+
+🎯 **Resultado:** Código de afiliação mantido durante toda navegação

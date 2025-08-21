@@ -15,6 +15,11 @@ if (!defined('DEBUG_MODE')) {
     define('DEBUG_MODE', true);
 }
 
+// Debug de afiliação
+if (!defined('DEBUG_REFERRAL')) {
+    define('DEBUG_REFERRAL', DEBUG_MODE);
+}
+
 // Logging Configuration
 if (!defined('LOG_LEVEL')) {
     define('LOG_LEVEL', DEBUG_MODE ? 'DEBUG' : 'INFO');

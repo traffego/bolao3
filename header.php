@@ -93,21 +93,8 @@
             <?php endif; ?>
             
             <?php 
-            // DEBUG SIMPLES - Códigos de Afiliação
-            echo '<div style="background: #000; color: #0f0; padding: 10px; margin: 10px 0; font-family: monospace; border: 2px solid #0f0;">';
-            echo '<strong>🔍 DEBUG AFILIAÇÃO:</strong><br>';
-            echo 'GET[ref]: ' . (isset($_GET['ref']) ? htmlspecialchars($_GET['ref']) : 'Não presente') . '<br>';
-            echo 'SESSION[referral_code]: ' . (isset($_SESSION['referral_code']) ? htmlspecialchars($_SESSION['referral_code']) : 'Não definido') . '<br>';
-            if (isset($_SESSION['user_id'])) {
-                require_once 'config/database.php';
-                $stmt = $pdo->prepare("SELECT codigo_afiliado, ref_indicacao FROM jogador WHERE id = ?");
-                $stmt->execute([$_SESSION['user_id']]);
-                $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
-                if ($user_data) {
-                    echo 'DB - Código Afiliado: ' . ($user_data['codigo_afiliado'] ?: 'Vazio') . '<br>';
-                    echo 'DB - Ref Indicação: ' . ($user_data['ref_indicacao'] ?: 'Vazio') . '<br>';
-                }
+            // Debug do sistema de afiliação
+            if (function_exists('debugReferralSystem')) {
+                echo debugReferralSystem();
             }
-            echo 'Página: ' . basename($_SERVER['PHP_SELF']) . ' | Hora: ' . date('H:i:s');
-            echo '</div>';
             ?>
