@@ -1,10 +1,10 @@
-fix: Criado teste de debug para resolver erro 500 no teste_cadastro_real.php
+fix: Simplificado teste_cadastro_real.php após resolver erro 500
 
-- Criado teste_cadastro_simples.php para identificar causa do erro 500
-- Teste incremental com exibição de erros ativada
-- Verifica includes, conexão com banco, funções e consultas separadamente
-- Captura e exibe exceções e erros fatais com stack trace completo
-- Permite identificar exatamente onde o código está falhando
-- Teste seguro que não quebra o sistema em produção
-- Facilita debug de problemas de dependências ou configuração
-- Base para corrigir o teste real após identificar o problema
+- Teste_cadastro_simples.php confirmou que sistema está funcionando
+- Simplificado teste_cadastro_real.php removendo lógica complexa
+- Teste direto de inserção com dados fixos no banco
+- Foco específico na verificação do campo ref_indicacao
+- Removido debug_cadastro_real.php para evitar conflitos
+- Teste mais limpo e direto para identificar problema real
+- Mantém verificação de dados salvos no banco
+- Pronto para teste em produção
