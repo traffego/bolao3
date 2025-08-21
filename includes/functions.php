@@ -675,7 +675,7 @@ function calculateAffiliateCommission($transacaoId) {
         
         $success = dbExecute(
             "INSERT INTO transacoes (conta_id, tipo, valor, status, descricao, referencia, data_solicitacao, data_processamento, afeta_saldo) 
-             VALUES (?, 'comissao', ?, 'aprovado', ?, ?, NOW(), NOW(), 0)",
+             VALUES (?, 'comissao', ?, 'aprovado', ?, ?, NOW(), NOW(), 1)",
             [
                 $contaAfiliado['id'],
                 $valorComissao,
