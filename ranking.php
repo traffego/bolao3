@@ -113,7 +113,7 @@ if ($bolao) {
                         
                         if ($resultadoReal !== null && $palpitesJson['jogos'][$jogo['id']] === $resultadoReal) {
                             $playerStats[$jogadorId]['total_acertos']++;
-                            $playerStats[$jogadorId]['pontos_total'] += 10; // Points for correct guess
+                            $playerStats[$jogadorId]['pontos_total'] += 1; // Nova política: 1 acerto = 1 ponto
                         }
                     }
                 }

@@ -194,7 +194,6 @@ function validarCNPJ($cnpj) {
 $configCategories = [
     'geral' => 'Configurações Gerais',
     'pagamentos' => 'Configurações de Pagamentos',
-    'pontuacao' => 'Sistema de Pontuação',
     'emails' => 'Configurações de E-mails',
     'api' => 'API Football'
 ];
@@ -209,13 +208,7 @@ $configLabels = [
         'max_palpites' => 'Número Máximo de Palpites',
         'maintenance_mode' => 'Modo de Manutenção',
     ],
-    'pontuacao' => [
-        'points_exact' => 'Pontos por Placar Exato',
-        'points_winner' => 'Pontos por Vencedor Correto',
-        'points_goal_difference' => 'Pontos por Diferença de Gols',
-        'points_goals_home' => 'Pontos por Gols do Time da Casa',
-        'points_goals_away' => 'Pontos por Gols do Time Visitante',
-    ],
+
     'emails' => [
         'smtp_host' => 'Servidor SMTP',
         'smtp_port' => 'Porta SMTP',
@@ -1472,4 +1465,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include '../templates/admin/footer.php'; ?> 
+<?php include '../templates/admin/footer.php'; ?>

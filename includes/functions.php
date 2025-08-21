@@ -425,31 +425,26 @@ function apiFootballRequest($endpoint, $params = []) {
 
 /**
  * Calculate points based on prediction and result
+ * Nova política: 1 acerto = 1 ponto (sempre)
  * 
  * @param int $predictedHome Predicted home score
  * @param int $predictedAway Predicted away score
  * @param int $actualHome Actual home score
  * @param int $actualAway Actual away score
- * @return int Points earned
+ * @return int Points earned (1 for correct prediction, 0 for incorrect)
  */
 function calculatePoints($predictedHome, $predictedAway, $actualHome, $actualAway) {
-    $scoring = getConfig('pontuacao', [
-        'resultado_exato' => 5,
-        'vencedor_correto' => 2,
-        'empate_correto' => 2
-    ]);
-    
-    // Exact result
+    // Exact result - 1 point
     if ($predictedHome == $actualHome && $predictedAway == $actualAway) {
-        return $scoring['resultado_exato'];
+        return 1;
     }
     
-    // Correct winner or draw
+    // Correct winner or draw - 1 point
     $predictedResult = $predictedHome <=> $predictedAway; // -1: home win, 0: draw, 1: away win
     $actualResult = $actualHome <=> $actualAway;
     
     if ($predictedResult == $actualResult) {
-        return $predictedResult == 0 ? $scoring['empate_correto'] : $scoring['vencedor_correto'];
+        return 1;
     }
     
     return 0;
