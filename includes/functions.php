@@ -251,6 +251,26 @@ function getFlashMessage() {
 }
 
 /**
+ * Set success flash message
+ * 
+ * @param string $message Success message to display
+ * @return void
+ */
+function setSuccess($message) {
+    setFlashMessage('success', $message);
+}
+
+/**
+ * Set error flash message
+ * 
+ * @param string $message Error message to display
+ * @return void
+ */
+function setError($message) {
+    setFlashMessage('danger', $message);
+}
+
+/**
  * Get flash message type
  * 
  * @return string Message type or empty string if none
