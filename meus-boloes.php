@@ -22,7 +22,7 @@ $boloes = dbFetchAll("SELECT
                             AND p_rank.pontos > p.pontos
                         ) as posicao,
                         a.nome as admin_nome
-                     FROM boloes b
+                     FROM dados_boloes b
                      JOIN palpites p ON p.bolao_id = b.id AND p.jogador_id = ?
                      LEFT JOIN palpites p2 ON p2.bolao_id = b.id
                      JOIN administrador a ON a.id = b.admin_id
@@ -100,4 +100,4 @@ include TEMPLATE_DIR . '/header.php';
     <?php endif; ?>
 </div>
 
-<?php include TEMPLATE_DIR . '/footer.php'; ?> 
+<?php include TEMPLATE_DIR . '/footer.php'; ?>
