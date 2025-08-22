@@ -121,7 +121,8 @@ if ($bolao) {
         }
     }
     
-    // Filter players with at least one hit and calculate total games
+    // Calculate total games in bolão and finalized games
+    $totalJogosBolao = count($jogosJson);
     $totalJogosFinalizados = 0;
     foreach ($jogosJson as $jogo) {
         if ($jogo['status'] === 'FT') {
@@ -129,9 +130,9 @@ if ($bolao) {
         }
     }
     
-    // Add perfect score flag to player stats
+    // Add perfect score flag to player stats (acertou TODOS os jogos do bolão)
     foreach ($playerStats as $jogadorId => $stats) {
-        $playerStats[$jogadorId]['acertou_todos'] = ($totalJogosFinalizados > 0 && $stats['total_acertos'] === $totalJogosFinalizados);
+        $playerStats[$jogadorId]['acertou_todos'] = ($totalJogosBolao > 0 && $stats['total_acertos'] === $totalJogosBolao);
     }
     
     // Filter only players with at least one hit
