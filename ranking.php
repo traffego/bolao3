@@ -278,46 +278,36 @@ include 'templates/header.php';
     justify-content: center;
 }
 
-.ranking-tab {
+.ranking-section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
     background: rgba(255,255,255,0.1);
-    color: #ffffff;
-    border: 2px solid rgba(176,213,36,0.3);
     border-radius: 15px;
-    padding: 1rem 1.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    text-decoration: none;
+    border: 2px solid rgba(176,213,36,0.3);
+}
+
+.ranking-section-title {
+    color: #b0d524;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin: 0 0.5rem;
-    min-width: 200px;
+    justify-content: center;
+    gap: 0.75rem;
 }
 
-.ranking-tab:hover {
-    background: rgba(176,213,36,0.2);
-    border-color: #b0d524;
-    transform: translateY(-2px);
-    text-decoration: none;
-    color: #ffffff;
+.ranking-section-title i {
+    font-size: 1.5rem;
+    color: #b0d524;
 }
 
-.ranking-tab.active {
-    background: linear-gradient(135deg, #b0d524 0%, #91b01f 100%);
-    color: #091848;
-    border-color: #b0d524;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(176,213,36,0.3);
-}
-
-.ranking-tab i {
-    font-size: 1.2rem;
-    min-width: 20px;
-}
-
-.tab-info {
-    flex: 1;
+.ranking-section-description {
+    color: rgba(255,255,255,0.8);
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 400;
     text-align: left;
 }
 
@@ -673,29 +663,12 @@ include 'templates/header.php';
 
 
         <?php if ($bolao && !empty($rankingPontos)): ?>
-            <!-- Ranking tabs -->
-            <div class="ranking-tabs">
-                <a href="#" class="ranking-tab active" data-tab="pontos">
-                    <i class="fas fa-star"></i> 
-                    <div class="tab-info">
-                        <div class="tab-title">Classificação Geral</div>
-                        <div class="tab-description">Ranking por pontos totais conquistados</div>
-                    </div>
-                </a>
-                <a href="#" class="ranking-tab" data-tab="apostas">
-                    <i class="fas fa-dice"></i> 
-                    <div class="tab-info">
-                        <div class="tab-title">Mais Participativos</div>
-                        <div class="tab-description">Quem mais fez apostas no bolão</div>
-                    </div>
-                </a>
-                <a href="#" class="ranking-tab" data-tab="acertos">
-                    <i class="fas fa-bullseye"></i> 
-                    <div class="tab-info">
-                        <div class="tab-title">Melhores Palpiteiros</div>
-                        <div class="tab-description">Ranking por número de acertos</div>
-                    </div>
-                </a>
+            <!-- Título da seção -->
+            <div class="ranking-section-header">
+                <h3 class="ranking-section-title">
+                    <i class="fas fa-star"></i> Classificação Geral
+                </h3>
+                <p class="ranking-section-description">Ranking por pontos totais conquistados</p>
             </div>
 
             <!-- Pontos Tab -->
@@ -766,142 +739,7 @@ include 'templates/header.php';
                 </div>
             </div>
 
-            <!-- Apostas Tab -->
-            <div id="apostas-tab" class="tab-content">
-                <?php if (count($rankingApostas) >= 3): ?>
-                    <!-- Podium -->
-                    <div class="podium-container">
-                        <?php for ($i = 0; $i < 3 && $i < count($rankingApostas); $i++): 
-                            $player = $rankingApostas[$i];
-                            $classes = ['first', 'second', 'third'];
-                            $positions = ['🥇', '🥈', '🥉'];
-                        ?>
-                            <div class="podium-place <?= $classes[$i] ?>">
-                                <div class="podium-position"><?= $positions[$i] ?></div>
-                                <div class="podium-avatar" style="background-color: <?= $player['avatar']['color'] ?>">
-                                    <?= $player['avatar']['initials'] ?>
-                                </div>
-                                <div class="podium-name"><?= htmlspecialchars($player['nome']) ?></div>
-                                <div class="podium-stats">
-                                    <?= $player['total_palpites'] ?> apostas<br>
-                                    <?= $player['total_acertos'] ?> acertos
-                                </div>
-                            </div>
-                        <?php endfor; ?>
-                    </div>
-                <?php endif; ?>
 
-                <!-- Full ranking list -->
-                <div class="ranking-list">
-                    <?php foreach ($rankingApostas as $index => $player): ?>
-                        <?php 
-                            $itemClasses = 'ranking-item';
-                            if ($index === 0) {
-                                $itemClasses .= ' first-place';
-                            }
-                            if ($player['acertou_todos']) {
-                                $itemClasses .= ' perfect-score';
-                            }
-                        ?>
-                        <div class="<?= $itemClasses ?>">
-                            <div class="ranking-position"><?= $index + 1 ?>º</div>
-                            <div class="ranking-avatar" style="background-color: <?= $player['avatar']['color'] ?>">
-                                <?= $player['avatar']['initials'] ?>
-                            </div>
-                            <div class="ranking-info">
-                                <div class="ranking-name">
-                                    <?= htmlspecialchars($player['nome']) ?>
-                                    <?php if ($index === 0 && $bolao['premio_total'] > 0): ?>
-                                        <span class="prize-display">Prêmio: <?= formatMoney($bolao['premio_total']) ?></span>
-                                    <?php endif; ?>
-                                    <?php if ($player['acertou_todos'] && $bolao['premio_rodada'] > 0): ?>
-                                        <span class="prize-display perfect">Prêmio Perfeito: <?= formatMoney($bolao['premio_rodada']) ?></span>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="ranking-stats">
-                                    <?= $player['total_acertos'] ?> acertos • <?= number_format($player['pontos_total']) ?> pontos
-                                    <?php if ($player['jogos_finalizados'] > 0): ?>
-                                        • <?= number_format(($player['total_acertos'] / $player['jogos_finalizados']) * 100, 1) ?>% aproveitamento
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <div class="ranking-score">
-                                <span class="ranking-score-value"><?= $player['total_palpites'] ?></span>
-                                <span class="ranking-score-label">apostas</span>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-
-            <!-- Acertos Tab -->
-            <div id="acertos-tab" class="tab-content">
-                <?php if (count($rankingAcertos) >= 3): ?>
-                    <!-- Podium -->
-                    <div class="podium-container">
-                        <?php for ($i = 0; $i < 3 && $i < count($rankingAcertos); $i++): 
-                            $player = $rankingAcertos[$i];
-                            $classes = ['first', 'second', 'third'];
-                            $positions = ['🥇', '🥈', '🥉'];
-                            $percentage = $player['jogos_finalizados'] > 0 ? ($player['total_acertos'] / $player['jogos_finalizados']) * 100 : 0;
-                        ?>
-                            <div class="podium-place <?= $classes[$i] ?>">
-                                <div class="podium-position"><?= $positions[$i] ?></div>
-                                <div class="podium-avatar" style="background-color: <?= $player['avatar']['color'] ?>">
-                                    <?= $player['avatar']['initials'] ?>
-                                </div>
-                                <div class="podium-name"><?= htmlspecialchars($player['nome']) ?></div>
-                                <div class="podium-stats">
-                                    <?= number_format($percentage, 1) ?>% acertos<br>
-                                    <?= $player['total_acertos'] ?>/<?= $player['jogos_finalizados'] ?> jogos
-                                </div>
-                            </div>
-                        <?php endfor; ?>
-                    </div>
-                <?php endif; ?>
-
-                <!-- Full ranking list -->
-                <div class="ranking-list">
-                    <?php foreach ($rankingAcertos as $index => $player): 
-                        $percentage = $player['jogos_finalizados'] > 0 ? ($player['total_acertos'] / $player['jogos_finalizados']) * 100 : 0;
-                    ?>
-                        <?php 
-                            $itemClasses = 'ranking-item';
-                            if ($index === 0) {
-                                $itemClasses .= ' first-place';
-                            }
-                            if ($player['acertou_todos']) {
-                                $itemClasses .= ' perfect-score';
-                            }
-                        ?>
-                        <div class="<?= $itemClasses ?>">
-                            <div class="ranking-position"><?= $index + 1 ?>º</div>
-                            <div class="ranking-avatar" style="background-color: <?= $player['avatar']['color'] ?>">
-                                <?= $player['avatar']['initials'] ?>
-                            </div>
-                            <div class="ranking-info">
-                                <div class="ranking-name">
-                                    <?= htmlspecialchars($player['nome']) ?>
-                                    <?php if ($index === 0 && $bolao['premio_total'] > 0): ?>
-                                        <span class="prize-display">Prêmio: <?= formatMoney($bolao['premio_total']) ?></span>
-                                    <?php endif; ?>
-                                    <?php if ($player['acertou_todos'] && $bolao['premio_rodada'] > 0): ?>
-                                        <span class="prize-display perfect">Prêmio Perfeito: <?= formatMoney($bolao['premio_rodada']) ?></span>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="ranking-stats">
-                                    <?= $player['total_acertos'] ?> acertos em <?= $player['jogos_finalizados'] ?> jogos
-                                    • <?= $player['total_palpites'] ?> apostas • <?= number_format($player['pontos_total']) ?> pontos
-                                </div>
-                            </div>
-                            <div class="ranking-score">
-                                <span class="ranking-score-value"><?= number_format($percentage, 1) ?>%</span>
-                                <span class="ranking-score-label">acertos</span>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
 
         <?php elseif ($bolao): ?>
             <div class="empty-state">
@@ -920,31 +758,8 @@ include 'templates/header.php';
 </div>
 
 <script>
-// Tab switching functionality
+// Ranking animations
 document.addEventListener('DOMContentLoaded', function() {
-    const tabs = document.querySelectorAll('.ranking-tab');
-    const contents = document.querySelectorAll('.tab-content');
-    
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Remove active class from all tabs and contents
-            tabs.forEach(t => t.classList.remove('active'));
-            contents.forEach(c => c.classList.remove('active'));
-            
-            // Add active class to clicked tab
-            this.classList.add('active');
-            
-            // Show corresponding content
-            const tabName = this.getAttribute('data-tab');
-            const content = document.getElementById(tabName + '-tab');
-            if (content) {
-                content.classList.add('active');
-            }
-        });
-    });
-    
     // Add smooth scrolling and animations
     const rankingItems = document.querySelectorAll('.ranking-item');
     const observer = new IntersectionObserver((entries) => {
