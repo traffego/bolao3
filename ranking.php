@@ -10,8 +10,40 @@ require_once 'includes/functions.php';
 $bolaoId = filter_input(INPUT_GET, 'bolao_id', FILTER_VALIDATE_INT);
 
 if (!$bolaoId) {
-    // Get the most recent bolão automatically
-    $bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE status = 1 ORDER BY data_inicio DESC LIMIT 1");
+    // Get bolões with palpites pagos, ordered by most recent
+    $boloesComPalpites = dbFetchAll("
+        SELECT DISTINCT b.* 
+        FROM dados_boloes b
+        INNER JOIN palpites p ON b.id = p.bolao_id 
+        WHERE b.status = 1 AND p.status = 'pago'
+        ORDER BY b.data_inicio DESC
+    ");
+    
+    $bolao = null;
+    
+    // Find the most recent bolão with acertos
+    foreach ($boloesComPalpites as $bolaoCandidate) {
+        $jogosJson = json_decode($bolaoCandidate['jogos'], true) ?? [];
+        $temJogosFinalizados = false;
+        
+        foreach ($jogosJson as $jogo) {
+            if ($jogo['status'] === 'FT') {
+                $temJogosFinalizados = true;
+                break;
+            }
+        }
+        
+        if ($temJogosFinalizados) {
+            $bolao = $bolaoCandidate;
+            break;
+        }
+    }
+    
+    // Fallback to most recent if no bolão with jogos finalizados found
+    if (!$bolao) {
+        $bolao = dbFetchOne("SELECT * FROM dados_boloes WHERE status = 1 ORDER BY data_inicio DESC LIMIT 1");
+    }
+    
     $bolaoId = $bolao ? $bolao['id'] : 0;
 } else {
     // Get specific bolão
@@ -183,7 +215,7 @@ include 'templates/header.php';
 <style>
 /* Mobile-first CSS */
 .ranking-container {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #022748 0%, #034a6b 50%, #022748 100%);
     min-height: 100vh;
     padding: 1rem 0;
 }
@@ -214,26 +246,26 @@ include 'templates/header.php';
 }
 
 .bolao-selector .form-select {
-    background: rgba(255,255,255,0.9);
-    border: 2px solid rgba(255,255,255,0.3);
+    background: #ffffff;
+    border: 2px solid #b0d524;
     border-radius: 15px;
     padding: 0.75rem 1rem;
     font-weight: 500;
-    color: #333;
+    color: #091848;
     font-size: 1rem;
     transition: all 0.3s ease;
 }
 
 .bolao-selector .form-select:focus {
-    background: rgba(255,255,255,1);
-    border-color: rgba(255,255,255,0.8);
-    box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.25);
+    background: #ffffff;
+    border-color: #b0d524;
+    box-shadow: 0 0 0 0.2rem rgba(176,213,36,0.25);
     outline: 0;
 }
 
 .bolao-selector .form-select option {
-    color: #333;
-    background: white;
+    color: #091848;
+    background: #ffffff;
 }
 
 
@@ -247,24 +279,58 @@ include 'templates/header.php';
 }
 
 .ranking-tab {
-    background: rgba(255,255,255,0.2);
-    color: white;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-radius: 25px;
-    padding: 0.75rem 1.5rem;
+    background: rgba(255,255,255,0.1);
+    color: #ffffff;
+    border: 2px solid rgba(176,213,36,0.3);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
     font-weight: 600;
     transition: all 0.3s ease;
     cursor: pointer;
     text-decoration: none;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0.5rem;
+    min-width: 200px;
+}
+
+.ranking-tab:hover {
+    background: rgba(176,213,36,0.2);
+    border-color: #b0d524;
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: #ffffff;
 }
 
 .ranking-tab.active {
-    background: white;
-    color: #667eea;
-    border-color: white;
+    background: linear-gradient(135deg, #b0d524 0%, #91b01f 100%);
+    color: #091848;
+    border-color: #b0d524;
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 15px rgba(176,213,36,0.3);
+}
+
+.ranking-tab i {
+    font-size: 1.2rem;
+    min-width: 20px;
+}
+
+.tab-info {
+    flex: 1;
+    text-align: left;
+}
+
+.tab-title {
+    font-weight: bold;
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+}
+
+.tab-description {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    line-height: 1.2;
 }
 
 /* Destaque para primeiro colocado */
@@ -449,9 +515,9 @@ include 'templates/header.php';
 }
 
 .ranking-position {
-    font-size: 1.2rem;
     font-weight: bold;
-    color: #667eea;
+    font-size: 1.1rem;
+    color: #b0d524;
     min-width: 40px;
     text-align: center;
 }
@@ -476,18 +542,19 @@ include 'templates/header.php';
 .ranking-name {
     font-weight: 600;
     margin-bottom: 0.25rem;
-    color: #333;
+    color: #091848;
 }
 
 .ranking-stats {
     font-size: 0.85rem;
-    color: #666;
+    color: #091848;
+    opacity: 0.7;
 }
 
 .ranking-score {
     text-align: right;
     font-weight: bold;
-    color: #667eea;
+    color: #b0d524;
 }
 
 .ranking-score-value {
@@ -609,13 +676,25 @@ include 'templates/header.php';
             <!-- Ranking tabs -->
             <div class="ranking-tabs">
                 <a href="#" class="ranking-tab active" data-tab="pontos">
-                    <i class="fas fa-star"></i> Mais Pontos
+                    <i class="fas fa-star"></i> 
+                    <div class="tab-info">
+                        <div class="tab-title">Classificação Geral</div>
+                        <div class="tab-description">Ranking por pontos totais conquistados</div>
+                    </div>
                 </a>
                 <a href="#" class="ranking-tab" data-tab="apostas">
-                    <i class="fas fa-dice"></i> Mais Apostaram
+                    <i class="fas fa-dice"></i> 
+                    <div class="tab-info">
+                        <div class="tab-title">Mais Participativos</div>
+                        <div class="tab-description">Quem mais fez apostas no bolão</div>
+                    </div>
                 </a>
                 <a href="#" class="ranking-tab" data-tab="acertos">
-                    <i class="fas fa-bullseye"></i> Mais Acertaram
+                    <i class="fas fa-bullseye"></i> 
+                    <div class="tab-info">
+                        <div class="tab-title">Melhores Palpiteiros</div>
+                        <div class="tab-description">Ranking por número de acertos</div>
+                    </div>
                 </a>
             </div>
 
