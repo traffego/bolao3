@@ -156,12 +156,12 @@ include 'templates/header.php';
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span><i class="fas fa-arrow-circle-down text-success"></i> Total Depositado</span>
                                 <div class="text-end">
-                                    <span class="text-success">R$ <?= number_format($totais['total_depositos'], 2, ',', '.') ?></span>
-                                    <?php if ($totais['depositos_pendentes'] > 0): ?>
+                                    <span class="text-success">R$ <?= number_format($totais['total_depositos'] ?? 0, 2, ',', '.') ?></span>
+                                    <?php if (($totais['depositos_pendentes'] ?? 0) > 0): ?>
                                         <br>
                                         <small class="text-warning">
                                             <i class="fas fa-clock"></i>
-                                            Pendente: R$ <?= number_format($totais['depositos_pendentes'], 2, ',', '.') ?>
+                                            Pendente: R$ <?= number_format($totais['depositos_pendentes'] ?? 0, 2, ',', '.') ?>
                                         </small>
                                     <?php endif; ?>
                                 </div>
@@ -169,28 +169,28 @@ include 'templates/header.php';
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span><i class="fas fa-arrow-circle-up text-danger"></i> Total Sacado</span>
                                 <div class="text-end">
-                                    <span class="text-danger">R$ <?= number_format($totais['total_saques'], 2, ',', '.') ?></span>
-                                    <?php if ($totais['saques_pendentes'] > 0): ?>
+                                    <span class="text-danger">R$ <?= number_format($totais['total_saques'] ?? 0, 2, ',', '.') ?></span>
+                                    <?php if (($totais['saques_pendentes'] ?? 0) > 0): ?>
                                         <br>
                                         <small class="text-warning">
                                             <i class="fas fa-clock"></i>
-                                            Pendente: R$ <?= number_format($totais['saques_pendentes'], 2, ',', '.') ?>
+                                            Pendente: R$ <?= number_format($totais['saques_pendentes'] ?? 0, 2, ',', '.') ?>
                                         </small>
                                     <?php endif; ?>
                                 </div>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span><i class="fas fa-ticket-alt text-warning"></i> Total em Apostas</span>
-                                <span class="text-warning">R$ <?= number_format($totais['total_apostas'], 2, ',', '.') ?></span>
+                                <span class="text-warning">R$ <?= number_format($totais['total_apostas'] ?? 0, 2, ',', '.') ?></span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span><i class="fas fa-trophy text-primary"></i> Total em Prêmios</span>
-                                <span class="text-primary">R$ <?= number_format($totais['total_premios'], 2, ',', '.') ?></span>
+                                <span class="text-primary">R$ <?= number_format($totais['total_premios'] ?? 0, 2, ',', '.') ?></span>
                             </div>
-                            <?php if ($totais['total_bonus'] > 0): ?>
+                            <?php if (($totais['total_bonus'] ?? 0) > 0): ?>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span><i class="fas fa-gift text-info"></i> Total em Bônus</span>
-                                <span class="text-info">R$ <?= number_format($totais['total_bonus'], 2, ',', '.') ?></span>
+                                <span class="text-info">R$ <?= number_format($totais['total_bonus'] ?? 0, 2, ',', '.') ?></span>
                             </div>
                             <?php endif; ?>
                         </div>
