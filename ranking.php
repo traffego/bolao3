@@ -294,23 +294,31 @@ include 'templates/header.php';
 
 /* Destaque para primeiro colocado */
 .ranking-item.first-place {
-    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-    border: 3px solid #FFD700;
-    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+    background: linear-gradient(135deg, #1a4d3a 0%, #0d2818 100%);
+    border: 3px solid #2d5a3d;
+    box-shadow: 0 8px 25px rgba(26, 77, 58, 0.4);
     transform: scale(1.02);
     margin-bottom: 1rem;
 }
 
 .ranking-item.first-place .ranking-name {
     font-weight: bold;
-    color: #8B4513;
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
 .ranking-item.first-place .ranking-score-value {
-    color: #8B4513;
+    color: #b0d524;
     font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.ranking-item.first-place .ranking-stats {
+    color: rgba(255,255,255,0.8);
+}
+
+.ranking-item.first-place .ranking-position {
+    color: #b0d524;
 }
 
 /* Destaque especial para quem acertou 100% */
