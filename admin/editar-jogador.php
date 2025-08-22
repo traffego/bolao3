@@ -18,8 +18,25 @@ if (!$jogador_id) {
     redirect(APP_URL . '/admin/jogadores.php');
 }
 
-// Buscar dados do jogador
-$jogador = dbFetchOne("SELECT * FROM jogador WHERE id = ?", [$jogador_id]);
+// Buscar dados do jogador com saldo
+$jogador = dbFetchOne("
+    SELECT 
+        j.*,
+        COALESCE((
+            SELECT SUM(
+                CASE 
+                    WHEN t.tipo IN ('deposito', 'premio', 'bonus') AND t.status = 'aprovado' THEN t.valor
+                    WHEN t.tipo IN ('saque', 'aposta') AND t.status IN ('aprovado', 'pendente') THEN -t.valor
+                    ELSE 0
+                END
+            )
+            FROM transacoes t 
+            INNER JOIN contas c ON t.conta_id = c.id 
+            WHERE c.jogador_id = j.id
+        ), 0) as saldo
+    FROM jogador j 
+    WHERE j.id = ?
+", [$jogador_id]);
 if (!$jogador) {
     $_SESSION['error'] = 'Jogador não encontrado.';
     redirect(APP_URL . '/admin/jogadores.php');
