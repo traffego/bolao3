@@ -215,14 +215,13 @@ include 'templates/header.php';
 <style>
 /* Mobile-first CSS */
 .ranking-container {
-    background: linear-gradient(135deg, #022748 0%, #034a6b 50%, #022748 100%);
     min-height: 100vh;
     padding: 1rem 0;
 }
 
 .ranking-header {
     text-align: center;
-    color: white;
+    color: #091848;
     margin-bottom: 2rem;
 }
 
@@ -230,11 +229,12 @@ include 'templates/header.php';
     font-size: 2rem;
     font-weight: bold;
     margin-bottom: 0.5rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    color: #091848;
 }
 
 .ranking-subtitle {
     font-size: 1.1rem;
+    color: #666666;
     opacity: 0.9;
 }
 
@@ -538,7 +538,7 @@ include 'templates/header.php';
 .empty-state {
     text-align: center;
     padding: 3rem 1rem;
-    color: white;
+    color: #091848;
 }
 
 .empty-state i {
