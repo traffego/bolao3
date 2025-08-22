@@ -278,38 +278,7 @@ include 'templates/header.php';
     justify-content: center;
 }
 
-.ranking-section-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background: rgba(255,255,255,0.1);
-    border-radius: 15px;
-    border: 2px solid rgba(176,213,36,0.3);
-}
 
-.ranking-section-title {
-    color: #b0d524;
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-}
-
-.ranking-section-title i {
-    font-size: 1.5rem;
-    color: #b0d524;
-}
-
-.ranking-section-description {
-    color: rgba(255,255,255,0.8);
-    font-size: 1rem;
-    margin: 0;
-    font-weight: 400;
-    text-align: left;
-}
 
 .tab-title {
     font-weight: bold;
@@ -663,13 +632,7 @@ include 'templates/header.php';
 
 
         <?php if ($bolao && !empty($rankingPontos)): ?>
-            <!-- Título da seção -->
-            <div class="ranking-section-header">
-                <h3 class="ranking-section-title">
-                    <i class="fas fa-star"></i> Classificação Geral
-                </h3>
-                <p class="ranking-section-description">Ranking por pontos totais conquistados</p>
-            </div>
+
 
             <!-- Pontos Tab -->
             <div id="pontos-tab" class="tab-content active">
