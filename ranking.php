@@ -243,6 +243,21 @@ include 'templates/header.php';
     max-width: 500px;
     margin-left: auto;
     margin-right: auto;
+    text-align: center;
+}
+
+.bolao-selector-label {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #091848;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+.bolao-selector-label i {
+    color: #b0d524;
+    margin-right: 0.5rem;
 }
 
 .bolao-selector .form-select {
@@ -254,6 +269,13 @@ include 'templates/header.php';
     color: #091848;
     font-size: 1rem;
     transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.bolao-selector .form-select:hover {
+    border-color: #91a82a;
+    box-shadow: 0 4px 12px rgba(176,213,36,0.15);
+    transform: translateY(-1px);
 }
 
 .bolao-selector .form-select:focus {
@@ -266,6 +288,7 @@ include 'templates/header.php';
 .bolao-selector .form-select option {
     color: #091848;
     background: #ffffff;
+    padding: 0.5rem;
 }
 
 
@@ -624,11 +647,14 @@ include 'templates/header.php';
             <!-- Seletor de Bolão -->
             <?php if (!empty($todosBoloes)): ?>
                 <div class="bolao-selector">
+                    <label for="bolaoSelect" class="bolao-selector-label">
+                        <i class="fas fa-trophy"></i> Escolha o Bolão para Ver o Ranking
+                    </label>
                     <select id="bolaoSelect" class="form-select" onchange="window.location.href='<?= APP_URL ?>/ranking.php?bolao_id=' + this.value">
-                        <option value="">Selecione um bolão</option>
+                        <option value="">📋 Selecione um bolão da lista</option>
                         <?php foreach ($todosBoloes as $bolaoOption): ?>
                             <option value="<?= $bolaoOption['id'] ?>" <?= $bolaoOption['id'] == $bolaoId ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($bolaoOption['nome']) ?>
+                                🏆 <?= htmlspecialchars($bolaoOption['nome']) ?>
                                 (<?= date('d/m/Y', strtotime($bolaoOption['data_inicio'])) ?> - <?= date('d/m/Y', strtotime($bolaoOption['data_fim'])) ?>)
                             </option>
                         <?php endforeach; ?>
